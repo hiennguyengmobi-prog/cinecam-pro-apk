@@ -1268,83 +1268,87 @@
         }
 
         // ==================== LƯU VÀO GALLERY ANDROID (CAPACITOR) + TẢI VỀ MÁY ====================
-        // ==================== LƯU VÀO GALLERY ANDROID + TẢI VỀ MÁY ====================
         async function saveToDeviceAndGallery(blob, filename, type = 'photo') {
             const url = URL.createObjectURL(blob);
             downloadUrl(url, filename);
 
+            const isVideo = type === 'video';
+            const mimeType = blob.type || (isVideo ? 'video/webm' : 'image/jpeg');
+
+            const base64DataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(String(reader.result || ''));
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+
+            const rawBase64 = base64DataUrl.includes(',')
+                ? base64DataUrl.split(',')[1]
+                : base64DataUrl;
+
+            // 1. Ưu tiên lưu trực tiếp vào MediaStore của Android qua MainActivity JavascriptInterface
+            if (window.AndroidMediaSaver && typeof window.AndroidMediaSaver.saveBase64Media === 'function') {
+                try {
+                    const ok = window.AndroidMediaSaver.saveBase64Media(
+                        rawBase64,
+                        filename,
+                        mimeType,
+                        isVideo
+                    );
+                    if (ok) {
+                        showToast(isVideo ? 'Đã lưu video vào Thư viện máy!' : 'Đã lưu ảnh vào Thư viện máy!');
+                        return url;
+                    }
+                    showToast('Không ghi được vào Thư viện (kiểm tra quyền bộ nhớ)');
+                } catch (err) {
+                    showToast('Lỗi lưu native: ' + (err && err.message ? err.message : err));
+                }
+            }
+
+            // 2. Fallback qua Capacitor Filesystem + Media nếu có cài plugin
             const cap = window.Capacitor;
             const plugins = (cap && cap.Plugins) || {};
             const fsPlugin = plugins.Filesystem;
             const mediaPlugin = plugins.Media;
 
-            const base64Data = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const res = String(reader.result || '');
-                    resolve(res.includes(',') ? res.split(',')[1] : res);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-
-            // 1. Ghi file ra bộ nhớ thiết bị qua Capacitor Filesystem & lưu vào Media/Gallery
             if (fsPlugin && typeof fsPlugin.writeFile === 'function') {
-                const subDir = type === 'video' ? 'Movies/CineCam Pro' : 'Pictures/CineCam Pro';
-                const filePath = `${subDir}/${filename}`;
                 let savedUri = '';
-
                 try {
-                    const written = await fsPlugin.writeFile({
-                        path: filePath,
-                        data: base64Data,
-                        directory: 'EXTERNAL_STORAGE',
+                    const writtenCache = await fsPlugin.writeFile({
+                        path: filename,
+                        data: rawBase64,
+                        directory: 'CACHE',
                         recursive: true
                     });
-                    savedUri = written && written.uri ? written.uri : '';
-                } catch {
-                    try {
-                        const writtenCache = await fsPlugin.writeFile({
-                            path: filename,
-                            data: base64Data,
-                            directory: 'CACHE',
-                            recursive: true
-                        });
-                        savedUri = writtenCache && writtenCache.uri ? writtenCache.uri : '';
-                    } catch {}
+                    savedUri = writtenCache && writtenCache.uri ? writtenCache.uri : '';
+                } catch (err) {
+                    showToast('Lỗi ghi file tạm: ' + (err && err.message ? err.message : err));
                 }
 
                 if (mediaPlugin && savedUri) {
                     try {
-                        if (type === 'photo' && typeof mediaPlugin.savePhoto === 'function') {
+                        if (!isVideo && typeof mediaPlugin.savePhoto === 'function') {
                             await mediaPlugin.savePhoto({ path: savedUri, album: 'CineCam Pro' });
                             showToast('Đã lưu ảnh vào Thư viện máy!');
                             return url;
                         }
-                        if (type === 'video' && typeof mediaPlugin.saveVideo === 'function') {
+                        if (isVideo && typeof mediaPlugin.saveVideo === 'function') {
                             await mediaPlugin.saveVideo({ path: savedUri, album: 'CineCam Pro' });
                             showToast('Đã lưu video vào Thư viện máy!');
                             return url;
                         }
                     } catch (err) {
-                        showToast('Đã ghi file, thử bấm Tải hoặc Chia sẻ để lưu vào Thư viện');
+                        showToast('Lỗi lưu Media plugin: ' + (err && err.message ? err.message : err));
                     }
-                } else if (savedUri) {
-                    showToast(`Đã lưu vào bộ nhớ: ${filePath}`);
-                    return url;
                 }
             }
 
-            // 2. Fallback Web Share File cho Android WebView nếu có
+            // 3. Lưu file tham chiếu cho nút Chia sẻ nếu WebView chặn tải blob
             try {
-                const fileObj = new File([blob], filename, { type: blob.type || (type === 'video' ? 'video/webm' : 'image/jpeg') });
-                if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
-                    // Không tự bật share làm phiền khi chụp liên tục, chỉ dùng khi bấm Lưu/Xuất nếu cần
-                    state.lastShareFile = fileObj;
-                }
+                state.lastShareFile = new File([blob], filename, { type: mimeType });
             } catch {}
 
-            showToast('Đã xuất file (kiểm tra mục Tải xuống / Thư viện)');
+            showToast('Đã tạo file (nếu chưa thấy trong Thư viện, hãy thêm AndroidMediaSaver vào MainActivity)');
             return url;
         }
 
