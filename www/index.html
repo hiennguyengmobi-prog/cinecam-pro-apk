@@ -62,8 +62,8 @@
         }
 
         #glCanvas {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
             display: block;
         }
@@ -226,6 +226,29 @@
             flex-shrink: 0;
         }
 
+        /* Bố cục ngang (Landscape) gọn chiều cao để khung hình vẫn thoáng */
+        @media (orientation: landscape) and (max-height: 520px) {
+            .app-shell {
+                flex-direction: row;
+            }
+            .bottom-dock {
+                width: 280px;
+                height: 100dvh;
+                border-top: none;
+                border-left: 1px solid var(--border);
+                justify-content: space-between;
+                padding: 8px 10px;
+                gap: 6px;
+            }
+            .popup-sheet {
+                left: auto;
+                right: calc(100% + 8px);
+                bottom: 8px;
+                width: 320px;
+                max-height: calc(100dvh - 16px);
+            }
+        }
+
         .wb-quick-bar {
             display: flex;
             align-items: center;
@@ -235,7 +258,7 @@
         .wb-readout {
             font-size: 10px;
             color: var(--amber);
-            min-width: 74px;
+            min-width: 66px;
             text-align: left;
             line-height: 1.2;
         }
@@ -244,17 +267,17 @@
             flex: 1;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
         }
 
         .mini-slider-box {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 3px 8px;
+            padding: 2px 7px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .mini-slider-box span {
@@ -330,7 +353,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             padding-top: 2px;
         }
 
@@ -509,6 +532,31 @@
             margin-bottom: 2px;
         }
 
+        .ratio-group {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .ratio-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 7px;
+            padding: 6px 2px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .ratio-btn.active {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: rgba(255, 149, 0, 0.14);
+        }
+
         .lut-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -568,7 +616,7 @@
             background: rgba(0, 210, 255, 0.14);
         }
 
-        .ref-item canvas, .ref-item img {
+        .ref-item img {
             width: 100%;
             height: 42px;
             object-fit: cover;
@@ -603,11 +651,6 @@
             align-items: center;
             gap: 6px;
             cursor: pointer;
-        }
-
-        .preset-tag.active {
-            border-color: var(--amber);
-            color: var(--amber);
         }
 
         .btn-sm {
@@ -738,9 +781,9 @@
                 <div class="hud-pill mono">
                     <span id="modeBadge" style="color: var(--amber); font-weight: 700;">CAM</span>
                     <span>|</span>
-                    <span id="resBadge">1280×720</span>
+                    <span id="ratioBadge" style="color: var(--cyan);">AUTO</span>
                     <span>|</span>
-                    <span id="evBadge" style="color: var(--cyan);">0.0EV</span>
+                    <span id="resBadge">1280×720</span>
                 </div>
                 <div class="hud-pill mono" id="lutBadge">LUT: NONE</div>
                 <canvas id="histCanvas" width="92" height="32"></canvas>
@@ -750,6 +793,7 @@
             <div class="hud-top-right">
                 <button class="icon-circle-btn" id="btnFlipCam" title="Đổi camera">↻</button>
                 <button class="icon-circle-btn" id="btnTorch" title="Đèn Flash">⚡</button>
+                <button class="icon-circle-btn" id="btnAutoRotateQuick" title="Tự động xoay ngang">⟳</button>
                 <button class="icon-circle-btn" id="btnGrid" title="Lưới bố cục">▦</button>
                 <button class="icon-circle-btn" id="btnCompare" title="So sánh ảnh gốc">◑</button>
             </div>
@@ -844,7 +888,7 @@
                     <input type="range" id="sliderMatchStrength" min="0" max="100" value="0">
                     <div style="display:flex; gap:6px; margin-top:6px;">
                         <button class="btn-sm" id="btnClearMatch">Tắt khớp màu</button>
-                        <input type="text" id="presetNameInput" placeholder="Tên màu lưu (vd: Nắng chiều)..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:5px 8px; color:#fff; font-size:11px;">
+                        <input type="text" id="presetNameInput" placeholder="Tên màu lưu..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:5px 8px; color:#fff; font-size:11px;">
                         <button class="btn-sm amber" id="btnSavePreset">Lưu màu</button>
                     </div>
                 </div>
@@ -855,13 +899,42 @@
                 <div class="preset-list" id="presetList"></div>
             </div>
 
-            <!-- POP-UP 4: LẤY NÉT & STUDIO ẢNH -->
+            <!-- POP-UP 4: TỈ LỆ KHUNG HÌNH, XOAY NGANG, LẤY NÉT & STUDIO -->
             <div class="popup-sheet" id="popupMore">
                 <div class="popup-header">
-                    <span class="popup-title">🎯 Lấy Nét & Studio Ảnh</span>
+                    <span class="popup-title">📐 Tỉ Lệ, Xoay Ngang, Nét & Studio</span>
                     <button class="close-popup-btn" data-close-popup>Đóng</button>
                 </div>
 
+                <!-- Tỉ lệ khung hình -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Tỉ lệ khung hình (Aspect Ratio)</span>
+                        <span class="mono" id="valRatioLabel" style="color:var(--amber)">AUTO</span>
+                    </div>
+                    <div class="ratio-group" id="ratioGroup">
+                        <button class="ratio-btn active" data-ratio="auto">AUTO</button>
+                        <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                        <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                        <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                        <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                    </div>
+                </div>
+
+                <!-- Tự động xoay ngang màn hình -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Tự động xoay ngang màn hình</span>
+                        <span class="mono" id="rotateStatusText" style="color:var(--cyan)">TẮT</span>
+                    </div>
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                        <button class="btn-sm cyan" id="btnToggleAutoRotate" style="flex:1;">Bật/Tắt Tự Động Xoay</button>
+                        <button class="btn-sm" id="btnLockLandscape">Khoá Ngang</button>
+                        <button class="btn-sm" id="btnLockPortrait">Dọc</button>
+                    </div>
+                </div>
+
+                <!-- Lấy nét -->
                 <div class="control-card">
                     <div class="control-row-top">
                         <span>Chế độ lấy nét</span>
@@ -877,6 +950,7 @@
                     <input type="range" id="sliderFocus" min="0" max="100" value="50">
                 </div>
 
+                <!-- Nguồn hình ảnh / Studio -->
                 <div class="control-card">
                     <div class="control-row-top">
                         <span>Nguồn hình ảnh</span>
@@ -913,7 +987,7 @@
                 <button class="tool-pill-btn" data-popup="popupTone">☀ Sáng tối</button>
                 <button class="tool-pill-btn" data-popup="popupLut">🎞 LUT</button>
                 <button class="tool-pill-btn" data-popup="popupColorMatch">🎨 Match</button>
-                <button class="tool-pill-btn" data-popup="popupMore">🎯 Nét/Ảnh</button>
+                <button class="tool-pill-btn" data-popup="popupMore">📐 Tỉ lệ/Xoay</button>
             </div>
 
             <!-- Hàng nút chụp / quay / lưu -->
@@ -956,9 +1030,19 @@
     <script>
         const PRESET_STORAGE_KEY = 'cinecam_saved_presets_v1';
 
+        const RATIO_MAP = {
+            'auto': null,
+            '1:1': 1 / 1,
+            '4:3': 4 / 3,
+            '16:9': 16 / 9,
+            '9:16': 9 / 16
+        };
+
         const state = {
             sourceMode: 'camera', // 'camera' | 'studio'
             captureMode: 'photo', // 'photo' | 'video'
+            aspectRatio: 'auto',  // 'auto' | '1:1' | '4:3' | '16:9' | '9:16'
+            autoRotateLandscape: false,
             facingMode: 'environment',
             torchOn: false,
             gridOn: false,
@@ -975,7 +1059,6 @@
                 matchStrength: 0
             },
 
-            // Color Match RGB gain shift (-0.5 -> +0.5)
             matchShift: [0, 0, 0],
             activeRefId: null,
             refItems: [],
@@ -987,7 +1070,6 @@
             focusMode: 'AF',
             focusDist: 0.5,
             focusPoint: { x: 0.5, y: 0.5 },
-            hardwareFocus: false,
 
             stream: null,
             videoTrack: null,
@@ -1019,6 +1101,105 @@
                 el.style.opacity = '0';
                 setTimeout(() => el.remove(), 220);
             }, 2000);
+        }
+
+        // ==================== TỈ LỆ KHUNG HÌNH & TỰ ĐỘNG XOAY NGANG ====================
+        function getTargetDimensions(srcW, srcH, maxWidth = 1280) {
+            let w = srcW;
+            let h = srcH;
+            const ratioVal = RATIO_MAP[state.aspectRatio];
+
+            if (ratioVal) {
+                const curRatio = w / h;
+                if (curRatio > ratioVal) {
+                    w = Math.round(h * ratioVal);
+                } else {
+                    h = Math.round(w / ratioVal);
+                }
+            }
+
+            if (maxWidth && w > maxWidth) {
+                const scale = maxWidth / w;
+                w = maxWidth;
+                h = Math.round(h * scale);
+            }
+
+            return { width: Math.max(2, w), height: Math.max(2, h) };
+        }
+
+        function setAspectRatio(ratioKey) {
+            state.aspectRatio = RATIO_MAP.hasOwnProperty(ratioKey) ? ratioKey : 'auto';
+            document.querySelectorAll('.ratio-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-ratio') === state.aspectRatio);
+            });
+            document.getElementById('valRatioLabel').textContent = state.aspectRatio.toUpperCase();
+            document.getElementById('ratioBadge').textContent = state.aspectRatio.toUpperCase();
+
+            // Cập nhật hiển thị tỉ lệ trên canvas
+            if (state.aspectRatio === 'auto') {
+                glCanvas.style.aspectRatio = '';
+            } else {
+                glCanvas.style.aspectRatio = state.aspectRatio.replace(':', ' / ');
+            }
+            showToast(`Tỉ lệ khung hình: ${state.aspectRatio.toUpperCase()}`);
+        }
+
+        async function lockOrientationMode(mode) {
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    if (mode === 'landscape') {
+                        await screen.orientation.lock('landscape');
+                        showToast('Đã xoay ngang màn hình');
+                    } else if (mode === 'portrait') {
+                        await screen.orientation.lock('portrait');
+                        showToast('Đã chuyển màn hình dọc');
+                    } else if (screen.orientation.unlock) {
+                        screen.orientation.unlock();
+                    }
+                }
+            } catch {
+                // Một số trình duyệt yêu cầu toàn màn hình hoặc không hỗ trợ khóa xoay
+            }
+        }
+
+        let lastTiltTrigger = 0;
+        function handleTiltAutoRotate(event) {
+            if (!state.autoRotateLandscape) return;
+            const now = Date.now();
+            if (now - lastTiltTrigger < 1200) return;
+
+            // Khi nghiêng thiết bị ngang: |gamma| lớn (~60-90 độ) hoặc |beta| nhỏ
+            const gamma = Math.abs(event.gamma || 0);
+            if (gamma > 52 && window.innerHeight > window.innerWidth) {
+                lastTiltTrigger = now;
+                lockOrientationMode('landscape');
+            } else if (gamma < 28 && window.innerWidth > window.innerHeight) {
+                lastTiltTrigger = now;
+                lockOrientationMode('portrait');
+            }
+        }
+
+        function toggleAutoRotateLandscape() {
+            state.autoRotateLandscape = !state.autoRotateLandscape;
+            const statusEl = document.getElementById('rotateStatusText');
+            const quickBtn = document.getElementById('btnAutoRotateQuick');
+            statusEl.textContent = state.autoRotateLandscape ? 'TỰ ĐỘNG' : 'TẮT';
+            quickBtn.classList.toggle('active', state.autoRotateLandscape);
+
+            if (state.autoRotateLandscape) {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission().catch(() => {});
+                }
+                window.addEventListener('deviceorientation', handleTiltAutoRotate);
+                if (window.innerWidth > window.innerHeight) {
+                    lockOrientationMode('landscape');
+                }
+                showToast('Đã bật tự động xoay ngang theo cảm biến');
+            } else {
+                window.removeEventListener('deviceorientation', handleTiltAutoRotate);
+                lockOrientationMode('unlock');
+                showToast('Đã tắt tự động xoay ngang');
+            }
         }
 
         // ==================== LUT ENGINE (.CUBE & PRESET) ====================
@@ -1158,7 +1339,7 @@
             renderLutList();
         };
 
-        // ==================== WEBGL ENGINE (MƯỢT, GIỚI HẠN PREVIEW <= 1280PX) ====================
+        // ==================== WEBGL ENGINE (HỖ TRỢ CROP TỈ LỆ KHUNG HÌNH) ====================
         class WebGLEngine {
             constructor(canvas) {
                 this.canvas = canvas;
@@ -1198,6 +1379,7 @@
                     uniform bool u_hasLut;
                     uniform bool u_showOrig;
                     uniform bool u_mirrorX;
+                    uniform vec2 u_cropScale;
 
                     uniform float u_exposure;
                     uniform float u_contrast;
@@ -1229,12 +1411,12 @@
                     }
 
                     void main() {
-                        vec2 uv = v_uv;
+                        vec2 uv = (v_uv - 0.5) * u_cropScale + 0.5;
                         if (u_mirrorX) uv.x = 1.0 - uv.x;
-                        vec3 col = texture2D(u_img, uv).rgb;
+                        vec3 col = texture2D(u_img, clamp(uv, 0.001, 0.999)).rgb;
 
                         if (u_blur > 0.01 && !u_showOrig) {
-                            float d = distance(uv, u_focusPt);
+                            float d = distance(v_uv, u_focusPt);
                             float bAmt = smoothstep(0.16, 0.65, d) * u_blur * 3.0;
                             if (bAmt > 0.05) {
                                 col = (
@@ -1252,31 +1434,24 @@
                             return;
                         }
 
-                        // Độ sáng (Exposure)
                         col *= pow(2.0, u_exposure * 1.6);
-
-                        // Nhiệt độ màu & Tint
                         col.r += u_temp * 0.14 - u_tint * 0.04;
                         col.g += u_tint * 0.10;
                         col.b -= u_temp * 0.14 + u_tint * 0.04;
 
-                        // Highlights & Shadows
                         float luma = dot(col, vec3(0.299, 0.587, 0.114));
                         float shMask = pow(clamp(1.0 - luma, 0.0, 1.0), 2.0);
                         float hiMask = pow(clamp(luma, 0.0, 1.0), 2.0);
                         col += col * u_shadows * shMask * 0.75;
                         col += col * u_highlights * hiMask * 0.65;
 
-                        // Contrast
                         col = (col - 0.5) * (1.0 + u_contrast * 0.85) + 0.5;
                         col = clamp(col, 0.0, 1.0);
 
-                        // Color Match
                         if (u_matchStrength > 0.001) {
                             col = mix(col, clamp(col + u_matchShift, 0.0, 1.0), u_matchStrength);
                         }
 
-                        // 3D LUT
                         if (u_hasLut && u_lutStrength > 0.001) {
                             col = mix(col, sample3DLut(col), u_lutStrength);
                         }
@@ -1300,6 +1475,7 @@
                     hasLut: gl.getUniformLocation(this.prog, 'u_hasLut'),
                     showOrig: gl.getUniformLocation(this.prog, 'u_showOrig'),
                     mirrorX: gl.getUniformLocation(this.prog, 'u_mirrorX'),
+                    cropScale: gl.getUniformLocation(this.prog, 'u_cropScale'),
                     exposure: gl.getUniformLocation(this.prog, 'u_exposure'),
                     contrast: gl.getUniformLocation(this.prog, 'u_contrast'),
                     highlights: gl.getUniformLocation(this.prog, 'u_highlights'),
@@ -1368,16 +1544,20 @@
                 gl.uniform1i(this.u.hasLut, 1);
             }
 
-            render(src, w, h, maxPreviewWidth = 1280) {
+            render(src, srcW, srcH, maxPreviewWidth = 1280) {
                 const gl = this.gl;
-                if (!gl || !src || !w || !h) return;
+                if (!gl || !src || !srcW || !srcH) return;
 
-                let outW = w;
-                let outH = h;
-                if (maxPreviewWidth && outW > maxPreviewWidth) {
-                    const ratio = maxPreviewWidth / outW;
-                    outW = maxPreviewWidth;
-                    outH = Math.round(h * ratio);
+                const { width: outW, height: outH } = getTargetDimensions(srcW, srcH, maxPreviewWidth);
+
+                let cropX = 1.0;
+                let cropY = 1.0;
+                const srcRatio = srcW / srcH;
+                const dstRatio = outW / outH;
+                if (srcRatio > dstRatio) {
+                    cropX = dstRatio / srcRatio;
+                } else if (dstRatio > srcRatio) {
+                    cropY = srcRatio / dstRatio;
                 }
 
                 if (this.canvas.width !== outW || this.canvas.height !== outH) {
@@ -1391,6 +1571,7 @@
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
 
                 const p = state.params;
+                gl.uniform2f(this.u.cropScale, cropX, cropY);
                 gl.uniform1f(this.u.exposure, p.exposure / 100);
                 gl.uniform1f(this.u.contrast, p.contrast / 100);
                 gl.uniform1f(this.u.highlights, p.highlights / 100);
@@ -1497,8 +1678,7 @@
 
             if (state.params.matchStrength < 40) {
                 state.params.matchStrength = 75;
-                const s = document.getElementById('sliderMatchStrength');
-                s.value = 75;
+                document.getElementById('sliderMatchStrength').value = 75;
                 document.getElementById('valMatchStrength').textContent = '75%';
             }
 
@@ -1548,7 +1728,8 @@
                 name,
                 params: { ...state.params },
                 matchShift: [...state.matchShift],
-                activeLutIndex: state.activeLutIndex
+                activeLutIndex: state.activeLutIndex,
+                aspectRatio: state.aspectRatio
             };
             state.savedPresets.unshift(preset);
             if (state.savedPresets.length > 20) state.savedPresets.length = 20;
@@ -1566,6 +1747,7 @@
             state.params = { ...p.params };
             state.matchShift = [...(p.matchShift || [0, 0, 0])];
             applyLutByIndex(p.activeLutIndex || 0);
+            if (p.aspectRatio) setAspectRatio(p.aspectRatio);
             syncSlidersFromState();
             showToast(`Đang dùng màu "${p.name}"`);
         }
@@ -1618,11 +1800,7 @@
                 const w = s.width || videoEl.videoWidth || 1280;
                 const h = s.height || videoEl.videoHeight || 720;
                 document.getElementById('resBadge').textContent = `${w}×${h}`;
-
-                const caps = state.videoTrack && state.videoTrack.getCapabilities ? state.videoTrack.getCapabilities() : {};
-                state.hardwareFocus = Boolean(caps.focusMode && caps.focusMode.includes('manual') && caps.focusDistance);
             } catch {
-                // Nếu không mở được camera trực tiếp, tạo ảnh nền mẫu để vẫn test được màu, LUT, Color Match
                 if (!state.studioImg) {
                     makeDemoImage();
                     switchSource('studio');
@@ -1699,11 +1877,11 @@
                     type: 'photo',
                     url,
                     blob,
-                    name: `CINECAM_${Date.now()}.jpg`,
+                    name: `CINECAM_${state.aspectRatio.replace(':','x')}_${Date.now()}.jpg`,
                     w: glCanvas.width,
                     h: glCanvas.height
                 });
-                showToast('Đã chụp ảnh kèm màu & LUT');
+                showToast(`Đã chụp ảnh (${glCanvas.width}×${glCanvas.height})`);
             }, 'image/jpeg', 0.95);
         }
 
@@ -1733,7 +1911,7 @@
                     type: 'video',
                     url,
                     blob,
-                    name: `CINEVID_${Date.now()}.${ext}`,
+                    name: `CINEVID_${state.aspectRatio.replace(':','x')}_${Date.now()}.${ext}`,
                     w: glCanvas.width,
                     h: glCanvas.height
                 });
@@ -1778,17 +1956,17 @@
             glCanvas.toBlob(blob => {
                 if (!blob) return;
                 const url = URL.createObjectURL(blob);
-                const outName = state.studioName.replace(/\.[^/.]+$/, '') + '_CineCam.jpg';
+                const outName = state.studioName.replace(/\.[^/.]+$/, '') + `_${state.aspectRatio.replace(':','x')}.jpg`;
                 addSessionItem({
                     type: 'photo',
                     url,
                     blob,
                     name: outName,
-                    w: state.studioImg.naturalWidth,
-                    h: state.studioImg.naturalHeight
+                    w: glCanvas.width,
+                    h: glCanvas.height
                 });
                 downloadUrl(url, outName);
-                showToast('Đã xuất ảnh chất lượng gốc');
+                showToast(`Đã xuất ảnh (${glCanvas.width}×${glCanvas.height})`);
             }, 'image/jpeg', 0.96);
         }
 
@@ -1859,7 +2037,6 @@
 
             const evVal = (p.exposure / 50).toFixed(2);
             document.getElementById('valExposure').textContent = `${evVal} EV`;
-            document.getElementById('evBadge').textContent = `${evVal}EV`;
             document.getElementById('valContrast').textContent = p.contrast;
             document.getElementById('valHighlights').textContent = p.highlights;
             document.getElementById('valShadows').textContent = p.shadows;
@@ -1875,7 +2052,6 @@
         }
 
         function bindEvents() {
-            // Mở / đóng pop-up công cụ
             document.querySelectorAll('.tool-pill-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id = btn.getAttribute('data-popup');
@@ -1893,6 +2069,19 @@
                 btn.addEventListener('click', closeAllPopups);
             });
 
+            // Tỉ lệ khung hình
+            document.querySelectorAll('.ratio-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setAspectRatio(btn.getAttribute('data-ratio'));
+                });
+            });
+
+            // Tự động xoay ngang & khóa chiều màn hình
+            document.getElementById('btnToggleAutoRotate').addEventListener('click', toggleAutoRotateLandscape);
+            document.getElementById('btnAutoRotateQuick').addEventListener('click', toggleAutoRotateLandscape);
+            document.getElementById('btnLockLandscape').addEventListener('click', () => lockOrientationMode('landscape'));
+            document.getElementById('btnLockPortrait').addEventListener('click', () => lockOrientationMode('portrait'));
+
             // Sliders độ sáng & màu
             const bindSlider = (id, key, onChange) => {
                 document.getElementById(id).addEventListener('input', e => {
@@ -1902,9 +2091,7 @@
             };
 
             bindSlider('sliderExposure', 'exposure', v => {
-                const ev = (v / 50).toFixed(2);
-                document.getElementById('valExposure').textContent = `${ev} EV`;
-                document.getElementById('evBadge').textContent = `${ev}EV`;
+                document.getElementById('valExposure').textContent = `${(v / 50).toFixed(2)} EV`;
             });
             bindSlider('sliderContrast', 'contrast', v => {
                 document.getElementById('valContrast').textContent = v;
