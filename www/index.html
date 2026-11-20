@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CineCam Pro Studio - Pro Camera & LUT Grading</title>
-    <!-- Tailwind CSS -->
+    <title>CineCam Pro - Camera, Quay Phim & LUT Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts: Inter & JetBrains Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
@@ -22,15 +19,15 @@
                     },
                     colors: {
                         cine: {
-                            bg: '#121316',
-                            panel: '#1C1E24',
-                            surface: '#262932',
-                            border: '#323642',
-                            amber: '#FF9500',
-                            cyan: '#00D2FF',
-                            red: '#FF3B30',
-                            text: '#F3F4F6',
-                            muted: '#9CA3AF'
+                            bg: '#0e1013',
+                            panel: '#171a20',
+                            surface: '#232730',
+                            border: '#303642',
+                            amber: '#ff9f1c',
+                            cyan: '#00d2ff',
+                            red: '#ff3b30',
+                            text: '#f3f4f6',
+                            muted: '#9ca3af'
                         }
                     }
                 }
@@ -45,70 +42,102 @@
             user-select: none;
         }
 
-        body {
-            background-color: #121316;
-            color: #F3F4F6;
+        html, body {
+            background-color: #0e1013;
+            color: #f3f4f6;
             overflow: hidden;
             height: 100dvh;
             width: 100vw;
+            margin: 0;
+            padding: 0;
         }
 
-        /* Custom Precision Sliders */
-        input[type="range"].cine-slider {
+        /* Compact Range Sliders */
+        input[type="range"].pro-slider {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 28px;
+            height: 24px;
             background: transparent;
             cursor: pointer;
         }
 
-        input[type="range"].cine-slider:focus {
+        input[type="range"].pro-slider:focus {
             outline: none;
         }
 
-        input[type="range"].cine-slider::-webkit-slider-runnable-track {
+        input[type="range"].pro-slider::-webkit-slider-runnable-track {
             width: 100%;
             height: 4px;
-            background: #2C303A;
-            border-radius: 2px;
-            border: 1px solid rgba(255,255,255,0.06);
+            background: #2c313d;
+            border-radius: 999px;
         }
 
-        input[type="range"].cine-slider::-webkit-slider-thumb {
-            height: 18px;
-            width: 18px;
+        input[type="range"].pro-slider::-webkit-slider-thumb {
+            height: 16px;
+            width: 16px;
             border-radius: 50%;
-            background: #F3F4F6;
-            border: 2px solid #FF9500;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            background: #f3f4f6;
+            border: 2px solid #ff9f1c;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
             -webkit-appearance: none;
-            margin-top: -8px;
+            margin-top: -6px;
             transition: transform 0.1s ease, background-color 0.15s ease;
         }
 
-        input[type="range"].cine-slider:active::-webkit-slider-thumb {
-            transform: scale(1.2);
-            background: #FF9500;
+        input[type="range"].pro-slider:active::-webkit-slider-thumb {
+            transform: scale(1.18);
+            background: #ff9f1c;
         }
 
-        /* Temperature & Tint Gradient Tracks */
-        input[type="range"].temp-slider::-webkit-slider-runnable-track {
-            background: linear-gradient(90deg, #00A8FF 0%, #3A3F4B 50%, #FF9500 100%);
+        input[type="range"].focus-pro-slider::-webkit-slider-thumb {
+            border-color: #00d2ff;
+        }
+        input[type="range"].focus-pro-slider:active::-webkit-slider-thumb {
+            background: #00d2ff;
         }
 
-        input[type="range"].tint-slider::-webkit-slider-runnable-track {
-            background: linear-gradient(90deg, #10B981 0%, #3A3F4B 50%, #EC4899 100%);
+        /* Interactive 2D Warm/Cool & Tint Pad */
+        .wb-pad {
+            background:
+                linear-gradient(to bottom, rgba(236, 72, 153, 0.48) 0%, rgba(35, 39, 48, 0.08) 50%, rgba(16, 185, 129, 0.48) 100%),
+                linear-gradient(to right, #00a8ff 0%, #262b36 50%, #ff9f1c 100%);
+            position: relative;
+            touch-action: none;
+            cursor: crosshair;
         }
 
-        input[type="range"].focus-slider::-webkit-slider-thumb {
-            border-color: #00D2FF;
-        }
-        input[type="range"].focus-slider:active::-webkit-slider-thumb {
-            background: #00D2FF;
+        .wb-crosshair-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.35);
+            pointer-events: none;
         }
 
-        /* Custom Scrollbar for Tool Panels */
+        .wb-crosshair-h {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.35);
+            pointer-events: none;
+        }
+
+        .wb-puck {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #0e1013;
+            box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.85), 0 2px 6px rgba(0, 0, 0, 0.75);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        /* Hide Scrollbars cleanly */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -118,566 +147,493 @@
         }
 
         /* Focus Reticle Animation */
-        @keyframes reticleLock {
-            0% { transform: translate(-50%, -50%) scale(1.45); opacity: 0.4; }
-            60% { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
+        @keyframes reticlePop {
+            0% { transform: translate(-50%, -50%) scale(1.42); opacity: 0.35; }
+            65% { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
-        .reticle-animate {
-            animation: reticleLock 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .reticle-pop {
+            animation: reticlePop 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        /* Recording Pulse */
-        @keyframes recBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.25; }
+        /* Recording Dot */
+        @keyframes recPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.85); }
         }
-        .rec-dot {
-            animation: recBlink 1s infinite;
+        .rec-pulse {
+            animation: recPulse 1s infinite;
         }
 
         /* Shutter Flash */
-        @keyframes shutterFlash {
+        @keyframes flashFade {
             0% { opacity: 0.85; }
             100% { opacity: 0; }
         }
-        .flash-active {
-            animation: shutterFlash 0.25s ease-out forwards;
+        .flash-anim {
+            animation: flashFade 0.24s ease-out forwards;
         }
     </style>
 </head>
-<body class="flex flex-col justify-between bg-cine-bg text-cine-text font-sans">
+<body class="flex flex-col bg-cine-bg text-cine-text font-sans select-none">
 
-    <!-- Hidden Input Elements for File Imports -->
+    <!-- Hidden Inputs & Video Source -->
     <input type="file" id="cubeFileInput" accept=".cube,.CUBE" class="hidden">
-    <input type="file" id="imageImportInput" accept="image/jpeg,image/png,image/webp,image/*" class="hidden">
+    <input type="file" id="imageImportInput" accept="image/*" class="hidden">
+    <input type="file" id="matchRefImportInput" accept="image/*" class="hidden">
     <video id="cameraVideo" playsinline autoplay muted class="hidden"></video>
 
-    <!-- ==================== TOP TELEMETRY & STATUS BAR ==================== -->
-    <header class="z-30 bg-cine-panel/95 backdrop-blur-md border-b border-cine-border px-3 py-2 flex items-center justify-between gap-2 shrink-0">
-        <!-- Left: Brand & Source Mode Switcher -->
-        <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1.5 pr-2 border-r border-cine-border">
-                <span class="w-2.5 h-2.5 rounded-full bg-cine-amber inline-block shadow-[0_0_8px_#FF9500]"></span>
-                <span class="font-mono font-bold text-xs tracking-wider uppercase text-white">CINECAM<span class="text-cine-amber">PRO</span></span>
+    <!-- ==================== SPACIOUS VIEWPORT (TAKES MOST OF SCREEN) ==================== -->
+    <main id="viewportContainer" class="relative flex-1 w-full overflow-hidden bg-[#08090b] flex items-center justify-center touch-none">
+        <!-- Real-time WebGL Canvas -->
+        <canvas id="glCanvas" class="w-full h-full object-contain cursor-crosshair"></canvas>
+
+        <!-- Shutter Flash -->
+        <div id="shutterFlash" class="pointer-events-none absolute inset-0 bg-white opacity-0 z-30"></div>
+
+        <!-- Composition Grid Overlay -->
+        <div id="gridOverlay" class="pointer-events-none absolute inset-0 hidden z-10">
+            <div class="w-full h-full grid grid-cols-3 grid-rows-3">
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-b border-white/20"></div>
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-b border-white/20"></div>
+                <div class="border-r border-white/20"></div>
+                <div class="border-r border-white/20"></div>
+                <div></div>
+            </div>
+        </div>
+
+        <!-- Minimal Top Floating Pills (Keep frame open & clean) -->
+        <div class="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
+            <!-- Left: Source Mode & Minimal Histogram -->
+            <div class="flex items-center gap-1.5 pointer-events-auto">
+                <button id="btnToggleSourceMode" class="px-2.5 py-1 rounded-full bg-cine-panel/80 backdrop-blur-md border border-cine-border/80 text-[11px] font-mono font-semibold flex items-center gap-1.5 shadow">
+                    <span id="sourceDot" class="w-2 h-2 rounded-full bg-cine-amber"></span>
+                    <span id="sourceModeLabel" class="text-white">CAM</span>
+                </button>
+
+                <div class="bg-cine-panel/75 backdrop-blur-md border border-cine-border/70 rounded-full px-2 py-0.5 flex items-center gap-1.5 shadow">
+                    <canvas id="histogramCanvas" width="52" height="16" class="block rounded-sm"></canvas>
+                    <span id="lutMiniTag" class="text-[10px] font-mono text-cine-amber max-w-[84px] truncate">NO LUT</span>
+                </div>
             </div>
 
-            <!-- Switch between LIVE CAMERA & PHOTO STUDIO -->
-            <div class="flex bg-cine-bg p-0.5 rounded-lg border border-cine-border">
-                <button id="btnSourceCamera" class="px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1.5 bg-cine-surface text-cine-amber shadow-sm">
-                    <i class="fa-solid fa-video text-[11px]"></i>
-                    <span>LIVE CAM</span>
+            <!-- Center: Recording Timer (Only when recording) -->
+            <div id="recIndicator" class="hidden bg-cine-panel/90 backdrop-blur-md border border-cine-red/70 px-3 py-1 rounded-full flex items-center gap-2 shadow-lg">
+                <span class="w-2 h-2 rounded-full bg-cine-red rec-pulse"></span>
+                <span id="recTimer" class="font-mono text-xs font-bold text-white">00:00:00</span>
+                <span id="recPausedBadge" class="hidden text-[9px] font-mono bg-cine-amber text-black px-1.5 py-0.2 rounded font-bold">PAUSE</span>
+            </div>
+
+            <!-- Right: Minimal Utility Pills (Grid, Original Compare, Torch) -->
+            <div class="flex items-center gap-1.5 pointer-events-auto">
+                <button id="btnToggleGrid" title="Lưới bố cục" class="w-7 h-7 rounded-full bg-cine-panel/80 backdrop-blur-md border border-cine-border/80 text-cine-muted hover:text-white flex items-center justify-center text-[11px] shadow transition">
+                    <i class="fa-solid fa-border-all"></i>
                 </button>
-                <button id="btnSourceStudio" class="px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1.5 text-cine-muted hover:text-white">
-                    <i class="fa-solid fa-sliders text-[11px]"></i>
-                    <span>STUDIO ẢNH</span>
+                <button id="btnBeforeAfter" title="So sánh ảnh gốc" class="w-7 h-7 rounded-full bg-cine-panel/80 backdrop-blur-md border border-cine-border/80 text-cine-muted hover:text-white flex items-center justify-center text-[11px] shadow transition">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                </button>
+                <button id="btnToggleTorch" title="Đèn Flash" class="w-7 h-7 rounded-full bg-cine-panel/80 backdrop-blur-md border border-cine-border/80 text-cine-muted hover:text-white flex items-center justify-center text-[11px] shadow transition">
+                    <i class="fa-solid fa-bolt"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Center: Technical Readout (Resolution, FPS, REC Timer) -->
-        <div class="hidden sm:flex items-center gap-3 font-mono text-[11px] bg-cine-bg/80 px-3 py-1 rounded-md border border-cine-border/80">
-            <span id="techRes" class="text-cine-cyan">1920×1080</span>
-            <span class="text-cine-border">|</span>
-            <span id="techFps" class="text-gray-300">30 FPS</span>
-            <span class="text-cine-border">|</span>
-            <span id="techLutBadge" class="text-cine-amber truncate max-w-[130px]">LUT: NONE</span>
-        </div>
-
-        <!-- Right: Quick Actions (Import Image, Grid, Before/After, Gallery) -->
-        <div class="flex items-center gap-1.5">
-            <button id="btnImportPhotoTop" title="Nhập ảnh từ thiết bị để chỉnh sửa" class="px-2.5 py-1.5 rounded-lg bg-cine-surface hover:bg-cine-border border border-cine-border text-xs font-medium text-white flex items-center gap-1.5 transition active:scale-95">
-                <i class="fa-solid fa-file-import text-cine-cyan"></i>
-                <span class="hidden md:inline">Import Ảnh</span>
-            </button>
-
-            <button id="btnToggleGrid" title="Lưới bố cục 3x3 / Tỷ lệ vàng" class="w-8 h-8 rounded-lg bg-cine-surface hover:bg-cine-border border border-cine-border text-xs text-cine-muted flex items-center justify-center transition">
-                <i class="fa-solid fa-border-all"></i>
-            </button>
-
-            <button id="btnBeforeAfter" title="Nhấn giữ hoặc bấm để so sánh Gốc / Đã chỉnh" class="px-2.5 h-8 rounded-lg bg-cine-surface hover:bg-cine-border border border-cine-border text-xs font-mono font-semibold text-gray-300 flex items-center gap-1 transition">
-                <i class="fa-solid fa-circle-half-stroke text-cine-amber"></i>
-                <span class="hidden sm:inline">GỐC</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- ==================== MAIN VIEWPORT & STUDIO WORKSPACE ==================== -->
-    <main class="relative flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#0D0E11]">
-
-        <!-- VIEWFINDER / CANVAS AREA -->
-        <div id="viewportContainer" class="relative flex-1 flex items-center justify-center overflow-hidden bg-black touch-none">
-            <!-- WebGL Main Output Canvas -->
-            <canvas id="glCanvas" class="max-w-full max-h-full object-contain shadow-2xl cursor-crosshair"></canvas>
-
-            <!-- Shutter Flash Overlay -->
-            <div id="shutterFlash" class="pointer-events-none absolute inset-0 bg-white opacity-0 z-30"></div>
-
-            <!-- Composition Grid Overlay (3x3 -> Golden Ratio -> Off) -->
-            <div id="gridOverlay" class="pointer-events-none absolute inset-0 hidden z-10">
-                <!-- Rule of thirds lines injected via JS or CSS -->
-                <div class="w-full h-full grid grid-cols-3 grid-rows-3">
-                    <div class="border-r border-b border-white/25"></div>
-                    <div class="border-r border-b border-white/25"></div>
-                    <div class="border-b border-white/25"></div>
-                    <div class="border-r border-b border-white/25"></div>
-                    <div class="border-r border-b border-white/25"></div>
-                    <div class="border-b border-white/25"></div>
-                    <div class="border-r border-white/25"></div>
-                    <div class="border-r border-white/25"></div>
-                    <div></div>
-                </div>
-                <!-- Center Crosshair -->
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none">
-                    <div class="absolute top-1/2 left-0 w-full h-[1px] bg-cine-amber/60"></div>
-                    <div class="absolute left-1/2 top-0 h-full w-[1px] bg-cine-amber/60"></div>
-                </div>
+        <!-- Floating EV Pill & Focus Distance Pill near Bottom of Frame (like reference image) -->
+        <div class="absolute bottom-2.5 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
+            <div id="studioFilePill" class="hidden pointer-events-auto bg-cine-panel/85 backdrop-blur-md border border-cine-cyan/40 rounded-full px-2.5 py-1 text-[10px] font-mono text-cine-cyan flex items-center gap-1.5 max-w-[175px] truncate shadow">
+                <i class="fa-solid fa-image"></i>
+                <span id="studioFileName" class="truncate">Studio Image</span>
             </div>
 
-            <!-- Live RGB Histogram Overlay (Top-Left of Viewfinder) -->
-            <div class="absolute top-3 left-3 z-20 bg-cine-panel/80 backdrop-blur-md border border-cine-border/80 rounded-lg p-1.5 pointer-events-none shadow-lg">
-                <div class="flex items-center justify-between text-[9px] font-mono text-cine-muted mb-0.5 px-0.5">
-                    <span>HISTOGRAM</span>
-                    <span id="mobileResTag" class="sm:hidden text-cine-cyan">HD</span>
-                </div>
-                <canvas id="histogramCanvas" width="110" height="42" class="block rounded bg-black/60"></canvas>
-            </div>
-
-            <!-- Recording Indicator Pill (Top-Center) -->
-            <div id="recIndicator" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-cine-panel/90 backdrop-blur-md border border-cine-red/60 px-3.5 py-1 rounded-full flex items-center gap-2 shadow-lg">
-                <span class="w-2.5 h-2.5 rounded-full bg-cine-red rec-dot"></span>
-                <span id="recTimer" class="font-mono text-xs font-bold tracking-wider text-white">00:00:00</span>
-                <span id="recPausedBadge" class="hidden text-[10px] font-mono bg-cine-amber text-black px-1.5 rounded font-bold">PAUSE</span>
-            </div>
-
-            <!-- Top-Right Quick Camera Hardware Controls (Flip Cam, Torch, Studio Banner) -->
-            <div id="cameraHardwareBar" class="absolute top-3 right-3 z-20 flex flex-col gap-2">
-                <button id="btnFlipCamera" title="Đổi Camera Trước / Sau" class="w-9 h-9 rounded-full bg-cine-panel/85 backdrop-blur-md border border-cine-border text-white hover:border-cine-amber flex items-center justify-center shadow-lg transition active:scale-90">
-                    <i class="fa-solid fa-camera-rotate text-sm"></i>
+            <div class="ml-auto flex items-center gap-1.5 pointer-events-auto">
+                <button id="quickFocusPill" class="px-2 py-1 rounded-full bg-cine-panel/80 backdrop-blur-md border border-cine-border/80 font-mono text-[10px] text-cine-cyan shadow">
+                    <span id="focusPillText">AF</span>
                 </button>
-                <button id="btnToggleTorch" title="Bật / Tắt Đèn Flash (Torch)" class="w-9 h-9 rounded-full bg-cine-panel/85 backdrop-blur-md border border-cine-border text-cine-muted hover:text-white flex items-center justify-center shadow-lg transition active:scale-90">
-                    <i class="fa-solid fa-bolt text-sm"></i>
+                <button id="quickEvPill" class="px-2.5 py-1 rounded-full bg-cine-panel/85 backdrop-blur-md border border-cine-border/80 font-mono text-[10px] font-semibold text-cine-amber shadow">
+                    <i class="fa-solid fa-sun mr-0.5 text-[9px]"></i><span id="evPillText">0.0 EV</span>
                 </button>
-            </div>
-
-            <!-- Studio Mode Info Badge (Shown when editing an imported photo) -->
-            <div id="studioModeBadge" class="hidden absolute top-3 right-3 z-20 bg-cine-panel/90 backdrop-blur-md border border-cine-cyan/50 rounded-lg px-3 py-1.5 flex items-center gap-2 shadow-lg">
-                <i class="fa-solid fa-image text-cine-cyan text-xs"></i>
-                <div class="text-xs">
-                    <div class="font-semibold text-white truncate max-w-[140px]" id="studioFileName">Ảnh đã nhập</div>
-                    <div class="font-mono text-[10px] text-cine-muted" id="studioImageDim">0 × 0 px</div>
-                </div>
-            </div>
-
-            <!-- Tap-to-Focus Reticle & On-Screen Focus Distance HUD -->
-            <div id="focusReticle" class="hidden pointer-events-none absolute z-20 w-20 h-20 -translate-x-1/2 -translate-y-1/2">
-                <!-- Outer Brackets -->
-                <div class="w-full h-full border border-cine-cyan/90 rounded-lg relative shadow-[0_0_12px_rgba(0,210,255,0.35)]">
-                    <div class="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-cine-amber"></div>
-                    <div class="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-cine-amber"></div>
-                    <div class="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2 border-cine-amber"></div>
-                    <div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-cine-amber"></div>
-                    <!-- Center Dot -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-cine-amber"></div>
-                </div>
-                <div class="mt-1 text-center font-mono text-[10px] bg-black/75 text-cine-cyan px-1.5 py-0.5 rounded border border-cine-cyan/40 whitespace-nowrap">
-                    <span id="reticleFocusText">AF LOCK</span>
-                </div>
-            </div>
-
-            <!-- Before / After Split Badge -->
-            <div id="originalPreviewTag" class="hidden pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-cine-amber text-black font-mono font-bold text-xs px-3 py-1 rounded-full shadow-lg">
-                ĐANG XEM ẢNH GỐC (ORIGINAL)
-            </div>
-
-            <!-- Camera Fallback / Permission Prompt Overlay -->
-            <div id="cameraFallbackOverlay" class="hidden absolute inset-0 z-20 bg-cine-bg/95 flex flex-col items-center justify-center p-6 text-center">
-                <div class="w-16 h-16 rounded-2xl bg-cine-surface border border-cine-border flex items-center justify-center mb-4 text-cine-amber text-2xl shadow-lg">
-                    <i class="fa-solid fa-camera-slash"></i>
-                </div>
-                <h3 class="text-base font-bold text-white mb-1">Không thể truy cập Camera trực tiếp</h3>
-                <p id="cameraErrorMsg" class="text-xs text-cine-muted max-w-sm mb-4 leading-relaxed">
-                    Trình duyệt chưa cấp quyền máy ảnh hoặc thiết bị không có camera. Bạn vẫn có thể thử cấp quyền lại hoặc nhập ảnh từ máy để chỉnh màu chuyên nghiệp!
-                </p>
-                <div class="flex flex-wrap justify-center gap-2.5">
-                    <button id="btnRetryCamera" class="px-4 py-2 rounded-lg bg-cine-amber text-black font-semibold text-xs hover:brightness-110 transition">
-                        <i class="fa-solid fa-rotate-right mr-1"></i> Thử mở Camera lại
-                    </button>
-                    <button id="btnFallbackImport" class="px-4 py-2 rounded-lg bg-cine-surface border border-cine-border text-white font-semibold text-xs hover:bg-cine-border transition">
-                        <i class="fa-solid fa-image mr-1 text-cine-cyan"></i> Nhập ảnh từ máy
-                    </button>
-                </div>
             </div>
         </div>
 
-        <!-- ==================== RIGHT / BOTTOM PRO CONTROL CONSOLE ==================== -->
-        <aside class="w-full lg:w-[390px] xl:w-[420px] bg-cine-panel border-t lg:border-t-0 lg:border-l border-cine-border flex flex-col shrink-0 z-20 max-h-[52dvh] lg:max-h-full">
+        <!-- Tap-to-Focus Reticle -->
+        <div id="focusReticle" class="hidden pointer-events-none absolute z-20 w-16 h-16 -translate-x-1/2 -translate-y-1/2">
+            <div class="w-full h-full border border-cine-cyan/90 rounded-lg relative shadow-[0_0_10px_rgba(0,210,255,0.35)]">
+                <span class="absolute -top-0.5 -left-0.5 w-2 h-2 border-t-2 border-l-2 border-cine-amber"></span>
+                <span class="absolute -top-0.5 -right-0.5 w-2 h-2 border-t-2 border-r-2 border-cine-amber"></span>
+                <span class="absolute -bottom-0.5 -left-0.5 w-2 h-2 border-b-2 border-l-2 border-cine-amber"></span>
+                <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 border-b-2 border-r-2 border-cine-amber"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-cine-amber absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></span>
+            </div>
+            <div class="mt-1 text-center font-mono text-[9px] bg-black/75 text-cine-cyan px-1.5 py-0.5 rounded whitespace-nowrap">
+                <span id="reticleFocusLabel">AF LOCK</span>
+            </div>
+        </div>
 
-            <!-- Control Tabs Header -->
-            <div class="flex items-center justify-between border-b border-cine-border px-2 pt-1.5 bg-cine-bg/40 shrink-0">
-                <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                    <button data-tab="tab-tone" class="control-tab active px-3 py-2 text-xs font-semibold border-b-2 border-cine-amber text-cine-amber flex items-center gap-1.5 whitespace-nowrap transition">
-                        <i class="fa-solid fa-sun"></i>
-                        <span>Ánh Sáng</span>
-                    </button>
-                    <button data-tab="tab-color" class="control-tab px-3 py-2 text-xs font-semibold border-b-2 border-transparent text-cine-muted hover:text-white flex items-center gap-1.5 whitespace-nowrap transition">
-                        <i class="fa-solid fa-temperature-half"></i>
-                        <span>Nhiệt & Màu</span>
-                    </button>
-                    <button data-tab="tab-lut" class="control-tab px-3 py-2 text-xs font-semibold border-b-2 border-transparent text-cine-muted hover:text-white flex items-center gap-1.5 whitespace-nowrap transition">
-                        <i class="fa-solid fa-film"></i>
-                        <span>LUT (.cube)</span>
-                    </button>
-                    <button data-tab="tab-focus" class="control-tab px-3 py-2 text-xs font-semibold border-b-2 border-transparent text-cine-muted hover:text-white flex items-center gap-1.5 whitespace-nowrap transition">
-                        <i class="fa-solid fa-crosshairs"></i>
-                        <span>Lấy Nét</span>
-                    </button>
-                </div>
+        <!-- Original Mode Tag -->
+        <div id="originalPreviewTag" class="hidden pointer-events-none absolute top-12 left-1/2 -translate-x-1/2 z-20 bg-cine-amber text-black font-mono font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow">
+            ẢNH GỐC
+        </div>
 
-                <!-- Reset All Button -->
-                <button id="btnResetAll" title="Đặt lại toàn bộ thông số màu & ánh sáng" class="px-2 py-1 rounded text-[11px] font-mono text-cine-muted hover:text-cine-amber hover:bg-cine-surface transition shrink-0">
-                    <i class="fa-solid fa-arrow-rotate-left mr-0.5"></i>RESET
+        <!-- Camera Error / Fallback Overlay -->
+        <div id="cameraFallbackOverlay" class="hidden absolute inset-0 z-20 bg-cine-bg/95 flex flex-col items-center justify-center p-5 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-cine-surface border border-cine-border flex items-center justify-center mb-3 text-cine-amber text-xl">
+                <i class="fa-solid fa-camera-slash"></i>
+            </div>
+            <p class="text-xs font-semibold text-white mb-1">Không mở được Camera trực tiếp</p>
+            <p id="cameraErrorMsg" class="text-[11px] text-cine-muted max-w-xs mb-3.5 leading-relaxed">
+                Hãy kiểm tra quyền máy ảnh của ứng dụng/trình duyệt hoặc nhập ảnh từ máy để chỉnh màu.
+            </p>
+            <div class="flex items-center gap-2">
+                <button id="btnRetryCamera" class="px-3.5 py-1.5 rounded-full bg-cine-amber text-black font-semibold text-xs">
+                    Thử lại Camera
+                </button>
+                <button id="btnFallbackImport" class="px-3.5 py-1.5 rounded-full bg-cine-surface border border-cine-border text-white font-semibold text-xs">
+                    Nhập Ảnh
                 </button>
             </div>
+        </div>
 
-            <!-- Tab Content Area (Scrollable) -->
-            <div class="flex-1 overflow-y-auto p-3.5 space-y-3.5 no-scrollbar">
+        <!-- ==================== COMPACT POP-UP TOOL DRAWERS ==================== -->
+        <div id="popDrawerBackdrop" class="hidden fixed inset-0 z-30 bg-black/35" onclick="closeAllDrawers()"></div>
 
-                <!-- TAB 1: TONE / EXPOSURE (SÁNG TỐI & TƯƠNG PHẢN) -->
-                <div id="tab-tone" class="tab-panel space-y-3">
-                    <!-- Exposure -->
-                    <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-medium text-gray-200 flex items-center gap-1.5">
-                                <i class="fa-solid fa-sun text-cine-amber text-[11px]"></i> Độ phơi sáng (Exposure)
-                            </span>
-                            <div class="flex items-center gap-2">
-                                <span id="val-exposure" class="font-mono text-xs text-cine-amber font-semibold">0.00 EV</span>
-                                <button data-reset="exposure" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                            </div>
-                        </div>
-                        <input type="range" id="slider-exposure" min="-100" max="100" value="0" class="cine-slider">
-                    </div>
-
-                    <!-- Contrast -->
-                    <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-medium text-gray-200 flex items-center gap-1.5">
-                                <i class="fa-solid fa-circle-half-stroke text-cine-cyan text-[11px]"></i> Tương phản (Contrast)
-                            </span>
-                            <div class="flex items-center gap-2">
-                                <span id="val-contrast" class="font-mono text-xs text-cine-cyan font-semibold">0</span>
-                                <button data-reset="contrast" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                            </div>
-                        </div>
-                        <input type="range" id="slider-contrast" min="-100" max="100" value="0" class="cine-slider">
-                    </div>
-
-                    <!-- Highlights & Shadows Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
-                        <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-medium text-gray-200">Vùng sáng (Highlights)</span>
-                                <div class="flex items-center gap-2">
-                                    <span id="val-highlights" class="font-mono text-xs text-gray-300">0</span>
-                                    <button data-reset="highlights" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                                </div>
-                            </div>
-                            <input type="range" id="slider-highlights" min="-100" max="100" value="0" class="cine-slider">
-                        </div>
-
-                        <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-medium text-gray-200">Vùng tối (Shadows)</span>
-                                <div class="flex items-center gap-2">
-                                    <span id="val-shadows" class="font-mono text-xs text-gray-300">0</span>
-                                    <button data-reset="shadows" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                                </div>
-                            </div>
-                            <input type="range" id="slider-shadows" min="-100" max="100" value="0" class="cine-slider">
-                        </div>
-                    </div>
+        <!-- Drawer 1: Sáng tối (Exposure / Contrast / Highlights / Shadows) -->
+        <div id="drawer-tone" class="pop-drawer hidden fixed inset-x-2.5 bottom-[126px] z-40 max-w-md mx-auto bg-cine-panel/95 backdrop-blur-xl border border-cine-border rounded-2xl p-3 shadow-2xl space-y-2.5">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-sun text-cine-amber"></i> Sáng Tối & Tương Phản
+                </span>
+                <div class="flex items-center gap-2">
+                    <button id="btnDrawerResetTone" class="text-[10px] font-mono text-cine-muted hover:text-cine-amber">RESET</button>
+                    <button onclick="closeAllDrawers()" class="w-6 h-6 rounded-full bg-cine-surface text-cine-muted hover:text-white text-xs flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
+            </div>
 
-                <!-- TAB 2: WHITE BALANCE & COLOR (ĐỘ ẤM LẠNH & MÀU SẮC) -->
-                <div id="tab-color" class="tab-panel hidden space-y-3">
-                    <!-- Temperature (Ấm / Lạnh) -->
-                    <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-medium text-gray-200 flex items-center gap-1.5">
-                                <i class="fa-solid fa-temperature-three-quarters text-cine-amber text-[11px]"></i> Nhiệt độ màu (Ấm / Lạnh)
-                            </span>
-                            <div class="flex items-center gap-2">
-                                <span id="val-temp" class="font-mono text-xs text-cine-amber font-semibold">5600K (0)</span>
-                                <button data-reset="temp" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                            </div>
-                        </div>
-                        <input type="range" id="slider-temp" min="-100" max="100" value="0" class="cine-slider temp-slider">
-                        <div class="flex justify-between text-[10px] font-mono text-cine-muted mt-0.5">
-                            <span class="text-sky-400">❄ Lạnh (-100)</span>
-                            <span>Trung tính</span>
-                            <span class="text-amber-400">☀ Ấm (+100)</span>
-                        </div>
+            <div class="space-y-1.5">
+                <div>
+                    <div class="flex justify-between text-[11px] font-mono">
+                        <span class="text-gray-300">Phơi sáng (EV)</span>
+                        <span id="val-exposure" class="text-cine-amber">0.00 EV</span>
                     </div>
-
-                    <!-- Tint -->
-                    <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-medium text-gray-200">Sắc thái (Tint Green / Magenta)</span>
-                            <div class="flex items-center gap-2">
-                                <span id="val-tint" class="font-mono text-xs text-gray-300">0</span>
-                                <button data-reset="tint" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                            </div>
-                        </div>
-                        <input type="range" id="slider-tint" min="-100" max="100" value="0" class="cine-slider tint-slider">
-                    </div>
-
-                    <!-- Saturation & Vibrance -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
-                        <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-medium text-gray-200">Độ bão hòa (Saturation)</span>
-                                <div class="flex items-center gap-2">
-                                    <span id="val-saturation" class="font-mono text-xs text-cine-cyan font-semibold">0</span>
-                                    <button data-reset="saturation" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                                </div>
-                            </div>
-                            <input type="range" id="slider-saturation" min="-100" max="100" value="0" class="cine-slider">
-                        </div>
-
-                        <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-medium text-gray-200">Độ rực thông minh (Vibrance)</span>
-                                <div class="flex items-center gap-2">
-                                    <span id="val-vibrance" class="font-mono text-xs text-gray-300">0</span>
-                                    <button data-reset="vibrance" class="text-[10px] text-cine-muted hover:text-white"><i class="fa-solid fa-rotate-left"></i></button>
-                                </div>
-                            </div>
-                            <input type="range" id="slider-vibrance" min="-100" max="100" value="0" class="cine-slider">
-                        </div>
-                    </div>
+                    <input type="range" id="slider-exposure" min="-100" max="100" value="0" class="pro-slider">
                 </div>
-
-                <!-- TAB 3: LUT ENGINE (.CUBE IMPORT & PRESETS) -->
-                <div id="tab-lut" class="tab-panel hidden space-y-3">
-                    <!-- Import .cube CTA Banner -->
-                    <div class="flex items-center justify-between bg-gradient-to-r from-cine-surface to-cine-bg p-3 rounded-xl border border-cine-amber/40">
-                        <div>
-                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                <i class="fa-solid fa-cube text-cine-amber"></i> Nạp File 3D/1D LUT (.cube)
-                            </div>
-                            <p class="text-[11px] text-cine-muted mt-0.5">Hỗ trợ chuẩn 17×, 33×, 64× áp dụng trực tiếp khi quay & chụp</p>
-                        </div>
-                        <button id="btnImportCube" class="px-3 py-2 rounded-lg bg-cine-amber hover:brightness-110 text-black font-bold text-xs flex items-center gap-1.5 shadow-md transition active:scale-95 shrink-0">
-                            <i class="fa-solid fa-folder-open"></i>
-                            <span>Import .cube</span>
-                        </button>
+                <div>
+                    <div class="flex justify-between text-[11px] font-mono">
+                        <span class="text-gray-300">Tương phản</span>
+                        <span id="val-contrast" class="text-cine-cyan">0</span>
                     </div>
-
-                    <!-- LUT Intensity Slider -->
-                    <div class="bg-cine-surface/60 p-2.5 rounded-xl border border-cine-border/70">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-medium text-gray-200">Cường độ LUT (LUT Strength)</span>
-                            <span id="val-lutIntensity" class="font-mono text-xs text-cine-amber font-bold">100%</span>
-                        </div>
-                        <input type="range" id="slider-lutIntensity" min="0" max="100" value="100" class="cine-slider">
-                    </div>
-
-                    <!-- LUT Library Grid -->
+                    <input type="range" id="slider-contrast" min="-100" max="100" value="0" class="pro-slider">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-[11px] font-mono uppercase tracking-wider text-cine-muted">Thư viện LUT khả dụng</span>
-                            <span id="lutCountLabel" class="text-[11px] font-mono text-cine-cyan">5 LUTs</span>
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-gray-300">Vùng sáng</span>
+                            <span id="val-highlights" class="text-gray-200">0</span>
                         </div>
-                        <div id="lutListContainer" class="grid grid-cols-2 gap-2">
-                            <!-- Populated dynamically by JS -->
+                        <input type="range" id="slider-highlights" min="-100" max="100" value="0" class="pro-slider">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-gray-300">Vùng tối</span>
+                            <span id="val-shadows" class="text-gray-200">0</span>
                         </div>
+                        <input type="range" id="slider-shadows" min="-100" max="100" value="0" class="pro-slider">
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- TAB 4: LENS & FOCUS CONTROL (LẤY NÉT GẦN / XA) -->
-                <div id="tab-focus" class="tab-panel hidden space-y-3">
-                    <!-- AF / MF Mode Switch -->
-                    <div class="bg-cine-surface/60 p-3 rounded-xl border border-cine-border/70">
-                        <div class="flex items-center justify-between mb-2.5">
-                            <div>
-                                <div class="text-xs font-bold text-white">Chế độ Lấy Nét (Focus Mode)</div>
-                                <div id="focusCapabilityBadge" class="text-[10px] font-mono text-cine-cyan mt-0.5">Chạm vào màn hình để khóa nét</div>
-                            </div>
-                            <div class="flex bg-cine-bg p-0.5 rounded-lg border border-cine-border">
-                                <button id="btnModeAF" class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-cine-cyan text-black transition">AF</button>
-                                <button id="btnModeMF" class="px-3 py-1 rounded-md text-xs font-mono font-bold text-cine-muted hover:text-white transition">MF</button>
-                            </div>
-                        </div>
-
-                        <!-- Manual Focus Distance Slider (Macro 0.0 -> Infinity 1.0) -->
-                        <div class="pt-2 border-t border-cine-border/60">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-medium text-gray-200 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-arrows-left-right-to-line text-cine-cyan text-[11px]"></i> Khoảng cách lấy nét (Gần ↔ Xa)
-                                </span>
-                                <span id="val-focusDist" class="font-mono text-xs text-cine-cyan font-bold">AUTO</span>
-                            </div>
-                            <input type="range" id="slider-focus" min="0" max="100" value="50" class="cine-slider focus-slider">
-                            <div class="flex justify-between text-[10px] font-mono text-cine-muted mt-1">
-                                <span class="flex items-center gap-1 text-cine-amber"><i class="fa-solid fa-seedling"></i> Gần (Macro 0.1m)</span>
-                                <span>Trung cảnh</span>
-                                <span class="flex items-center gap-1 text-cine-cyan">Xa (Vô cực ∞) <i class="fa-solid fa-mountain"></i></span>
-                            </div>
-                        </div>
-
-                        <!-- Quick Focus Distance Presets -->
-                        <div class="grid grid-cols-3 gap-2 mt-3">
-                            <button data-focus-preset="0.08" class="focus-preset-btn py-1.5 px-2 rounded-lg bg-cine-bg hover:bg-cine-border border border-cine-border text-[11px] font-mono text-gray-200 transition">
-                                Cận cảnh (Macro)
-                            </button>
-                            <button data-focus-preset="0.45" class="focus-preset-btn py-1.5 px-2 rounded-lg bg-cine-bg hover:bg-cine-border border border-cine-border text-[11px] font-mono text-gray-200 transition">
-                                Chân dung (1.5m)
-                            </button>
-                            <button data-focus-preset="1.0" class="focus-preset-btn py-1.5 px-2 rounded-lg bg-cine-bg hover:bg-cine-border border border-cine-border text-[11px] font-mono text-gray-200 transition">
-                                Vô cực (∞)
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Focus Peaking / Optical Simulation Note -->
-                    <div class="bg-cine-bg/70 p-2.5 rounded-xl border border-cine-border/60 flex items-center justify-between">
-                        <div class="text-[11px] text-cine-muted leading-snug pr-2">
-                            <strong class="text-gray-200">Hỗ trợ nét quang học:</strong> Điều khiển phần cứng ống kính nếu camera hỗ trợ, kết hợp mô phỏng độ sâu trường ảnh (DOF) theo điểm chạm.
-                        </div>
-                        <label class="inline-flex items-center cursor-pointer shrink-0">
-                            <input type="checkbox" id="toggleOpticalDof" class="sr-only peer" checked>
-                            <div class="w-9 h-5 bg-cine-surface peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all relative peer-checked:bg-cine-cyan border border-cine-border"></div>
-                        </label>
-                    </div>
+        <!-- Drawer 2: Lấy nét gần / xa (AF / MF & Focus Distance) -->
+        <div id="drawer-focus" class="pop-drawer hidden fixed inset-x-2.5 bottom-[126px] z-40 max-w-md mx-auto bg-cine-panel/95 backdrop-blur-xl border border-cine-border rounded-2xl p-3 shadow-2xl space-y-2.5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-crosshairs text-cine-cyan"></i> Lấy Nét Gần / Xa
+                    </span>
+                    <p id="focusCapabilityBadge" class="text-[10px] font-mono text-cine-muted">Chạm khung hình để khóa nét</p>
                 </div>
-
+                <div class="flex items-center gap-1.5">
+                    <div class="flex bg-cine-bg p-0.5 rounded-lg border border-cine-border">
+                        <button id="btnModeAF" class="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-cine-cyan text-black">AF</button>
+                        <button id="btnModeMF" class="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold text-cine-muted">MF</button>
+                    </div>
+                    <button onclick="closeAllDrawers()" class="w-6 h-6 rounded-full bg-cine-surface text-cine-muted hover:text-white text-xs flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- ==================== BOTTOM SHUTTER / ACTION DOCK ==================== -->
-            <div class="border-t border-cine-border bg-cine-bg/90 px-4 py-2.5 flex items-center justify-between gap-3 shrink-0">
-
-                <!-- Left: Filmstrip Thumbnail Preview (Opens Session Gallery) -->
-                <button id="btnOpenGallery" class="relative w-12 h-12 rounded-xl bg-cine-surface border border-cine-border overflow-hidden flex items-center justify-center group hover:border-cine-amber transition shrink-0">
-                    <img id="lastThumbImg" src="" alt="" class="hidden w-full h-full object-cover">
-                    <i id="lastThumbIcon" class="fa-solid fa-photo-film text-cine-muted group-hover:text-white text-base"></i>
-                    <span id="mediaCountBadge" class="hidden absolute bottom-0.5 right-0.5 bg-cine-amber text-black font-mono font-bold text-[10px] px-1 rounded">0</span>
-                </button>
-
-                <!-- Center: Camera Mode (PHOTO / VIDEO) + Shutter Button OR Studio Export Button -->
-                <div id="cameraCaptureControls" class="flex-1 flex flex-col items-center">
-                    <!-- Mode Switcher Pill -->
-                    <div class="flex items-center gap-4 mb-1.5 text-[11px] font-mono font-bold tracking-wider">
-                        <button id="btnSelectPhotoMode" class="text-cine-amber transition">CHỤP ẢNH</button>
-                        <button id="btnSelectVideoMode" class="text-cine-muted hover:text-white transition">QUAY PHIM</button>
-                    </div>
-
-                    <!-- Shutter / Record Row -->
-                    <div class="flex items-center justify-center gap-4">
-                        <!-- Pause/Resume Button (Visible only while recording video) -->
-                        <button id="btnPauseVideo" class="hidden w-9 h-9 rounded-full bg-cine-surface border border-cine-border text-white hover:border-cine-amber flex items-center justify-center transition active:scale-90" title="Tạm dừng / Tiếp tục quay">
-                            <i class="fa-solid fa-pause text-xs"></i>
-                        </button>
-
-                        <!-- Main Shutter / Rec Trigger -->
-                        <button id="btnShutter" class="w-14 h-14 rounded-full p-1 border-2 border-white flex items-center justify-center transition active:scale-90 shadow-lg">
-                            <div id="shutterInner" class="w-full h-full rounded-full bg-white transition-all duration-200"></div>
-                        </button>
-
-                        <!-- Quick Import Photo Shortcut -->
-                        <button id="btnQuickImportDock" title="Nhập ảnh từ máy để chỉnh sửa" class="w-9 h-9 rounded-full bg-cine-surface border border-cine-border text-cine-cyan hover:bg-cine-border flex items-center justify-center transition active:scale-90">
-                            <i class="fa-solid fa-folder-plus text-xs"></i>
-                        </button>
-                    </div>
+            <div>
+                <div class="flex justify-between text-[11px] font-mono mb-0.5">
+                    <span class="text-cine-amber">Gần (Macro)</span>
+                    <span id="val-focusDist" class="text-cine-cyan font-bold">AUTO</span>
+                    <span class="text-cine-cyan">Xa (∞)</span>
                 </div>
+                <input type="range" id="slider-focus" min="0" max="100" value="50" class="pro-slider focus-pro-slider">
+            </div>
 
-                <!-- Studio Mode Export Controls (Hidden in Live Cam mode) -->
-                <div id="studioExportControls" class="hidden flex-1 flex items-center justify-center gap-2">
-                    <button id="btnStudioChangePhoto" class="px-3 py-2.5 rounded-xl bg-cine-surface hover:bg-cine-border border border-cine-border text-xs font-semibold text-white flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-image text-cine-cyan"></i>
-                        <span>Đổi Ảnh</span>
+            <div class="flex items-center justify-between gap-1.5">
+                <button data-focus-preset="0.08" class="focus-preset-btn flex-1 py-1 rounded-lg bg-cine-surface border border-cine-border text-[10px] font-mono text-gray-200">Macro</button>
+                <button data-focus-preset="0.5" class="focus-preset-btn flex-1 py-1 rounded-lg bg-cine-surface border border-cine-border text-[10px] font-mono text-gray-200">Giữa</button>
+                <button data-focus-preset="1.0" class="focus-preset-btn flex-1 py-1 rounded-lg bg-cine-surface border border-cine-border text-[10px] font-mono text-gray-200">Vô cực</button>
+                <label class="flex items-center gap-1 px-2 py-1 rounded-lg bg-cine-surface border border-cine-border text-[10px] font-mono text-gray-300 cursor-pointer">
+                    <input type="checkbox" id="toggleOpticalDof" checked class="accent-cine-cyan">
+                    <span>DOF</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Drawer 3: LUT .cube & Cường độ LUT -->
+        <div id="drawer-lut" class="pop-drawer hidden fixed inset-x-2.5 bottom-[126px] z-40 max-w-md mx-auto bg-cine-panel/95 backdrop-blur-xl border border-cine-border rounded-2xl p-3 shadow-2xl space-y-2.5">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-film text-cine-amber"></i> Bộ Lọc LUT (.cube)
+                </span>
+                <div class="flex items-center gap-1.5">
+                    <button id="btnImportCube" class="px-2.5 py-1 rounded-lg bg-cine-amber text-black font-bold text-[11px] flex items-center gap-1">
+                        <i class="fa-solid fa-folder-open"></i> Import .cube
                     </button>
-                    <button id="btnExportStudioPhoto" class="flex-1 max-w-[200px] py-2.5 px-4 rounded-xl bg-cine-amber hover:brightness-110 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(255,149,0,0.3)] transition active:scale-95">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Lưu Ảnh Độ Nét Cao</span>
+                    <button onclick="closeAllDrawers()" class="w-6 h-6 rounded-full bg-cine-surface text-cine-muted hover:text-white text-xs flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between text-[11px] font-mono">
+                    <span class="text-gray-300">Cường độ LUT</span>
+                    <span id="val-lutIntensity" class="text-cine-amber font-bold">100%</span>
+                </div>
+                <input type="range" id="slider-lutIntensity" min="0" max="100" value="100" class="pro-slider">
+            </div>
+
+            <div id="lutListContainer" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+                <!-- LUT chips rendered by JS -->
+            </div>
+        </div>
+
+        <!-- Drawer 4: Studio Ảnh, Color Match & Chỉnh Màu Bổ Sung -->
+        <div id="drawer-studio" class="pop-drawer hidden fixed inset-x-2.5 bottom-[126px] z-40 max-w-md mx-auto bg-cine-panel/95 backdrop-blur-xl border border-cine-border rounded-2xl p-3 shadow-2xl space-y-2.5 max-h-[62dvh] overflow-y-auto no-scrollbar">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-cine-cyan"></i> Studio, Color Match & Màu
+                </span>
+                <div class="flex items-center gap-1.5">
+                    <button id="btnDrawerImportPhoto" class="px-2.5 py-1 rounded-lg bg-cine-cyan text-black font-bold text-[11px] flex items-center gap-1">
+                        <i class="fa-solid fa-file-import"></i> Nhập Ảnh
+                    </button>
+                    <button onclick="closeAllDrawers()" class="w-6 h-6 rounded-full bg-cine-surface text-cine-muted hover:text-white text-xs flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Color Match Section -->
+            <div class="bg-cine-surface/70 border border-cine-border/80 rounded-xl p-2.5 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold text-cine-cyan flex items-center gap-1">
+                        <i class="fa-solid fa-palette"></i> Color Match (Khớp Màu Tham Chiếu)
+                    </span>
+                    <button id="btnImportMatchRef" class="px-2 py-0.5 rounded-md bg-cine-bg border border-cine-cyan/50 text-[10px] font-mono text-cine-cyan hover:bg-cine-cyan hover:text-black transition">
+                        <i class="fa-solid fa-image mr-0.5"></i> Ảnh Mẫu Máy
                     </button>
                 </div>
 
-                <!-- Right: Quick Export / Download Last File -->
-                <button id="btnDownloadLast" title="Tải xuống ảnh/video vừa tạo" class="w-12 h-12 rounded-xl bg-cine-surface border border-cine-border text-cine-muted hover:text-cine-cyan hover:border-cine-cyan flex flex-col items-center justify-center transition shrink-0 disabled:opacity-40" disabled>
-                    <i class="fa-solid fa-arrow-down-to-bracket text-sm"></i>
-                    <span class="text-[9px] font-mono mt-0.5">LƯU</span>
+                <!-- Built-in Reference Samples Strip -->
+                <div id="matchSamplesContainer" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+
+                <!-- Match Strength Slider -->
+                <div>
+                    <div class="flex justify-between text-[10px] font-mono">
+                        <span class="text-gray-300">Mức độ khớp màu</span>
+                        <span id="val-matchStrength" class="text-cine-cyan font-bold">0%</span>
+                    </div>
+                    <input type="range" id="slider-matchStrength" min="0" max="100" value="0" class="pro-slider focus-pro-slider">
+                </div>
+
+                <!-- Save Matched Color as Preset -->
+                <div class="flex items-center gap-1.5">
+                    <input type="text" id="matchPresetNameInput" placeholder="Tên preset màu (vd: Nắng Chiều)" class="flex-1 bg-cine-bg border border-cine-border rounded-lg px-2 py-1 text-[11px] text-white placeholder:text-cine-muted focus:outline-none focus:border-cine-amber">
+                    <button id="btnSaveMatchPreset" class="px-2.5 py-1 rounded-lg bg-cine-amber text-black font-bold text-[10px] shrink-0 active:scale-95 transition">
+                        <i class="fa-solid fa-bookmark mr-0.5"></i> Lưu Màu
+                    </button>
+                </div>
+
+                <!-- Saved Custom Color Presets -->
+                <div id="savedMatchPresetsContainer" class="flex gap-1.5 overflow-x-auto no-scrollbar pt-0.5"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <div class="flex justify-between text-[11px] font-mono">
+                        <span class="text-gray-300">Bão hòa</span>
+                        <span id="val-saturation" class="text-cine-cyan">0</span>
+                    </div>
+                    <input type="range" id="slider-saturation" min="-100" max="100" value="0" class="pro-slider">
+                </div>
+                <div>
+                    <div class="flex justify-between text-[11px] font-mono">
+                        <span class="text-gray-300">Độ rực</span>
+                        <span id="val-vibrance" class="text-cine-amber">0</span>
+                    </div>
+                    <input type="range" id="slider-vibrance" min="-100" max="100" value="0" class="pro-slider">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-cine-border/70">
+                <button id="btnSwitchToCamera" class="flex-1 py-1.5 px-2.5 rounded-xl bg-cine-surface border border-cine-border text-[11px] font-semibold text-white flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-video text-cine-amber"></i> Camera Trực Tiếp
+                </button>
+                <button id="btnExportStudioPhoto" class="flex-1 py-1.5 px-2.5 rounded-xl bg-cine-amber text-black font-bold text-[11px] flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-download"></i> Xuất Ảnh Nét Cao
                 </button>
             </div>
-        </aside>
+        </div>
     </main>
 
-    <!-- ==================== SESSION MEDIA GALLERY MODAL ==================== -->
-    <div id="galleryModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col">
-        <div class="bg-cine-panel border-b border-cine-border px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-film text-cine-amber"></i>
-                <h2 class="text-sm font-bold text-white">Thư Viện Phiên Làm Việc & Xem Trước</h2>
+    <!-- ==================== COMPACT BOTTOM CONTROL STRIP + DOCK ==================== -->
+    <footer class="bg-cine-bg border-t border-cine-border/80 px-3 pt-1.5 pb-2.5 shrink-0 z-20">
+        <!-- Row 1: Live Kelvin Readout + Compact Warm/Cool Pad + Pop-up Tool Pills -->
+        <div class="max-w-xl mx-auto flex items-center justify-between gap-2 mb-2">
+            <!-- Kelvin & Tint Readout -->
+            <div class="w-[74px] shrink-0 leading-tight">
+                <div id="kelvinReadout" class="font-mono text-[11px] font-bold text-white">5600K 0</div>
+                <div id="tintReadout" class="font-mono text-[9px] text-cine-muted">TINT 0</div>
             </div>
-            <button id="btnCloseGallery" class="w-8 h-8 rounded-lg bg-cine-surface text-gray-300 hover:text-white flex items-center justify-center">
+
+            <!-- Compact Warm/Cool & Tint Pad (Reference-inspired) -->
+            <div id="wbPad" class="wb-pad flex-1 max-w-[190px] h-7 rounded-xl border border-white/15 overflow-hidden">
+                <div id="wbLineV" class="wb-crosshair-v" style="left: 50%;"></div>
+                <div id="wbLineH" class="wb-crosshair-h" style="top: 50%;"></div>
+                <div id="wbPuck" class="wb-puck" style="left: 50%; top: 50%;"></div>
+            </div>
+
+            <!-- Compact Pop-up Tool Trigger Pills -->
+            <div class="flex items-center gap-1 shrink-0">
+                <button data-drawer="drawer-tone" title="Sáng tối" class="drawer-btn w-7 h-7 rounded-full bg-cine-surface border border-cine-border text-cine-muted hover:text-white flex items-center justify-center text-[11px] transition">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <button data-drawer="drawer-focus" title="Lấy nét gần/xa" class="drawer-btn w-7 h-7 rounded-full bg-cine-surface border border-cine-border text-cine-muted hover:text-white flex items-center justify-center text-[11px] transition">
+                    <i class="fa-solid fa-crosshairs"></i>
+                </button>
+                <button data-drawer="drawer-lut" title="LUT .cube" class="drawer-btn w-7 h-7 rounded-full bg-cine-surface border border-cine-border text-cine-muted hover:text-white flex items-center justify-center text-[11px] transition">
+                    <i class="fa-solid fa-film"></i>
+                </button>
+                <button data-drawer="drawer-studio" title="Studio / Nhập ảnh" class="drawer-btn w-7 h-7 rounded-full bg-cine-surface border border-cine-border text-cine-muted hover:text-white flex items-center justify-center text-[11px] transition">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Row 2: Bottom Shutter Dock (Thumbnail Left | Photo/Video + Shutter Center | Flip/Save Right) -->
+        <div class="max-w-xl mx-auto flex items-center justify-between px-1">
+            <!-- Left: Last Thumbnail / Gallery -->
+            <button id="btnOpenGallery" title="Thư viện phiên" class="relative w-11 h-11 rounded-xl bg-cine-surface border border-cine-border overflow-hidden flex items-center justify-center hover:border-cine-amber transition shrink-0">
+                <img id="lastThumbImg" src="" alt="" class="hidden w-full h-full object-cover">
+                <i id="lastThumbIcon" class="fa-solid fa-photo-film text-cine-muted text-sm"></i>
+                <span id="mediaCountBadge" class="hidden absolute bottom-0.5 right-0.5 bg-cine-amber text-black font-mono font-bold text-[9px] px-1 rounded">0</span>
+            </button>
+
+            <!-- Center: Mode Toggle + Shutter Button -->
+            <div class="flex flex-col items-center">
+                <div class="flex items-center gap-3 mb-1 text-[10px] font-mono font-bold tracking-wider">
+                    <button id="btnSelectPhotoMode" class="text-cine-amber transition">ẢNH</button>
+                    <button id="btnSelectVideoMode" class="text-cine-muted hover:text-white transition">VIDEO</button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button id="btnPauseVideo" title="Tạm dừng quay" class="hidden w-8 h-8 rounded-full bg-cine-surface border border-cine-border text-white flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+
+                    <button id="btnShutter" class="w-[54px] h-[54px] rounded-full p-1 border-2 border-white flex items-center justify-center active:scale-90 transition shadow-lg">
+                        <div id="shutterInner" class="w-full h-full rounded-full bg-white transition-all duration-150"></div>
+                    </button>
+
+                    <button id="btnQuickImport" title="Nhập ảnh chỉnh sửa" class="w-8 h-8 rounded-full bg-cine-surface border border-cine-border text-cine-cyan flex items-center justify-center text-xs active:scale-90 transition">
+                        <i class="fa-solid fa-folder-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right: Flip Camera / Save Last -->
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button id="btnFlipCamera" title="Đổi camera" class="w-10 h-10 rounded-full bg-cine-surface border border-cine-border text-white hover:border-cine-amber flex items-center justify-center text-sm active:scale-90 transition">
+                    <i class="fa-solid fa-camera-rotate"></i>
+                </button>
+                <button id="btnDownloadLast" title="Tải file mới nhất" disabled class="w-10 h-10 rounded-full bg-cine-surface border border-cine-border text-cine-cyan hover:border-cine-cyan flex items-center justify-center text-sm disabled:opacity-35 active:scale-90 transition">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== SESSION GALLERY MODAL ==================== -->
+    <div id="galleryModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col">
+        <div class="bg-cine-panel border-b border-cine-border px-4 py-2.5 flex items-center justify-between">
+            <span class="text-xs font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-photo-film text-cine-amber"></i> Thư Viện Ảnh & Video Phiên
+            </span>
+            <button id="btnCloseGallery" class="w-7 h-7 rounded-full bg-cine-surface text-gray-300 hover:text-white flex items-center justify-center text-xs">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-
-        <div id="galleryContent" class="flex-1 overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 content-start">
-            <!-- Populated dynamically -->
-        </div>
+        <div id="galleryContent" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 content-start"></div>
     </div>
 
-    <!-- ==================== NON-BLOCKING TOAST NOTIFICATION ==================== -->
-    <div id="toastContainer" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-1.5"></div>
 
-    <!-- ==================== JAVASCRIPT: WEBGL ENGINE, .CUBE LUT PARSER, CAMERA & RECORDER ==================== -->
+    <!-- ==================== CORE APPLICATION SCRIPT ==================== -->
     <script>
-        /**
-         * CineCam Pro Studio - Single File Engine
-         * Bao gồm:
-         * 1. Trình phân tích file .cube (1D & 3D LUT) + 4 bộ LUT điện ảnh tích hợp sẵn
-         * 2. Bộ xử lý màu WebGL thời gian thực (Exposure, Contrast, Highlights, Shadows, Temp, Tint, Saturation, Vibrance, 3D LUT)
-         * 3. Điều khiển Camera (getUserMedia, lật camera, đèn flash/torch, lấy nét chạm & thanh trượt gần/xa AF/MF)
-         * 4. Chụp ảnh phân giải cao & Quay video kèm bộ lọc màu + âm thanh bằng MediaRecorder
-         * 5. Chế độ Studio nhập ảnh từ thiết bị bên ngoài để chỉnh màu và xuất file chất lượng gốc
-         */
+        const MATCH_STORAGE_KEY = 'cinecam_pro_saved_match_presets_v1';
 
-        // ==================== STATE MANAGEMENT ====================
         const AppState = {
             sourceMode: 'camera', // 'camera' | 'studio'
             captureMode: 'photo', // 'photo' | 'video'
-            facingMode: 'environment', // 'environment' | 'user'
+            facingMode: 'environment',
             torchOn: false,
-            gridMode: 0, // 0: off, 1: 3x3, 2: golden ratio
             showOriginal: false,
 
-            // Color Grading Parameters
             params: {
-                exposure: 0,      // -100 to 100
-                contrast: 0,      // -100 to 100
-                highlights: 0,    // -100 to 100
-                shadows: 0,       // -100 to 100
-                temp: 0,          // -100 to 100 (Cool to Warm)
-                tint: 0,          // -100 to 100 (Green to Magenta)
-                saturation: 0,    // -100 to 100
-                vibrance: 0,      // -100 to 100
-                lutIntensity: 100 // 0 to 100
+                exposure: 0,
+                contrast: 0,
+                highlights: 0,
+                shadows: 0,
+                temp: 0,
+                tint: 0,
+                saturation: 0,
+                vibrance: 0,
+                lutIntensity: 100,
+                matchStrength: 0
             },
 
-            // LUT Management
+            // Color Match state: Reinhard/Lab-like RGB mean & std transfer
+            colorMatch: {
+                activeName: '',
+                srcMean: [0.5, 0.5, 0.5],
+                srcStd: [0.22, 0.22, 0.22],
+                refMean: [0.5, 0.5, 0.5],
+                refStd: [0.22, 0.22, 0.22],
+                hasTarget: false,
+                samples: [],
+                savedPresets: []
+            },
+
             luts: [],
             activeLutIndex: 0,
 
-            // Focus & Optical Controls
-            focusMode: 'AF',      // 'AF' | 'MF'
-            focusDistance: 0.5,   // 0.0 (Near/Macro) -> 1.0 (Far/Infinity)
+            focusMode: 'AF',
+            focusDistance: 0.5,
             focusPoint: { x: 0.5, y: 0.5 },
             opticalDofSim: true,
             hardwareFocusSupported: false,
 
-            // Camera & MediaStream
             stream: null,
             videoTrack: null,
             mediaRecorder: null,
@@ -688,49 +644,287 @@
             recElapsedBeforePause: 0,
             recTimerInterval: null,
 
-            // Studio Imported Image
             studioImage: null,
             studioFileName: '',
-
-            // Session Captured Media
-            sessionMedia: [] // { id, type: 'photo'|'video', url, blob, name, timestamp, width, height }
+            sessionMedia: []
         };
 
-        // ==================== DOM REFERENCES ====================
         const videoEl = document.getElementById('cameraVideo');
         const glCanvas = document.getElementById('glCanvas');
         const histCanvas = document.getElementById('histogramCanvas');
         const histCtx = histCanvas.getContext('2d', { willReadFrequently: true });
 
-        // ==================== TOAST NOTIFICATION HELPER ====================
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            const colors = {
-                info: 'border-cine-border bg-cine-panel/95 text-white',
-                success: 'border-cine-amber/70 bg-cine-panel/95 text-cine-amber',
-                cyan: 'border-cine-cyan/70 bg-cine-panel/95 text-cine-cyan',
-                error: 'border-cine-red/70 bg-cine-panel/95 text-red-300'
-            };
-            toast.className = `px-3.5 py-2 rounded-full border backdrop-blur-md shadow-xl text-xs font-medium flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 ${colors[type] || colors.info}`;
-            toast.innerHTML = `<span>${message}</span>`;
-            container.appendChild(toast);
+        // Scratch canvas nhỏ dùng chung cho phân tích màu ảnh & histogram để tránh cấp phát bộ nhớ liên tục
+        const analysisCanvas = document.createElement('canvas');
+        analysisCanvas.width = 96;
+        analysisCanvas.height = 54;
+        const analysisCtx = analysisCanvas.getContext('2d', { willReadFrequently: true });
 
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            const styles = {
+                info: 'bg-cine-panel/95 border-cine-border text-white',
+                success: 'bg-cine-panel/95 border-cine-amber/70 text-cine-amber',
+                cyan: 'bg-cine-panel/95 border-cine-cyan/70 text-cine-cyan',
+                error: 'bg-cine-panel/95 border-cine-red/70 text-red-300'
+            };
+            el.className = `px-3 py-1.5 rounded-full border backdrop-blur-md text-[11px] font-medium shadow-lg transition-all duration-200 opacity-0 -translate-y-1 ${styles[type] || styles.info}`;
+            el.textContent = msg;
+            container.appendChild(el);
+            requestAnimationFrame(() => el.classList.remove('opacity-0', '-translate-y-1'));
+            setTimeout(() => {
+                el.classList.add('opacity-0');
+                setTimeout(() => el.remove(), 220);
+            }, 2200);
+        }
+
+        // ==================== COLOR MATCH ANALYZER & PRESETS ====================
+        /**
+         * Tính mean & std của 3 kênh màu (R, G, B) trên ảnh/canvas nguồn để khớp màu mượt mà
+         */
+        function computeColorStatsFromSource(source, width, height) {
+            if (!source || !width || !height) {
+                return { mean: [0.5, 0.5, 0.5], std: [0.22, 0.22, 0.22] };
+            }
+            const aw = analysisCanvas.width;
+            const ah = analysisCanvas.height;
+            analysisCtx.clearRect(0, 0, aw, ah);
+            analysisCtx.drawImage(source, 0, 0, aw, ah);
+            const px = analysisCtx.getImageData(0, 0, aw, ah).data;
+
+            let sumR = 0, sumG = 0, sumB = 0;
+            let count = 0;
+            for (let i = 0; i < px.length; i += 8) {
+                sumR += px[i] / 255;
+                sumG += px[i + 1] / 255;
+                sumB += px[i + 2] / 255;
+                count++;
+            }
+            const mean = [sumR / count, sumG / count, sumB / count];
+
+            let varR = 0, varG = 0, varB = 0;
+            for (let i = 0; i < px.length; i += 8) {
+                const dr = (px[i] / 255) - mean[0];
+                const dg = (px[i + 1] / 255) - mean[1];
+                const db = (px[i + 2] / 255) - mean[2];
+                varR += dr * dr;
+                varG += dg * dg;
+                varB += db * db;
+            }
+            const std = [
+                Math.max(0.06, Math.sqrt(varR / count)),
+                Math.max(0.06, Math.sqrt(varG / count)),
+                Math.max(0.06, Math.sqrt(varB / count))
+            ];
+            return { mean, std };
+        }
+
+        function refreshSourceColorStats() {
+            if (!AppState.colorMatch.hasTarget) return;
+            if (AppState.sourceMode === 'camera' && videoEl.readyState >= videoEl.HAVE_CURRENT_DATA && videoEl.videoWidth > 0) {
+                const s = computeColorStatsFromSource(videoEl, videoEl.videoWidth, videoEl.videoHeight);
+                AppState.colorMatch.srcMean = s.mean;
+                AppState.colorMatch.srcStd = s.std;
+            } else if (AppState.sourceMode === 'studio' && AppState.studioImage) {
+                const s = computeColorStatsFromSource(AppState.studioImage, AppState.studioImage.naturalWidth, AppState.studioImage.naturalHeight);
+                AppState.colorMatch.srcMean = s.mean;
+                AppState.colorMatch.srcStd = s.std;
+            }
+        }
+
+        function initColorMatchSamples() {
+            const presets = [
+                { id: 'golden', name: 'Hoàng Hôn Ấm', c1: '#ff7b00', c2: '#592040', c3: '#ffd166', refMean: [0.64, 0.44, 0.25], refStd: [0.24, 0.19, 0.16] },
+                { id: 'nordic', name: 'Bắc Âu Lạnh', c1: '#1d4ed8', c2: '#06b6d4', c3: '#cbd5e1', refMean: [0.36, 0.48, 0.62], refStd: [0.20, 0.20, 0.22] },
+                { id: 'forest', name: 'Rừng Xanh Film', c1: '#14532d', c2: '#4d7c0f', c3: '#d9f99d', refMean: [0.34, 0.52, 0.30], refStd: [0.18, 0.22, 0.17] },
+                { id: 'cyber', name: 'Neon Đêm', c1: '#7e22ce', c2: '#ec4899', c3: '#00d2ff', refMean: [0.54, 0.32, 0.60], refStd: [0.26, 0.22, 0.25] }
+            ];
+
+            AppState.colorMatch.samples = presets.map(p => {
+                const c = document.createElement('canvas');
+                c.width = 64;
+                c.height = 44;
+                const ctx = c.getContext('2d');
+                const grad = ctx.createLinearGradient(0, 0, 64, 44);
+                grad.addColorStop(0, p.c1);
+                grad.addColorStop(0.55, p.c2);
+                grad.addColorStop(1, p.c3);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 64, 44);
+                return {
+                    name: p.name,
+                    thumbUrl: c.toDataURL('image/jpeg', 0.75),
+                    refMean: p.refMean,
+                    refStd: p.refStd
+                };
             });
 
-            setTimeout(() => {
-                toast.classList.add('opacity-0', '-translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 2600);
+            try {
+                const raw = localStorage.getItem(MATCH_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) AppState.colorMatch.savedPresets = parsed;
+                }
+            } catch (_) {}
+
+            renderColorMatchUI();
+        }
+
+        function applyReferenceStats(name, refMean, refStd, autoStrength = 80) {
+            AppState.colorMatch.activeName = name;
+            AppState.colorMatch.refMean = refMean;
+            AppState.colorMatch.refStd = refStd;
+            AppState.colorMatch.hasTarget = true;
+            refreshSourceColorStats();
+
+            AppState.params.matchStrength = autoStrength;
+            const slider = document.getElementById('slider-matchStrength');
+            if (slider) {
+                slider.value = autoStrength;
+                document.getElementById('val-matchStrength').textContent = `${autoStrength}%`;
+            }
+            showToast(`Đã áp dụng Color Match: ${name}`, 'cyan');
+        }
+
+        function saveCurrentMatchAsPreset() {
+            const input = document.getElementById('matchPresetNameInput');
+            const customName = (input.value || '').trim();
+            const name = customName || `Màu Match #${AppState.colorMatch.savedPresets.length + 1}`;
+
+            // Kết hợp thông số chỉnh màu hiện tại và target của Color Match để lưu đầy đủ công thức
+            const preset = {
+                id: Date.now(),
+                name,
+                refMean: [...AppState.colorMatch.refMean],
+                refStd: [...AppState.colorMatch.refStd],
+                matchStrength: AppState.params.matchStrength > 0 ? AppState.params.matchStrength : 80,
+                params: {
+                    exposure: AppState.params.exposure,
+                    contrast: AppState.params.contrast,
+                    highlights: AppState.params.highlights,
+                    shadows: AppState.params.shadows,
+                    temp: AppState.params.temp,
+                    tint: AppState.params.tint,
+                    saturation: AppState.params.saturation,
+                    vibrance: AppState.params.vibrance,
+                    lutIntensity: AppState.params.lutIntensity
+                },
+                lutIndex: AppState.activeLutIndex
+            };
+
+            AppState.colorMatch.savedPresets.unshift(preset);
+            if (AppState.colorMatch.savedPresets.length > 20) {
+                AppState.colorMatch.savedPresets.pop();
+            }
+            try {
+                localStorage.setItem(MATCH_STORAGE_KEY, JSON.stringify(AppState.colorMatch.savedPresets));
+            } catch (_) {}
+
+            input.value = '';
+            renderColorMatchUI();
+            showToast(`Đã lưu preset "${name}" để dùng khi chụp/quay!`, 'success');
+        }
+
+        window.useSavedMatchPreset = function (idx) {
+            const p = AppState.colorMatch.savedPresets[idx];
+            if (!p) return;
+            AppState.colorMatch.activeName = p.name;
+            AppState.colorMatch.refMean = p.refMean || [0.5, 0.5, 0.5];
+            AppState.colorMatch.refStd = p.refStd || [0.22, 0.22, 0.22];
+            AppState.colorMatch.hasTarget = true;
+            refreshSourceColorStats();
+
+            if (p.params) {
+                Object.keys(p.params).forEach(k => {
+                    if (k in AppState.params) AppState.params[k] = p.params[k];
+                });
+                syncAllSlidersFromState();
+                syncWbPadUI();
+            }
+            if (typeof p.lutIndex === 'number' && AppState.luts[p.lutIndex]) {
+                selectLut(p.lutIndex);
+            }
+
+            AppState.params.matchStrength = typeof p.matchStrength === 'number' ? p.matchStrength : 80;
+            const msSlider = document.getElementById('slider-matchStrength');
+            if (msSlider) {
+                msSlider.value = AppState.params.matchStrength;
+                document.getElementById('val-matchStrength').textContent = `${AppState.params.matchStrength}%`;
+            }
+            showToast(`Đang dùng preset "${p.name}"`, 'success');
+        };
+
+        window.deleteSavedMatchPreset = function (idx, ev) {
+            ev.stopPropagation();
+            AppState.colorMatch.savedPresets.splice(idx, 1);
+            try {
+                localStorage.setItem(MATCH_STORAGE_KEY, JSON.stringify(AppState.colorMatch.savedPresets));
+            } catch (_) {}
+            renderColorMatchUI();
+        };
+
+        function renderColorMatchUI() {
+            const samplesBox = document.getElementById('matchSamplesContainer');
+            samplesBox.innerHTML = AppState.colorMatch.samples.map((s, i) => `
+                <button onclick="selectBuiltInMatchSample(${i})" class="shrink-0 w-16 rounded-lg overflow-hidden border border-cine-border hover:border-cine-cyan bg-cine-bg text-left transition">
+                    <img src="${s.thumbUrl}" alt="${s.name}" class="w-full h-9 object-cover block">
+                    <div class="px-1 py-0.5 text-[9px] font-medium text-gray-200 truncate">${s.name}</div>
+                </button>
+            `).join('');
+
+            const presetsBox = document.getElementById('savedMatchPresetsContainer');
+            if (!AppState.colorMatch.savedPresets.length) {
+                presetsBox.innerHTML = `<span class="text-[10px] font-mono text-cine-muted">Chưa có màu đã lưu</span>`;
+                return;
+            }
+            presetsBox.innerHTML = AppState.colorMatch.savedPresets.map((p, idx) => `
+                <div onclick="useSavedMatchPreset(${idx})" class="shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-cine-bg border border-cine-amber/50 hover:border-cine-amber cursor-pointer transition">
+                    <span class="text-[10px] font-semibold text-cine-amber whitespace-nowrap">${p.name}</span>
+                    <button onclick="deleteSavedMatchPreset(${idx}, event)" title="Xóa preset" class="text-[9px] text-cine-muted hover:text-cine-red">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.selectBuiltInMatchSample = function (i) {
+            const s = AppState.colorMatch.samples[i];
+            if (s) applyReferenceStats(s.name, s.refMean, s.refStd, 80);
+        };
+
+        function handleMatchRefFile(file) {
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                const stats = computeColorStatsFromSource(img, img.naturalWidth, img.naturalHeight);
+                const cleanName = file.name.replace(/\.[^/.]+$/, '');
+                AppState.colorMatch.samples.unshift({
+                    name: cleanName,
+                    thumbUrl: url,
+                    refMean: stats.mean,
+                    refStd: stats.std
+                });
+                if (AppState.colorMatch.samples.length > 10) AppState.colorMatch.samples.pop();
+                renderColorMatchUI();
+                applyReferenceStats(cleanName, stats.mean, stats.std, 85);
+            };
+            img.src = url;
+        }
+
+        function syncAllSlidersFromState() {
+            const ids = ['exposure', 'contrast', 'highlights', 'shadows', 'saturation', 'vibrance', 'lutIntensity', 'matchStrength'];
+            ids.forEach(id => {
+                const el = document.getElementById(`slider-${id}`);
+                if (el) {
+                    el.value = AppState.params[id];
+                    el.dispatchEvent(new Event('input'));
+                }
+            });
         }
 
         // ==================== 3D LUT GENERATOR & .CUBE PARSER ====================
-        /**
-         * Tạo dữ liệu 3D LUT dạng Float32Array (size * size * size * 4 RGBA)
-         * Sử dụng 2D Tiled Texture (size*size x size) để tương thích 100% WebGL1 & WebGL2 trên mọi thiết bị Android/iOS/PC
-         */
         function generatePresetLutData(type, size = 17) {
             const data = new Uint8Array(size * size * size * 4);
             for (let b = 0; b < size; b++) {
@@ -741,19 +935,16 @@
                         let bn = b / (size - 1);
 
                         if (type === 'teal-orange') {
-                            // Điện ảnh Teal & Orange: Đẩy vùng tối sang xanh teal, vùng da/sáng sang cam ấm
                             const luma = 0.299 * rn + 0.587 * gn + 0.114 * bn;
-                            const shadowWeight = Math.pow(1.0 - luma, 1.6);
-                            const highlightWeight = Math.pow(luma, 1.3);
-                            rn = rn + highlightWeight * 0.14 - shadowWeight * 0.08;
-                            gn = gn + shadowWeight * 0.04 + highlightWeight * 0.02;
-                            bn = bn + shadowWeight * 0.16 - highlightWeight * 0.12;
-                            // S-curve contrast nhẹ
+                            const sw = Math.pow(1.0 - luma, 1.6);
+                            const hw = Math.pow(luma, 1.3);
+                            rn = rn + hw * 0.14 - sw * 0.08;
+                            gn = gn + sw * 0.04 + hw * 0.02;
+                            bn = bn + sw * 0.16 - hw * 0.12;
                             rn = rn * rn * (3 - 2 * rn);
                             gn = gn * gn * (3 - 2 * gn);
                             bn = bn * bn * (3 - 2 * bn);
                         } else if (type === 'fuji-chrome') {
-                            // Fuji Classic Chrome: Tương phản sâu, màu xanh trầm điện ảnh, độ bão hòa tinh tế
                             rn = Math.pow(rn, 1.06) * 0.96 + 0.02;
                             gn = Math.pow(gn, 1.02) * 0.98 + 0.01;
                             bn = Math.pow(bn, 0.95) * 0.94 + 0.03;
@@ -762,14 +953,12 @@
                             gn = avg + (gn - avg) * 0.92;
                             bn = avg + (bn - avg) * 0.85;
                         } else if (type === 'kodak-gold') {
-                            // Kodak Gold 200: Tông vàng nắng ấm áp, hoài cổ
                             rn = Math.min(1, rn * 1.08 + 0.03);
                             gn = Math.min(1, gn * 1.02 + 0.015);
                             bn = Math.max(0, bn * 0.86 + 0.02);
                         } else if (type === 'noir-mono') {
-                            // Monochrome Leica Noir: Đen trắng tương phản cao
                             let gray = 0.299 * rn + 0.587 * gn + 0.114 * bn;
-                            gray = gray * gray * (3 - 2 * gray); // S-curve
+                            gray = gray * gray * (3 - 2 * gray);
                             rn = gn = bn = gray;
                         }
 
@@ -784,9 +973,6 @@
             return { size, data };
         }
 
-        /**
-         * Phân tích file .cube (Adobe / DaVinci Resolve standard 1D & 3D LUT)
-         */
         function parseCubeFile(text, fileName) {
             const lines = text.split(/\r?\n/);
             let size = 0;
@@ -796,13 +982,12 @@
             let domainMax = [1, 1, 1];
             const rgbValues = [];
 
-            for (let rawLine of lines) {
-                const line = rawLine.trim();
+            for (const raw of lines) {
+                const line = raw.trim();
                 if (!line || line.startsWith('#')) continue;
-
                 if (line.startsWith('TITLE')) {
-                    const match = line.match(/TITLE\s+"?([^"]+)"?/i);
-                    if (match) title = match[1];
+                    const m = line.match(/TITLE\s+"?([^"]+)"?/i);
+                    if (m) title = m[1];
                 } else if (line.startsWith('LUT_3D_SIZE')) {
                     size = parseInt(line.split(/\s+/)[1], 10);
                     is1D = false;
@@ -810,28 +995,23 @@
                     size = parseInt(line.split(/\s+/)[1], 10);
                     is1D = true;
                 } else if (line.startsWith('DOMAIN_MIN')) {
-                    const parts = line.split(/\s+/).slice(1).map(Number);
-                    if (parts.length === 3) domainMin = parts;
+                    const p = line.split(/\s+/).slice(1).map(Number);
+                    if (p.length === 3) domainMin = p;
                 } else if (line.startsWith('DOMAIN_MAX')) {
-                    const parts = line.split(/\s+/).slice(1).map(Number);
-                    if (parts.length === 3) domainMax = parts;
+                    const p = line.split(/\s+/).slice(1).map(Number);
+                    if (p.length === 3) domainMax = p;
                 } else {
-                    const parts = line.split(/\s+/);
-                    if (parts.length >= 3 && !isNaN(parseFloat(parts[0]))) {
-                        rgbValues.push([
-                            parseFloat(parts[0]),
-                            parseFloat(parts[1]),
-                            parseFloat(parts[2])
-                        ]);
+                    const p = line.split(/\s+/);
+                    if (p.length >= 3 && !isNaN(parseFloat(p[0]))) {
+                        rgbValues.push([parseFloat(p[0]), parseFloat(p[1]), parseFloat(p[2])]);
                     }
                 }
             }
 
             if (!size || rgbValues.length === 0) {
-                throw new Error('File .cube không hợp lệ hoặc thiếu kích thước LUT.');
+                throw new Error('File .cube không hợp lệ.');
             }
 
-            // Nếu là 1D LUT, mở rộng thành 3D LUT 17x17x17 để shader dùng thống nhất
             if (is1D) {
                 const targetSize = 17;
                 const data = new Uint8Array(targetSize * targetSize * targetSize * 4);
@@ -842,17 +1022,13 @@
                     const t = scaled - i0;
                     return rgbValues[i0][ch] * (1 - t) + rgbValues[i1][ch] * t;
                 };
-
                 for (let b = 0; b < targetSize; b++) {
                     for (let g = 0; g < targetSize; g++) {
                         for (let r = 0; r < targetSize; r++) {
-                            const outR = sample1D(r / (targetSize - 1), 0);
-                            const outG = sample1D(g / (targetSize - 1), 1);
-                            const outB = sample1D(b / (targetSize - 1), 2);
                             const idx = ((b * targetSize + g) * targetSize + r) * 4;
-                            data[idx]     = Math.max(0, Math.min(255, Math.round(outR * 255)));
-                            data[idx + 1] = Math.max(0, Math.min(255, Math.round(outG * 255)));
-                            data[idx + 2] = Math.max(0, Math.min(255, Math.round(outB * 255)));
+                            data[idx]     = Math.max(0, Math.min(255, Math.round(sample1D(r / (targetSize - 1), 0) * 255)));
+                            data[idx + 1] = Math.max(0, Math.min(255, Math.round(sample1D(g / (targetSize - 1), 1) * 255)));
+                            data[idx + 2] = Math.max(0, Math.min(255, Math.round(sample1D(b / (targetSize - 1), 2) * 255)));
                             data[idx + 3] = 255;
                         }
                     }
@@ -860,10 +1036,9 @@
                 return { name: title, size: targetSize, data, isCustom: true };
             }
 
-            // Chuẩn .cube 3D: R tăng nhanh nhất, sau đó G, sau đó B
             const expectedCount = size * size * size;
             if (rgbValues.length < expectedCount) {
-                throw new Error(`Dữ liệu LUT không đủ (${rgbValues.length}/${expectedCount}).`);
+                throw new Error(`Thiếu dữ liệu LUT (${rgbValues.length}/${expectedCount}).`);
             }
 
             const data = new Uint8Array(expectedCount * 4);
@@ -877,11 +1052,10 @@
                 data[i * 4 + 2] = Math.max(0, Math.min(255, Math.round(nb * 255)));
                 data[i * 4 + 3] = 255;
             }
-
             return { name: title, size, data, isCustom: true };
         }
 
-        // ==================== WEBGL REAL-TIME COLOR GRADING ENGINE ====================
+        // ==================== WEBGL ENGINE ====================
         class WebGLColorEngine {
             constructor(canvas) {
                 this.canvas = canvas;
@@ -892,18 +1066,30 @@
                 }) || canvas.getContext('experimental-webgl', { preserveDrawingBuffer: true });
 
                 if (!this.gl) {
-                    showToast('Trình duyệt không hỗ trợ WebGL!', 'error');
+                    showToast('Không khởi tạo được WebGL.', 'error');
                     return;
                 }
-
                 this.initShaders();
                 this.initBuffers();
                 this.initTextures();
             }
 
+            compileShader(type, src) {
+                const gl = this.gl;
+                const sh = gl.createShader(type);
+                gl.shaderSource(sh, src);
+                gl.compileShader(sh);
+                if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+                    console.error(gl.getShaderInfoLog(sh));
+                    gl.deleteShader(sh);
+                    return null;
+                }
+                return sh;
+            }
+
             initShaders() {
                 const gl = this.gl;
-                const vsSource = `
+                const vsSrc = `
                     attribute vec2 a_position;
                     attribute vec2 a_texCoord;
                     varying vec2 v_texCoord;
@@ -913,8 +1099,7 @@
                     }
                 `;
 
-                // Fragment Shader: Thực hiện Exposure, Contrast, Highlights, Shadows, Temp, Tint, Saturation, Vibrance, 3D LUT & Optical DOF
-                const fsSource = `
+                const fsSrc = `
                     precision highp float;
                     varying vec2 v_texCoord;
 
@@ -926,22 +1111,25 @@
                     uniform bool u_showOriginal;
                     uniform bool u_mirrorX;
 
-                    // Color Grading Uniforms
-                    uniform float u_exposure;    // -1.0 to 1.0
-                    uniform float u_contrast;    // -1.0 to 1.0
-                    uniform float u_highlights;  // -1.0 to 1.0
-                    uniform float u_shadows;     // -1.0 to 1.0
-                    uniform float u_temp;        // -1.0 to 1.0
-                    uniform float u_tint;        // -1.0 to 1.0
-                    uniform float u_saturation;  // -1.0 to 1.0
-                    uniform float u_vibrance;    // -1.0 to 1.0
+                    uniform float u_exposure;
+                    uniform float u_contrast;
+                    uniform float u_highlights;
+                    uniform float u_shadows;
+                    uniform float u_temp;
+                    uniform float u_tint;
+                    uniform float u_saturation;
+                    uniform float u_vibrance;
 
-                    // Optical Focus Simulation Uniforms
+                    uniform float u_matchStrength;
+                    uniform vec3 u_srcMean;
+                    uniform vec3 u_srcStd;
+                    uniform vec3 u_refMean;
+                    uniform vec3 u_refStd;
+
                     uniform vec2 u_focusPoint;
                     uniform float u_blurAmount;
                     uniform vec2 u_texelSize;
 
-                    // Nội suy Trilinear cho 3D LUT đóng gói dạng 2D strip (width = size*size, height = size)
                     vec3 apply3DLUT(vec3 color) {
                         float size = u_lutSize;
                         float sliceSize = 1.0 / size;
@@ -957,37 +1145,32 @@
                         vec2 uv0 = vec2(zSlice0 * sliceSize + xOffset, yOffset * size);
                         vec2 uv1 = vec2(zSlice1 * sliceSize + xOffset, yOffset * size);
 
-                        vec3 sample0 = texture2D(u_lut, uv0).rgb;
-                        vec3 sample1 = texture2D(u_lut, uv1).rgb;
-
-                        float zOffset = mod(color.b * (size - 1.0), 1.0);
-                        return mix(sample0, sample1, zOffset);
+                        vec3 s0 = texture2D(u_lut, uv0).rgb;
+                        vec3 s1 = texture2D(u_lut, uv1).rgb;
+                        return mix(s0, s1, mod(color.b * (size - 1.0), 1.0));
                     }
 
                     void main() {
                         vec2 uv = v_texCoord;
-                        if (u_mirrorX) {
-                            uv.x = 1.0 - uv.x;
-                        }
+                        if (u_mirrorX) uv.x = 1.0 - uv.x;
 
                         vec4 baseSample = texture2D(u_image, uv);
 
-                        // Mô phỏng độ sâu trường ảnh (DOF) khi người dùng chỉnh khoảng cách lấy nét gần/xa
                         if (u_blurAmount > 0.001 && !u_showOriginal) {
                             float dist = distance(uv, u_focusPoint);
                             float falloff = smoothstep(0.14, 0.65, dist) * u_blurAmount;
                             if (falloff > 0.05) {
-                                vec3 blurSum = baseSample.rgb * 0.2;
                                 float r = falloff * 4.5;
-                                blurSum += texture2D(u_image, clamp(uv + vec2( r,  0.0) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                blurSum += texture2D(u_image, clamp(uv + vec2(-r,  0.0) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                blurSum += texture2D(u_image, clamp(uv + vec2( 0.0,  r) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                blurSum += texture2D(u_image, clamp(uv + vec2( 0.0, -r) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                blurSum += texture2D(u_image, clamp(uv + vec2( r,  r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                blurSum += texture2D(u_image, clamp(uv + vec2(-r,  r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                blurSum += texture2D(u_image, clamp(uv + vec2( r, -r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                blurSum += texture2D(u_image, clamp(uv + vec2(-r, -r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
-                                baseSample.rgb = blurSum;
+                                vec3 sum = baseSample.rgb * 0.2;
+                                sum += texture2D(u_image, clamp(uv + vec2( r,  0.0) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                sum += texture2D(u_image, clamp(uv + vec2(-r,  0.0) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                sum += texture2D(u_image, clamp(uv + vec2( 0.0,  r) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                sum += texture2D(u_image, clamp(uv + vec2( 0.0, -r) * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                sum += texture2D(u_image, clamp(uv + vec2( r,  r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                sum += texture2D(u_image, clamp(uv + vec2(-r,  r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                sum += texture2D(u_image, clamp(uv + vec2( r, -r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                sum += texture2D(u_image, clamp(uv + vec2(-r, -r) * 0.7 * u_texelSize, 0.001, 0.999)).rgb * 0.1;
+                                baseSample.rgb = sum;
                             }
                         }
 
@@ -996,59 +1179,48 @@
                             return;
                         }
 
-                        vec3 color = baseSample.rgb;
+                        vec3 c = baseSample.rgb;
+                        c *= pow(2.0, u_exposure * 1.5);
+                        c.r += u_temp * 0.14;
+                        c.b -= u_temp * 0.14;
+                        c.g += u_tint * 0.10;
+                        c.r -= u_tint * 0.04;
+                        c.b -= u_tint * 0.04;
 
-                        // 1. Exposure (EV stop simulation)
-                        color *= pow(2.0, u_exposure * 1.5);
+                        float luma = dot(c, vec3(0.299, 0.587, 0.114));
+                        c += c * u_shadows * pow(clamp(1.0 - luma, 0.0, 1.0), 2.0) * 0.75;
+                        c += c * u_highlights * pow(clamp(luma, 0.0, 1.0), 2.0) * 0.65;
 
-                        // 2. White Balance: Temperature (Warm/Cool) & Tint (Green/Magenta)
-                        color.r += u_temp * 0.14;
-                        color.b -= u_temp * 0.14;
-                        color.g += u_tint * 0.10;
-                        color.r -= u_tint * 0.04;
-                        color.b -= u_tint * 0.04;
+                        c = (c - 0.5) * (1.0 + u_contrast * 0.85) + 0.5;
 
-                        // 3. Highlights & Shadows recovery
-                        float luma = dot(color, vec3(0.299, 0.587, 0.114));
-                        float shadowMask = pow(clamp(1.0 - luma, 0.0, 1.0), 2.0);
-                        float highlightMask = pow(clamp(luma, 0.0, 1.0), 2.0);
-                        color += color * u_shadows * shadowMask * 0.75;
-                        color += color * u_highlights * highlightMask * 0.65;
+                        float newLuma = dot(c, vec3(0.299, 0.587, 0.114));
+                        float satLevel = max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b));
+                        float totalSat = 1.0 + u_saturation + u_vibrance * (1.0 - satLevel) * 0.9;
+                        c = mix(vec3(newLuma), c, max(0.0, totalSat));
+                        c = clamp(c, 0.0, 1.0);
 
-                        // 4. Contrast
-                        float contrastFactor = 1.0 + u_contrast * 0.85;
-                        color = (color - 0.5) * contrastFactor + 0.5;
-
-                        // 5. Vibrance & Saturation
-                        float newLuma = dot(color, vec3(0.299, 0.587, 0.114));
-                        float maxCh = max(color.r, max(color.g, color.b));
-                        float minCh = min(color.r, min(color.g, color.b));
-                        float satLevel = maxCh - minCh;
-                        float vibranceBoost = u_vibrance * (1.0 - satLevel) * 0.9;
-                        float totalSat = 1.0 + u_saturation + vibranceBoost;
-                        color = mix(vec3(newLuma), color, max(0.0, totalSat));
-
-                        color = clamp(color, 0.0, 1.0);
-
-                        // 6. 3D LUT Color Grading
                         if (u_hasLut && u_lutIntensity > 0.001) {
-                            vec3 lutColor = apply3DLUT(color);
-                            color = mix(color, lutColor, u_lutIntensity);
+                            c = mix(c, apply3DLUT(c), u_lutIntensity);
                         }
 
-                        gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
+                        // 7. Color Match transfer (mean & standard deviation color alignment)
+                        if (u_matchStrength > 0.001) {
+                            vec3 matched = (c - u_srcMean) * (u_refStd / max(u_srcStd, vec3(0.06))) + u_refMean;
+                            c = mix(c, clamp(matched, 0.0, 1.0), u_matchStrength);
+                        }
+
+                        gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
                     }
                 `;
 
-                const vs = this.compileShader(gl.VERTEX_SHADER, vsSource);
-                const fs = this.compileShader(gl.FRAGMENT_SHADER, fsSource);
+                const vs = this.compileShader(gl.VERTEX_SHADER, vsSrc);
+                const fs = this.compileShader(gl.FRAGMENT_SHADER, fsSrc);
                 this.program = gl.createProgram();
                 gl.attachShader(this.program, vs);
                 gl.attachShader(this.program, fs);
                 gl.linkProgram(this.program);
                 gl.useProgram(this.program);
 
-                // Cache Uniform Locations
                 this.uniforms = {
                     image: gl.getUniformLocation(this.program, 'u_image'),
                     lut: gl.getUniformLocation(this.program, 'u_lut'),
@@ -1065,23 +1237,15 @@
                     tint: gl.getUniformLocation(this.program, 'u_tint'),
                     saturation: gl.getUniformLocation(this.program, 'u_saturation'),
                     vibrance: gl.getUniformLocation(this.program, 'u_vibrance'),
+                    matchStrength: gl.getUniformLocation(this.program, 'u_matchStrength'),
+                    srcMean: gl.getUniformLocation(this.program, 'u_srcMean'),
+                    srcStd: gl.getUniformLocation(this.program, 'u_srcStd'),
+                    refMean: gl.getUniformLocation(this.program, 'u_refMean'),
+                    refStd: gl.getUniformLocation(this.program, 'u_refStd'),
                     focusPoint: gl.getUniformLocation(this.program, 'u_focusPoint'),
                     blurAmount: gl.getUniformLocation(this.program, 'u_blurAmount'),
                     texelSize: gl.getUniformLocation(this.program, 'u_texelSize'),
                 };
-            }
-
-            compileShader(type, source) {
-                const gl = this.gl;
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
-                    gl.deleteShader(shader);
-                    return null;
-                }
-                return shader;
             }
 
             initBuffers() {
@@ -1091,26 +1255,19 @@
 
                 const posBuf = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-                    -1, -1,  1, -1, -1,  1,
-                    -1,  1,  1, -1,  1,  1
-                ]), gl.STATIC_DRAW);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
                 gl.enableVertexAttribArray(posLoc);
                 gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
                 const texBuf = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, texBuf);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-                    0, 1,  1, 1,  0, 0,
-                    0, 0,  1, 1,  1, 0
-                ]), gl.STATIC_DRAW);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0,1, 1,1, 0,0, 0,0, 1,1, 1,0]), gl.STATIC_DRAW);
                 gl.enableVertexAttribArray(texLoc);
                 gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, 0, 0);
             }
 
             initTextures() {
                 const gl = this.gl;
-                // Source Image/Video Texture
                 this.sourceTex = gl.createTexture();
                 gl.activeTexture(gl.TEXTURE0);
                 gl.bindTexture(gl.TEXTURE_2D, this.sourceTex);
@@ -1119,7 +1276,6 @@
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-                // LUT Texture
                 this.lutTex = gl.createTexture();
                 gl.activeTexture(gl.TEXTURE1);
                 gl.bindTexture(gl.TEXTURE_2D, this.lutTex);
@@ -1138,33 +1294,40 @@
                     gl.uniform1i(this.uniforms.hasLut, 0);
                     return;
                 }
-                const size = lutObj.size;
+                const s = lutObj.size;
                 gl.activeTexture(gl.TEXTURE1);
                 gl.bindTexture(gl.TEXTURE_2D, this.lutTex);
-                gl.texImage2D(
-                    gl.TEXTURE_2D, 0, gl.RGBA,
-                    size * size, size, 0,
-                    gl.RGBA, gl.UNSIGNED_BYTE, lutObj.data
-                );
-                gl.uniform1f(this.uniforms.lutSize, size);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, s * s, s, 0, gl.RGBA, gl.UNSIGNED_BYTE, lutObj.data);
+                gl.uniform1f(this.uniforms.lutSize, s);
                 gl.uniform1i(this.uniforms.hasLut, 1);
             }
 
-            render(sourceElement, width, height) {
+            render(source, width, height) {
                 const gl = this.gl;
-                if (!gl || !sourceElement || !width || !height) return;
+                if (!gl || !source || !width || !height) return;
 
-                if (this.canvas.width !== width || this.canvas.height !== height) {
-                    this.canvas.width = width;
-                    this.canvas.height = height;
-                    gl.viewport(0, 0, width, height);
+                // Giới hạn độ phân giải preview tối đa 1280px chiều ngang để đảm bảo mượt mà không khựng lag
+                const maxPreviewW = 1280;
+                let targetW = width;
+                let targetH = height;
+                if (width > maxPreviewW) {
+                    const ratio = maxPreviewW / width;
+                    targetW = maxPreviewW;
+                    targetH = Math.max(1, Math.round(height * ratio));
+                }
+
+                if (this.canvas.width !== targetW || this.canvas.height !== targetH) {
+                    this.canvas.width = targetW;
+                    this.canvas.height = targetH;
+                    gl.viewport(0, 0, targetW, targetH);
                 }
 
                 gl.activeTexture(gl.TEXTURE0);
                 gl.bindTexture(gl.TEXTURE_2D, this.sourceTex);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceElement);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
                 const p = AppState.params;
+                const cm = AppState.colorMatch;
                 gl.uniform1f(this.uniforms.exposure, p.exposure / 100);
                 gl.uniform1f(this.uniforms.contrast, p.contrast / 100);
                 gl.uniform1f(this.uniforms.highlights, p.highlights / 100);
@@ -1174,19 +1337,19 @@
                 gl.uniform1f(this.uniforms.saturation, p.saturation / 100);
                 gl.uniform1f(this.uniforms.vibrance, p.vibrance / 100);
                 gl.uniform1f(this.uniforms.lutIntensity, p.lutIntensity / 100);
+                gl.uniform1f(this.uniforms.matchStrength, p.matchStrength / 100);
+                gl.uniform3fv(this.uniforms.srcMean, cm.srcMean);
+                gl.uniform3fv(this.uniforms.srcStd, cm.srcStd);
+                gl.uniform3fv(this.uniforms.refMean, cm.refMean);
+                gl.uniform3fv(this.uniforms.refStd, cm.refStd);
                 gl.uniform1i(this.uniforms.showOriginal, AppState.showOriginal ? 1 : 0);
+                gl.uniform1i(this.uniforms.mirrorX, (AppState.sourceMode === 'camera' && AppState.facingMode === 'user') ? 1 : 0);
 
-                // Lật gương khi dùng camera trước ở chế độ Live Cam
-                const shouldMirror = AppState.sourceMode === 'camera' && AppState.facingMode === 'user';
-                gl.uniform1i(this.uniforms.mirrorX, shouldMirror ? 1 : 0);
-
-                // Focus point & optical DOF simulation
                 gl.uniform2f(this.uniforms.focusPoint, AppState.focusPoint.x, AppState.focusPoint.y);
-                const blurStrength = (AppState.opticalDofSim && AppState.focusMode === 'MF')
-                    ? Math.abs(AppState.focusDistance - 0.5) * 1.6
-                    : 0.0;
-                gl.uniform1f(this.uniforms.blurAmount, blurStrength);
-                gl.uniform2f(this.uniforms.texelSize, 1.0 / width, 1.0 / height);
+                const blur = (AppState.opticalDofSim && AppState.focusMode === 'MF')
+                    ? Math.abs(AppState.focusDistance - 0.5) * 1.6 : 0.0;
+                gl.uniform1f(this.uniforms.blurAmount, blur);
+                gl.uniform2f(this.uniforms.texelSize, 1.0 / targetW, 1.0 / targetH);
 
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
@@ -1194,68 +1357,51 @@
 
         let engine = null;
 
-        // ==================== LIVE HISTOGRAM RENDERER ====================
+        // ==================== HISTOGRAM ====================
         let lastHistTime = 0;
         function updateHistogram(now) {
-            if (now - lastHistTime < 140) return; // Cập nhật ~7fps để tối ưu CPU
+            if (now - lastHistTime < 180 || !glCanvas.width || !glCanvas.height) return;
             lastHistTime = now;
-
-            if (!glCanvas.width || !glCanvas.height) return;
-
-            // Vẽ thu nhỏ canvas chính vào histogramCanvas để đọc mẫu pixel cực nhanh
             const w = histCanvas.width;
             const h = histCanvas.height;
             histCtx.drawImage(glCanvas, 0, 0, w, h);
-            const imgData = histCtx.getImageData(0, 0, w, h).data;
-
-            const bins = 48;
-            const rHist = new Uint32Array(bins);
-            const gHist = new Uint32Array(bins);
-            const bHist = new Uint32Array(bins);
-            let maxVal = 1;
-
-            for (let i = 0; i < imgData.length; i += 8) {
-                const rBin = Math.floor((imgData[i] / 256) * bins);
-                const gBin = Math.floor((imgData[i + 1] / 256) * bins);
-                const bBin = Math.floor((imgData[i + 2] / 256) * bins);
-                if (++rHist[rBin] > maxVal) maxVal = rHist[rBin];
-                if (++gHist[gBin] > maxVal) maxVal = gHist[gBin];
-                if (++bHist[bBin] > maxVal) maxVal = bHist[bBin];
+            const data = histCtx.getImageData(0, 0, w, h).data;
+            const bins = 24;
+            const rH = new Uint32Array(bins), gH = new Uint32Array(bins), bH = new Uint32Array(bins);
+            let maxV = 1;
+            for (let i = 0; i < data.length; i += 16) {
+                const rb = Math.floor((data[i] / 256) * bins);
+                const gb = Math.floor((data[i + 1] / 256) * bins);
+                const bb = Math.floor((data[i + 2] / 256) * bins);
+                if (++rH[rb] > maxV) maxV = rH[rb];
+                if (++gH[gb] > maxV) maxV = gH[gb];
+                if (++bH[bb] > maxV) maxV = bH[bb];
             }
-
             histCtx.clearRect(0, 0, w, h);
-            histCtx.fillStyle = 'rgba(10, 11, 14, 0.75)';
-            histCtx.fillRect(0, 0, w, h);
-
             histCtx.globalCompositeOperation = 'screen';
-            const drawChannel = (hist, color) => {
+            const drawCh = (arr, col) => {
                 histCtx.beginPath();
                 histCtx.moveTo(0, h);
                 for (let i = 0; i < bins; i++) {
-                    const x = (i / (bins - 1)) * w;
-                    const y = h - (hist[i] / maxVal) * (h - 4);
-                    histCtx.lineTo(x, y);
+                    histCtx.lineTo((i / (bins - 1)) * w, h - (arr[i] / maxV) * (h - 2));
                 }
                 histCtx.lineTo(w, h);
                 histCtx.closePath();
-                histCtx.fillStyle = color;
+                histCtx.fillStyle = col;
                 histCtx.fill();
             };
-
-            drawChannel(rHist, 'rgba(255, 75, 75, 0.65)');
-            drawChannel(gHist, 'rgba(50, 220, 130, 0.65)');
-            drawChannel(bHist, 'rgba(0, 210, 255, 0.70)');
+            drawCh(rH, 'rgba(255,80,80,0.7)');
+            drawCh(gH, 'rgba(50,220,130,0.7)');
+            drawCh(bH, 'rgba(0,210,255,0.75)');
             histCtx.globalCompositeOperation = 'source-over';
         }
 
-        // ==================== CAMERA & HARDWARE FOCUS CONTROLLER ====================
+        // ==================== CAMERA & FOCUS ====================
         async function startCamera() {
             stopCameraStream();
-            const fallbackOverlay = document.getElementById('cameraFallbackOverlay');
-            fallbackOverlay.classList.add('hidden');
-
+            document.getElementById('cameraFallbackOverlay').classList.add('hidden');
             try {
-                const constraints = {
+                const stream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: {
                         facingMode: { ideal: AppState.facingMode },
@@ -1263,35 +1409,18 @@
                         height: { ideal: 1080 },
                         frameRate: { ideal: 30 }
                     }
-                };
-
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                });
                 AppState.stream = stream;
                 videoEl.srcObject = stream;
                 await videoEl.play();
-
-                const videoTracks = stream.getVideoTracks();
-                AppState.videoTrack = videoTracks[0] || null;
+                AppState.videoTrack = stream.getVideoTracks()[0] || null;
                 AppState.torchOn = false;
                 updateTorchUI();
-
-                // Kiểm tra khả năng lấy nét phần cứng (focusMode / focusDistance)
                 checkCameraCapabilities();
-
-                // Cập nhật thông số kỹ thuật trên HUD
-                const settings = AppState.videoTrack ? AppState.videoTrack.getSettings() : {};
-                const w = settings.width || videoEl.videoWidth || 1280;
-                const h = settings.height || videoEl.videoHeight || 720;
-                const fps = Math.round(settings.frameRate || 30);
-                document.getElementById('techRes').textContent = `${w}×${h}`;
-                document.getElementById('mobileResTag').textContent = `${h}P`;
-                document.getElementById('techFps').textContent = `${fps} FPS`;
-
             } catch (err) {
-                console.warn('Camera access error:', err);
-                fallbackOverlay.classList.remove('hidden');
+                document.getElementById('cameraFallbackOverlay').classList.remove('hidden');
                 document.getElementById('cameraErrorMsg').textContent =
-                    `Lỗi truy cập camera (${err.name || 'PermissionDenied'}). Hãy cấp quyền Camera trong trình duyệt hoặc chuyển sang Studio Ảnh để chỉnh ảnh có sẵn.`;
+                    `Lỗi camera (${err.name || 'PermissionDenied'}). Hãy cấp quyền máy ảnh hoặc bấm Nhập Ảnh để chỉnh màu.`;
             }
         }
 
@@ -1311,130 +1440,95 @@
                 return;
             }
             const caps = AppState.videoTrack.getCapabilities();
-            if (caps.focusMode && caps.focusMode.includes('manual') && caps.focusDistance) {
-                AppState.hardwareFocusSupported = true;
-                badge.textContent = 'Hỗ trợ lấy nét phần cứng (Hardware MF/AF)';
-            } else {
-                AppState.hardwareFocusSupported = false;
-                badge.textContent = 'Lấy nét điểm chạm + Quang học thông minh';
-            }
+            AppState.hardwareFocusSupported = Boolean(caps.focusMode && caps.focusMode.includes('manual') && caps.focusDistance);
+            badge.textContent = AppState.hardwareFocusSupported
+                ? 'Hỗ trợ lấy nét phần cứng MF/AF'
+                : 'Chạm khung hình lấy nét & chỉnh gần/xa';
         }
 
-        async function applyFocusConstraints(normDistance, mode) {
-            AppState.focusDistance = normDistance;
+        async function applyFocusConstraints(dist, mode) {
+            AppState.focusDistance = dist;
             AppState.focusMode = mode;
-
-            // Cập nhật UI hiển thị
             const label = mode === 'AF'
                 ? 'AUTO'
-                : (normDistance < 0.2 ? `MACRO (${normDistance.toFixed(2)})`
-                    : normDistance > 0.85 ? 'VÔ CỰC (∞)'
-                    : `${(0.1 + normDistance * 4.9).toFixed(1)}m`);
+                : (dist < 0.2 ? 'MACRO' : dist > 0.85 ? '∞' : `${(0.1 + dist * 4.9).toFixed(1)}m`);
             document.getElementById('val-focusDist').textContent = label;
-            document.getElementById('reticleFocusText').textContent = mode === 'AF' ? 'AF LOCK' : `MF ${label}`;
+            document.getElementById('focusPillText').textContent = mode === 'AF' ? 'AF' : `MF ${label}`;
+            document.getElementById('reticleFocusLabel').textContent = mode === 'AF' ? 'AF LOCK' : `MF ${label}`;
 
-            // Gửi lệnh phần cứng nếu thiết bị hỗ trợ
             if (AppState.videoTrack && AppState.hardwareFocusSupported) {
                 try {
                     const caps = AppState.videoTrack.getCapabilities();
                     if (mode === 'MF' && caps.focusDistance) {
                         const minD = caps.focusDistance.min || 0;
                         const maxD = caps.focusDistance.max || 1;
-                        const targetDist = minD + normDistance * (maxD - minD);
                         await AppState.videoTrack.applyConstraints({
-                            advanced: [{ focusMode: 'manual', focusDistance: targetDist }]
+                            advanced: [{ focusMode: 'manual', focusDistance: minD + dist * (maxD - minD) }]
                         });
                     } else if (mode === 'AF') {
-                        await AppState.videoTrack.applyConstraints({
-                            advanced: [{ focusMode: 'continuous' }]
-                        });
+                        await AppState.videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
                     }
-                } catch (e) {
-                    // Bỏ qua nếu trình duyệt hạn chế constraint động
-                }
+                } catch (_) {}
             }
         }
 
-        // ==================== CAPTURE PHOTO & VIDEO RECORDING ====================
-        function triggerShutterFlash() {
-            const flash = document.getElementById('shutterFlash');
-            flash.classList.remove('flash-active');
-            void flash.offsetWidth;
-            flash.classList.add('flash-active');
-        }
-
+        // ==================== PHOTO & VIDEO CAPTURE ====================
         function capturePhoto() {
             if (!glCanvas.width || !glCanvas.height) return;
-            triggerShutterFlash();
+            const flash = document.getElementById('shutterFlash');
+            flash.classList.remove('flash-anim');
+            void flash.offsetWidth;
+            flash.classList.add('flash-anim');
 
             glCanvas.toBlob((blob) => {
                 if (!blob) return;
                 const url = URL.createObjectURL(blob);
-                const timestamp = new Date().toLocaleTimeString('vi-VN');
-                const item = {
+                addMediaToSession({
                     id: Date.now(),
                     type: 'photo',
                     url,
                     blob,
                     name: `CINECAM_${Date.now()}.jpg`,
-                    timestamp,
+                    timestamp: new Date().toLocaleTimeString('vi-VN'),
                     width: glCanvas.width,
                     height: glCanvas.height
-                };
-                addMediaToSession(item);
-                showToast(`Đã chụp ảnh (${glCanvas.width}×${glCanvas.height}) kèm màu LUT!`, 'success');
+                });
+                showToast('Đã chụp ảnh kèm bộ lọc màu & LUT!', 'success');
             }, 'image/jpeg', 0.95);
         }
 
         function toggleVideoRecording() {
-            if (!AppState.isRecording) {
-                startVideoRecording();
-            } else {
-                stopVideoRecording();
-            }
+            if (!AppState.isRecording) startVideoRecording();
+            else stopVideoRecording();
         }
 
         function startVideoRecording() {
             if (!glCanvas.captureStream) {
-                showToast('Trình duyệt không hỗ trợ ghi hình từ Canvas.', 'error');
+                showToast('Không hỗ trợ quay từ Canvas.', 'error');
                 return;
             }
-
             try {
-                // Lấy luồng hình ảnh 30fps từ WebGL Canvas (đã áp dụng toàn bộ chỉnh màu + LUT!)
                 const canvasStream = glCanvas.captureStream(30);
-
-                // Ghép thêm âm thanh từ Microphone nếu có
                 if (AppState.stream) {
-                    const audioTracks = AppState.stream.getAudioTracks();
-                    audioTracks.forEach(track => canvasStream.addTrack(track));
+                    AppState.stream.getAudioTracks().forEach(t => canvasStream.addTrack(t));
                 }
-
-                const mimeTypes = [
-                    'video/webm;codecs=vp9,opus',
-                    'video/webm;codecs=vp8,opus',
-                    'video/webm',
-                    'video/mp4'
-                ];
-                const selectedMime = mimeTypes.find(m => MediaRecorder.isTypeSupported(m)) || '';
-
+                const mimes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'];
+                const mime = mimes.find(m => MediaRecorder.isTypeSupported(m)) || '';
                 AppState.recordedChunks = [];
-                AppState.mediaRecorder = selectedMime
-                    ? new MediaRecorder(canvasStream, { mimeType: selectedMime, videoBitsPerSecond: 8000000 })
+                AppState.mediaRecorder = mime
+                    ? new MediaRecorder(canvasStream, { mimeType: mime, videoBitsPerSecond: 8000000 })
                     : new MediaRecorder(canvasStream);
 
                 AppState.mediaRecorder.ondataavailable = (e) => {
-                    if (e.data && e.data.size > 0) {
-                        AppState.recordedChunks.push(e.data);
-                    }
+                    if (e.data && e.data.size > 0) AppState.recordedChunks.push(e.data);
                 };
 
                 AppState.mediaRecorder.onstop = () => {
-                    const blobType = AppState.mediaRecorder.mimeType || 'video/webm';
-                    const ext = blobType.includes('mp4') ? 'mp4' : 'webm';
-                    const blob = new Blob(AppState.recordedChunks, { type: blobType });
+                    const bType = AppState.mediaRecorder.mimeType || 'video/webm';
+                    const ext = bType.includes('mp4') ? 'mp4' : 'webm';
+                    const blob = new Blob(AppState.recordedChunks, { type: bType });
                     const url = URL.createObjectURL(blob);
-                    const item = {
+                    addMediaToSession({
                         id: Date.now(),
                         type: 'video',
                         url,
@@ -1443,9 +1537,8 @@
                         timestamp: new Date().toLocaleTimeString('vi-VN'),
                         width: glCanvas.width,
                         height: glCanvas.height
-                    };
-                    addMediaToSession(item);
-                    showToast('Đã lưu video kèm màu LUT vào thư viện phiên!', 'success');
+                    });
+                    showToast('Đã lưu video kèm màu LUT!', 'success');
                 };
 
                 AppState.mediaRecorder.start(250);
@@ -1453,19 +1546,15 @@
                 AppState.isPaused = false;
                 AppState.recStartTime = Date.now();
                 AppState.recElapsedBeforePause = 0;
-
                 updateRecordingUI(true);
                 startRecTimer();
             } catch (err) {
-                console.error(err);
-                showToast('Không thể bắt đầu quay phim: ' + err.message, 'error');
+                showToast('Lỗi quay phim: ' + err.message, 'error');
             }
         }
 
         function stopVideoRecording() {
-            if (AppState.mediaRecorder && AppState.isRecording) {
-                AppState.mediaRecorder.stop();
-            }
+            if (AppState.mediaRecorder && AppState.isRecording) AppState.mediaRecorder.stop();
             AppState.isRecording = false;
             AppState.isPaused = false;
             clearInterval(AppState.recTimerInterval);
@@ -1474,61 +1563,52 @@
 
         function togglePauseRecording() {
             if (!AppState.mediaRecorder || !AppState.isRecording) return;
-            const pauseBtn = document.getElementById('btnPauseVideo');
-            const pausedBadge = document.getElementById('recPausedBadge');
-
+            const btn = document.getElementById('btnPauseVideo');
+            const badge = document.getElementById('recPausedBadge');
             if (!AppState.isPaused) {
                 AppState.mediaRecorder.pause();
                 AppState.isPaused = true;
                 AppState.recElapsedBeforePause += Date.now() - AppState.recStartTime;
                 clearInterval(AppState.recTimerInterval);
-                pauseBtn.innerHTML = '<i class="fa-solid fa-play text-xs text-cine-amber"></i>';
-                pausedBadge.classList.remove('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-play text-cine-amber"></i>';
+                badge.classList.remove('hidden');
             } else {
                 AppState.mediaRecorder.resume();
                 AppState.isPaused = false;
                 AppState.recStartTime = Date.now();
                 startRecTimer();
-                pauseBtn.innerHTML = '<i class="fa-solid fa-pause text-xs"></i>';
-                pausedBadge.classList.add('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                badge.classList.add('hidden');
             }
         }
 
         function startRecTimer() {
             const timerEl = document.getElementById('recTimer');
             AppState.recTimerInterval = setInterval(() => {
-                const totalMs = AppState.recElapsedBeforePause + (Date.now() - AppState.recStartTime);
-                const totalSec = Math.floor(totalMs / 1000);
-                const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
-                const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
-                const secs = String(totalSec % 60).padStart(2, '0');
-                timerEl.textContent = `${hrs}:${mins}:${secs}`;
+                const ms = AppState.recElapsedBeforePause + (Date.now() - AppState.recStartTime);
+                const s = Math.floor(ms / 1000);
+                timerEl.textContent = `${String(Math.floor(s / 3600)).padStart(2,'0')}:${String(Math.floor((s % 3600) / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
             }, 250);
         }
 
-        function updateRecordingUI(recording) {
-            const recIndicator = document.getElementById('recIndicator');
-            const shutterInner = document.getElementById('shutterInner');
+        function updateRecordingUI(rec) {
+            const inner = document.getElementById('shutterInner');
             const pauseBtn = document.getElementById('btnPauseVideo');
-            const pausedBadge = document.getElementById('recPausedBadge');
-
-            if (recording) {
-                recIndicator.classList.remove('hidden');
-                pauseBtn.classList.remove('hidden');
-                pausedBadge.classList.add('hidden');
-                pauseBtn.innerHTML = '<i class="fa-solid fa-pause text-xs"></i>';
-                shutterInner.className = 'w-6 h-6 rounded-sm bg-cine-red transition-all duration-200';
+            document.getElementById('recIndicator').classList.toggle('hidden', !rec);
+            pauseBtn.classList.toggle('hidden', !rec);
+            document.getElementById('recPausedBadge').classList.add('hidden');
+            pauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            if (rec) {
+                inner.className = 'w-5 h-5 rounded-sm bg-cine-red transition-all duration-150';
             } else {
-                recIndicator.classList.add('hidden');
-                pauseBtn.classList.add('hidden');
                 document.getElementById('recTimer').textContent = '00:00:00';
-                shutterInner.className = AppState.captureMode === 'video'
-                    ? 'w-full h-full rounded-full bg-cine-red transition-all duration-200'
-                    : 'w-full h-full rounded-full bg-white transition-all duration-200';
+                inner.className = AppState.captureMode === 'video'
+                    ? 'w-full h-full rounded-full bg-cine-red transition-all duration-150'
+                    : 'w-full h-full rounded-full bg-white transition-all duration-150';
             }
         }
 
-        // ==================== STUDIO IMAGE IMPORT & HIGH-RES EXPORT ====================
+        // ==================== STUDIO MODE & IMPORT ====================
         function loadImageIntoStudio(file) {
             if (!file) return;
             const url = URL.createObjectURL(file);
@@ -1537,134 +1617,118 @@
                 AppState.studioImage = img;
                 AppState.studioFileName = file.name;
                 switchSourceMode('studio');
-
-                document.getElementById('studioFileName').textContent = file.name;
-                document.getElementById('studioImageDim').textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
-                document.getElementById('techRes').textContent = `${img.naturalWidth}×${img.naturalHeight}`;
-                document.getElementById('techFps').textContent = 'STILL RAW';
-
-                showToast(`Đã nạp ảnh "${file.name}" vào Studio chỉnh sửa!`, 'cyan');
+                document.getElementById('studioFileName').textContent = `${file.name} (${img.naturalWidth}×${img.naturalHeight})`;
+                showToast(`Đã mở "${file.name}" trong Studio`, 'cyan');
             };
             img.src = url;
         }
 
+        function switchSourceMode(mode) {
+            if (AppState.isRecording) stopVideoRecording();
+            AppState.sourceMode = mode;
+            const dot = document.getElementById('sourceDot');
+            const label = document.getElementById('sourceModeLabel');
+            const filePill = document.getElementById('studioFilePill');
+
+            if (mode === 'camera') {
+                dot.className = 'w-2 h-2 rounded-full bg-cine-amber';
+                label.textContent = 'CAM';
+                filePill.classList.add('hidden');
+                if (!AppState.stream) startCamera();
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-cine-cyan';
+                label.textContent = 'STUDIO';
+                filePill.classList.remove('hidden');
+                document.getElementById('cameraFallbackOverlay').classList.add('hidden');
+                if (!AppState.studioImage) createSampleStudioImage();
+            }
+        }
+
+        function createSampleStudioImage() {
+            const c = document.createElement('canvas');
+            c.width = 1280;
+            c.height = 720;
+            const ctx = c.getContext('2d');
+            const g = ctx.createLinearGradient(0, 0, 1280, 720);
+            g.addColorStop(0, '#132a4a');
+            g.addColorStop(0.55, '#c86419');
+            g.addColorStop(1, '#101216');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, 1280, 720);
+            ctx.fillStyle = 'rgba(255,255,255,0.92)';
+            ctx.font = 'bold 30px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('STUDIO CHỈNH MÀU & LUT (.CUBE)', 640, 345);
+            ctx.font = '16px Inter, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.72)';
+            ctx.fillText('Bấm nút Nhập Ảnh để tải ảnh từ máy vào chỉnh sửa', 640, 380);
+
+            const img = new Image();
+            img.onload = () => {
+                AppState.studioImage = img;
+                AppState.studioFileName = 'Sample_Studio.jpg';
+                document.getElementById('studioFileName').textContent = 'Ảnh mẫu Studio';
+            };
+            img.src = c.toDataURL('image/jpeg', 0.9);
+        }
+
         function exportStudioHighRes() {
             if (!AppState.studioImage || !engine) return;
-            // Đảm bảo render ở độ phân giải gốc đầy đủ của ảnh
-            engine.render(AppState.studioImage, AppState.studioImage.naturalWidth, AppState.studioImage.naturalHeight);
+            const origW = AppState.studioImage.naturalWidth;
+            const origH = AppState.studioImage.naturalHeight;
+            const prevCanvasW = glCanvas.width;
+            const prevCanvasH = glCanvas.height;
+            const gl = engine.gl;
+
+            // Render tạm ở độ phân giải gốc 100% khi xuất file, sau đó khôi phục kích thước preview
+            glCanvas.width = origW;
+            glCanvas.height = origH;
+            gl.viewport(0, 0, origW, origH);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, engine.sourceTex);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, AppState.studioImage);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
 
             glCanvas.toBlob((blob) => {
                 if (!blob) return;
                 const url = URL.createObjectURL(blob);
-                const cleanName = AppState.studioFileName.replace(/\.[^/.]+$/, '');
-                const outName = `${cleanName}_CineGraded.jpg`;
-
-                // Lưu vào thư viện phiên & tải xuống trực tiếp
+                const name = `${AppState.studioFileName.replace(/\.[^/.]+$/, '')}_CineCam.jpg`;
                 addMediaToSession({
                     id: Date.now(),
                     type: 'photo',
                     url,
                     blob,
-                    name: outName,
+                    name,
                     timestamp: new Date().toLocaleTimeString('vi-VN'),
-                    width: AppState.studioImage.naturalWidth,
-                    height: AppState.studioImage.naturalHeight
+                    width: origW,
+                    height: origH
                 });
+                triggerDownload(url, name);
+                showToast(`Đã xuất ảnh ${origW}×${origH}!`, 'success');
 
-                triggerDownload(url, outName);
-                showToast(`Đã xuất ảnh độ nét cao (${AppState.studioImage.naturalWidth}×${AppState.studioImage.naturalHeight})!`, 'success');
-            }, 'image/jpeg', 0.96);
-        }
-
-        function switchSourceMode(mode) {
-            if (AppState.isRecording) {
-                stopVideoRecording();
-            }
-            AppState.sourceMode = mode;
-
-            const btnCam = document.getElementById('btnSourceCamera');
-            const btnStu = document.getElementById('btnSourceStudio');
-            const camControls = document.getElementById('cameraCaptureControls');
-            const stuControls = document.getElementById('studioExportControls');
-            const camHwBar = document.getElementById('cameraHardwareBar');
-            const stuBadge = document.getElementById('studioModeBadge');
-            const fallbackOverlay = document.getElementById('cameraFallbackOverlay');
-
-            if (mode === 'camera') {
-                btnCam.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1.5 bg-cine-surface text-cine-amber shadow-sm';
-                btnStu.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1.5 text-cine-muted hover:text-white';
-                camControls.classList.remove('hidden');
-                stuControls.classList.add('hidden');
-                camHwBar.classList.remove('hidden');
-                stuBadge.classList.add('hidden');
-                if (!AppState.stream) startCamera();
-            } else {
-                btnStu.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1.5 bg-cine-surface text-cine-cyan shadow-sm';
-                btnCam.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1.5 text-cine-muted hover:text-white';
-                camControls.classList.add('hidden');
-                stuControls.classList.remove('hidden');
-                camHwBar.classList.add('hidden');
-                stuBadge.classList.remove('hidden');
-                fallbackOverlay.classList.add('hidden');
-
-                // Nếu chưa có ảnh import, tạo một ảnh mẫu nghệ thuật để người dùng trải nghiệm ngay hoặc mở hộp thoại chọn ảnh
-                if (!AppState.studioImage) {
-                    createSampleStudioImage();
-                }
-            }
-        }
-
-        function createSampleStudioImage() {
-            // Tạo ảnh mẫu phong cảnh hoàng hôn bằng canvas 2D để người dùng test ngay nếu chưa chọn ảnh từ máy
-            const temp = document.createElement('canvas');
-            temp.width = 1280;
-            temp.height = 720;
-            const ctx = temp.getContext('2d');
-            const grad = ctx.createLinearGradient(0, 0, 1280, 720);
-            grad.addColorStop(0, '#1e3a5f');
-            grad.addColorStop(0.5, '#d97706');
-            grad.addColorStop(1, '#111827');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 1280, 720);
-
-            ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.font = 'bold 34px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('STUDIO CHỈNH MÀU & LUT (.CUBE)', 640, 330);
-            ctx.font = '18px Inter, sans-serif';
-            ctx.fillStyle = 'rgba(255,255,255,0.75)';
-            ctx.fillText('Bấm nút "Import Ảnh" ở góc trên để tải ảnh từ máy vào chỉnh sửa', 640, 375);
-
-            const img = new Image();
-            img.onload = () => {
-                AppState.studioImage = img;
-                AppState.studioFileName = 'Sample_Studio_Canvas.jpg';
-                document.getElementById('studioFileName').textContent = 'Ảnh mẫu Studio';
-                document.getElementById('studioImageDim').textContent = '1280 × 720 px';
-            };
-            img.src = temp.toDataURL('image/jpeg', 0.9);
+                glCanvas.width = prevCanvasW;
+                glCanvas.height = prevCanvasH;
+                gl.viewport(0, 0, prevCanvasW, prevCanvasH);
+            }, 'image/jpeg', 0.95);
         }
 
         // ==================== SESSION GALLERY & DOWNLOAD ====================
         function addMediaToSession(item) {
             AppState.sessionMedia.unshift(item);
-            const badge = document.getElementById('mediaCountBadge');
-            const thumbImg = document.getElementById('lastThumbImg');
-            const thumbIcon = document.getElementById('lastThumbIcon');
-            const dlBtn = document.getElementById('btnDownloadLast');
+            document.getElementById('mediaCountBadge').textContent = AppState.sessionMedia.length;
+            document.getElementById('mediaCountBadge').classList.remove('hidden');
+            document.getElementById('btnDownloadLast').disabled = false;
 
-            badge.textContent = AppState.sessionMedia.length;
-            badge.classList.remove('hidden');
-            dlBtn.disabled = false;
-
+            const img = document.getElementById('lastThumbImg');
+            const icon = document.getElementById('lastThumbIcon');
             if (item.type === 'photo') {
-                thumbImg.src = item.url;
-                thumbImg.classList.remove('hidden');
-                thumbIcon.classList.add('hidden');
+                img.src = item.url;
+                img.classList.remove('hidden');
+                icon.classList.add('hidden');
             } else {
-                thumbImg.classList.add('hidden');
-                thumbIcon.className = 'fa-solid fa-film text-cine-amber text-base';
-                thumbIcon.classList.remove('hidden');
+                img.classList.add('hidden');
+                icon.className = 'fa-solid fa-film text-cine-amber text-sm';
+                icon.classList.remove('hidden');
             }
         }
 
@@ -1678,55 +1742,39 @@
         }
 
         function renderGalleryModal() {
-            const container = document.getElementById('galleryContent');
-            if (AppState.sessionMedia.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full py-16 text-center text-cine-muted">
-                        <i class="fa-solid fa-photo-film text-3xl mb-2 opacity-50"></i>
-                        <p class="text-xs">Chưa có ảnh hoặc video nào được chụp/quay trong phiên này.</p>
-                    </div>
-                `;
+            const box = document.getElementById('galleryContent');
+            if (!AppState.sessionMedia.length) {
+                box.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-cine-muted">Chưa có ảnh hoặc video nào.</div>`;
                 return;
             }
-
-            container.innerHTML = AppState.sessionMedia.map((item, idx) => `
+            box.innerHTML = AppState.sessionMedia.map((item, i) => `
                 <div class="bg-cine-panel border border-cine-border rounded-xl overflow-hidden flex flex-col">
-                    <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
+                    <div class="relative aspect-video bg-black flex items-center justify-center">
                         ${item.type === 'photo'
                             ? `<img src="${item.url}" class="w-full h-full object-cover">`
-                            : `<video src="${item.url}" controls class="w-full h-full object-cover"></video>`
-                        }
-                        <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/75 font-mono text-[10px] ${item.type === 'video' ? 'text-cine-red' : 'text-cine-cyan'}">
-                            ${item.type === 'video' ? 'VIDEO' : 'PHOTO'}
-                        </span>
+                            : `<video src="${item.url}" controls class="w-full h-full object-cover"></video>`}
+                        <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/75 font-mono text-[9px] ${item.type === 'video' ? 'text-cine-red' : 'text-cine-cyan'}">${item.type.toUpperCase()}</span>
                     </div>
                     <div class="p-2 flex items-center justify-between gap-1">
-                        <div class="truncate">
-                            <div class="text-[11px] font-semibold text-white truncate">${item.name}</div>
-                            <div class="text-[10px] font-mono text-cine-muted">${item.width}×${item.height} • ${item.timestamp}</div>
+                        <div class="truncate text-[10px]">
+                            <div class="font-semibold text-white truncate">${item.name}</div>
+                            <div class="font-mono text-cine-muted">${item.timestamp}</div>
                         </div>
                         <div class="flex items-center gap-1 shrink-0">
-                            ${item.type === 'photo' ? `
-                                <button onclick="editSessionPhoto(${idx})" title="Đưa vào Studio chỉnh màu tiếp" class="w-7 h-7 rounded-lg bg-cine-surface hover:bg-cine-border text-cine-cyan text-xs flex items-center justify-center">
-                                    <i class="fa-solid fa-sliders"></i>
-                                </button>
-                            ` : ''}
-                            <button onclick="downloadSessionItem(${idx})" title="Tải về máy" class="w-7 h-7 rounded-lg bg-cine-amber text-black text-xs flex items-center justify-center">
-                                <i class="fa-solid fa-download"></i>
-                            </button>
+                            ${item.type === 'photo' ? `<button onclick="editSessionPhoto(${i})" class="w-6 h-6 rounded bg-cine-surface text-cine-cyan text-[10px]"><i class="fa-solid fa-sliders"></i></button>` : ''}
+                            <button onclick="downloadSessionItem(${i})" class="w-6 h-6 rounded bg-cine-amber text-black text-[10px]"><i class="fa-solid fa-download"></i></button>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        window.downloadSessionItem = (idx) => {
-            const item = AppState.sessionMedia[idx];
-            if (item) triggerDownload(item.url, item.name);
+        window.downloadSessionItem = (i) => {
+            if (AppState.sessionMedia[i]) triggerDownload(AppState.sessionMedia[i].url, AppState.sessionMedia[i].name);
         };
 
-        window.editSessionPhoto = (idx) => {
-            const item = AppState.sessionMedia[idx];
+        window.editSessionPhoto = (i) => {
+            const item = AppState.sessionMedia[i];
             if (!item || item.type !== 'photo') return;
             const img = new Image();
             img.onload = () => {
@@ -1735,44 +1783,35 @@
                 document.getElementById('galleryModal').classList.add('hidden');
                 switchSourceMode('studio');
                 document.getElementById('studioFileName').textContent = item.name;
-                document.getElementById('studioImageDim').textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
-                showToast('Đã nạp ảnh vào Studio chỉnh sửa!', 'cyan');
+                showToast('Đã đưa ảnh vào Studio', 'cyan');
             };
             img.src = item.url;
         };
 
-        // ==================== LUT UI & PRESET INITIALIZATION ====================
+        // ==================== LUT LIBRARY ====================
         function initLuts() {
             AppState.luts = [
-                { name: 'Original (No LUT)', desc: 'Màu gốc cảm biến', size: 0, data: null, badge: 'RAW' },
-                { name: 'Teal & Orange Cine', desc: 'Điện ảnh Hollywood', ...generatePresetLutData('teal-orange', 17), badge: '3D' },
-                { name: 'Fuji Classic Chrome', desc: 'Tương phản trầm phim', ...generatePresetLutData('fuji-chrome', 17), badge: '3D' },
-                { name: 'Kodak Gold 200', desc: 'Nắng ấm hoài cổ', ...generatePresetLutData('kodak-gold', 17), badge: '3D' },
-                { name: 'Leica Noir Mono', desc: 'Đen trắng nghệ thuật', ...generatePresetLutData('noir-mono', 17), badge: '3D' }
+                { name: 'Original', size: 0, data: null },
+                { name: 'Teal & Orange', ...generatePresetLutData('teal-orange', 17) },
+                { name: 'Fuji Chrome', ...generatePresetLutData('fuji-chrome', 17) },
+                { name: 'Kodak Gold', ...generatePresetLutData('kodak-gold', 17) },
+                { name: 'Noir Mono', ...generatePresetLutData('noir-mono', 17) }
             ];
-            renderLutList();
+            renderLutChips();
         }
 
-        function renderLutList() {
-            const container = document.getElementById('lutListContainer');
-            document.getElementById('lutCountLabel').textContent = `${AppState.luts.length} LUTs`;
-
-            container.innerHTML = AppState.luts.map((lut, idx) => {
-                const isActive = idx === AppState.activeLutIndex;
+        function renderLutChips() {
+            const box = document.getElementById('lutListContainer');
+            box.innerHTML = AppState.luts.map((lut, idx) => {
+                const active = idx === AppState.activeLutIndex;
                 return `
-                    <button onclick="selectLut(${idx})" class="text-left p-2.5 rounded-xl border transition flex flex-col justify-between ${
-                        isActive
-                            ? 'bg-cine-amber/15 border-cine-amber text-white shadow-[0_0_10px_rgba(255,149,0,0.15)]'
-                            : 'bg-cine-surface/60 border-cine-border/70 text-gray-300 hover:border-gray-500'
+                    <button onclick="selectLut(${idx})" class="px-2.5 py-1.5 rounded-xl border text-left shrink-0 transition ${
+                        active
+                            ? 'bg-cine-amber/20 border-cine-amber text-white'
+                            : 'bg-cine-surface border-cine-border text-gray-300'
                     }">
-                        <div class="flex items-center justify-between w-full mb-1">
-                            <span class="font-mono text-[10px] px-1.5 py-0.2 rounded ${lut.isCustom ? 'bg-cine-cyan/20 text-cine-cyan' : 'bg-cine-bg text-cine-muted'}">
-                                ${lut.isCustom ? `.CUBE ${lut.size}×` : lut.badge}
-                            </span>
-                            ${isActive ? '<i class="fa-solid fa-circle-check text-cine-amber text-xs"></i>' : ''}
-                        </div>
-                        <div class="text-xs font-bold truncate w-full">${lut.name}</div>
-                        <div class="text-[10px] text-cine-muted truncate w-full">${lut.desc || 'Custom 3D LUT'}</div>
+                        <div class="text-[11px] font-semibold whitespace-nowrap">${lut.name}</div>
+                        <div class="text-[9px] font-mono text-cine-muted">${lut.isCustom ? `.CUBE ${lut.size}×` : (idx === 0 ? 'RAW' : '3D LUT')}</div>
                     </button>
                 `;
             }).join('');
@@ -1780,87 +1819,125 @@
 
         window.selectLut = (idx) => {
             AppState.activeLutIndex = idx;
-            const selected = AppState.luts[idx];
-            if (engine) {
-                engine.uploadLut(selected);
-            }
-            document.getElementById('techLutBadge').textContent = idx === 0 ? 'LUT: NONE' : `LUT: ${selected.name}`;
-            renderLutList();
+            const lut = AppState.luts[idx];
+            if (engine) engine.uploadLut(lut);
+            document.getElementById('lutMiniTag').textContent = idx === 0 ? 'NO LUT' : lut.name.toUpperCase();
+            renderLutChips();
         };
 
-        // ==================== UI BINDINGS & INTERACTIONS ====================
-        function bindUIEvents() {
-            // 1. Control Tabs Switching
-            document.querySelectorAll('.control-tab').forEach(tabBtn => {
-                tabBtn.addEventListener('click', () => {
-                    document.querySelectorAll('.control-tab').forEach(b => {
-                        b.classList.remove('active', 'border-cine-amber', 'text-cine-amber');
-                        b.classList.add('border-transparent', 'text-cine-muted');
-                    });
-                    tabBtn.classList.add('active', 'border-cine-amber', 'text-cine-amber');
-                    tabBtn.classList.remove('border-transparent', 'text-cine-muted');
+        // ==================== WARM/COOL & TINT PAD ====================
+        function syncWbPadUI() {
+            const nx = (AppState.params.temp + 100) / 200; // 0..1
+            const ny = (AppState.params.tint + 100) / 200; // 0..1 (0 = Magenta/Top, 1 = Green/Bottom)
+            const pctX = `${(nx * 100).toFixed(1)}%`;
+            const pctY = `${(ny * 100).toFixed(1)}%`;
 
-                    const targetId = tabBtn.getAttribute('data-tab');
-                    document.querySelectorAll('.tab-panel').forEach(panel => {
-                        panel.classList.toggle('hidden', panel.id !== targetId);
-                    });
-                });
+            document.getElementById('wbPuck').style.left = pctX;
+            document.getElementById('wbPuck').style.top = pctY;
+            document.getElementById('wbLineV').style.left = pctX;
+            document.getElementById('wbLineH').style.top = pctY;
+
+            const kelvin = Math.round(5600 + AppState.params.temp * 34);
+            const tVal = Math.round(AppState.params.temp);
+            const tintVal = Math.round(AppState.params.tint);
+            document.getElementById('kelvinReadout').textContent = `${kelvin}K ${tVal > 0 ? '+' + tVal : tVal}`;
+            document.getElementById('tintReadout').textContent = `TINT ${tintVal > 0 ? '+' + tintVal : tintVal}`;
+        }
+
+        // ==================== EVENT BINDINGS ====================
+        function bindEvents() {
+            // Drawer buttons
+            document.querySelectorAll('.drawer-btn').forEach(btn => {
+                btn.addEventListener('click', () => openDrawer(btn.getAttribute('data-drawer')));
             });
 
-            // 2. Color & Tone Sliders
-            const sliderConfig = [
-                { id: 'exposure', format: v => `${(v / 50).toFixed(2)} EV` },
-                { id: 'contrast', format: v => v },
-                { id: 'highlights', format: v => v },
-                { id: 'shadows', format: v => v },
-                { id: 'temp', format: v => `${Math.round(5600 + v * 34)}K (${v > 0 ? '+' + v : v})` },
-                { id: 'tint', format: v => v > 0 ? `+${v}` : v },
-                { id: 'saturation', format: v => v > 0 ? `+${v}` : v },
-                { id: 'vibrance', format: v => v > 0 ? `+${v}` : v },
-                { id: 'lutIntensity', format: v => `${v}%` }
+            // Quick pills
+            document.getElementById('quickEvPill').addEventListener('click', () => openDrawer('drawer-tone'));
+            document.getElementById('quickFocusPill').addEventListener('click', () => openDrawer('drawer-focus'));
+            document.getElementById('btnToggleSourceMode').addEventListener('click', () => {
+                switchSourceMode(AppState.sourceMode === 'camera' ? 'studio' : 'camera');
+            });
+            document.getElementById('btnSwitchToCamera').addEventListener('click', () => {
+                closeAllDrawers();
+                switchSourceMode('camera');
+            });
+
+            // Warm/Cool & Tint Pad Pointer Drag
+            const wbPad = document.getElementById('wbPad');
+            let draggingWb = false;
+
+            const updateWbFromPointer = (clientX, clientY) => {
+                const r = wbPad.getBoundingClientRect();
+                if (!r.width || !r.height) return;
+                const ux = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+                const uy = Math.max(0, Math.min(1, (clientY - r.top) / r.height));
+                AppState.params.temp = Math.round((ux * 2 - 1) * 100);
+                AppState.params.tint = Math.round((uy * 2 - 1) * 100);
+                syncWbPadUI();
+            };
+
+            wbPad.addEventListener('pointerdown', (e) => {
+                draggingWb = true;
+                wbPad.setPointerCapture(e.pointerId);
+                updateWbFromPointer(e.clientX, e.clientY);
+            });
+            wbPad.addEventListener('pointermove', (e) => {
+                if (draggingWb) updateWbFromPointer(e.clientX, e.clientY);
+            });
+            wbPad.addEventListener('pointerup', () => { draggingWb = false; });
+            wbPad.addEventListener('dblclick', () => {
+                AppState.params.temp = 0;
+                AppState.params.tint = 0;
+                syncWbPadUI();
+                showToast('Đã đặt lại cân bằng trắng 5600K', 'info');
+            });
+
+            // Sliders
+            const sliderMap = [
+                { id: 'exposure', fmt: v => {
+                    const ev = (v / 50).toFixed(2);
+                    document.getElementById('evPillText').textContent = `${ev > 0 ? '+' + ev : ev} EV`;
+                    return `${ev > 0 ? '+' + ev : ev} EV`;
+                }},
+                { id: 'contrast', fmt: v => v > 0 ? `+${v}` : v },
+                { id: 'highlights', fmt: v => v > 0 ? `+${v}` : v },
+                { id: 'shadows', fmt: v => v > 0 ? `+${v}` : v },
+                { id: 'saturation', fmt: v => v > 0 ? `+${v}` : v },
+                { id: 'vibrance', fmt: v => v > 0 ? `+${v}` : v },
+                { id: 'lutIntensity', fmt: v => `${v}%` },
+                { id: 'matchStrength', fmt: v => `${v}%` }
             ];
 
-            sliderConfig.forEach(cfg => {
-                const slider = document.getElementById(`slider-${cfg.id}`);
-                const valEl = document.getElementById(`val-${cfg.id}`);
-                if (!slider) return;
-                slider.addEventListener('input', () => {
-                    const val = parseFloat(slider.value);
-                    AppState.params[cfg.id] = val;
-                    valEl.textContent = cfg.format(val);
+            sliderMap.forEach(s => {
+                const el = document.getElementById(`slider-${s.id}`);
+                const out = document.getElementById(`val-${s.id}`);
+                if (!el) return;
+                el.addEventListener('input', () => {
+                    const val = parseFloat(el.value);
+                    AppState.params[s.id] = val;
+                    if (out) out.textContent = s.fmt(val);
+                    else s.fmt(val);
                 });
             });
 
-            // Individual Reset Buttons
-            document.querySelectorAll('[data-reset]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const key = btn.getAttribute('data-reset');
-                    const defaultVal = key === 'lutIntensity' ? 100 : 0;
-                    AppState.params[key] = defaultVal;
-                    const slider = document.getElementById(`slider-${key}`);
-                    if (slider) {
-                        slider.value = defaultVal;
-                        slider.dispatchEvent(new Event('input'));
-                    }
+            // Color Match file input & save preset
+            const matchRefInput = document.getElementById('matchRefImportInput');
+            document.getElementById('btnImportMatchRef').addEventListener('click', () => matchRefInput.click());
+            matchRefInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) handleMatchRefFile(e.target.files[0]);
+                matchRefInput.value = '';
+            });
+            document.getElementById('btnSaveMatchPreset').addEventListener('click', saveCurrentMatchAsPreset);
+
+            document.getElementById('btnDrawerResetTone').addEventListener('click', () => {
+                ['exposure', 'contrast', 'highlights', 'shadows'].forEach(k => {
+                    AppState.params[k] = 0;
+                    const el = document.getElementById(`slider-${k}`);
+                    if (el) { el.value = 0; el.dispatchEvent(new Event('input')); }
                 });
             });
 
-            // Reset All Parameters
-            document.getElementById('btnResetAll').addEventListener('click', () => {
-                sliderConfig.forEach(cfg => {
-                    const defaultVal = cfg.id === 'lutIntensity' ? 100 : 0;
-                    AppState.params[cfg.id] = defaultVal;
-                    const slider = document.getElementById(`slider-${cfg.id}`);
-                    if (slider) {
-                        slider.value = defaultVal;
-                        slider.dispatchEvent(new Event('input'));
-                    }
-                });
-                selectLut(0);
-                showToast('Đã đặt lại toàn bộ thông số màu & LUT!', 'info');
-            });
-
-            // 3. Import .cube LUT File
+            // Import .cube LUT
             const cubeInput = document.getElementById('cubeFileInput');
             document.getElementById('btnImportCube').addEventListener('click', () => cubeInput.click());
             cubeInput.addEventListener('change', (e) => {
@@ -1869,11 +1946,10 @@
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     try {
-                        const parsedLut = parseCubeFile(ev.target.result, file.name);
-                        parsedLut.desc = `Imported (${file.name})`;
-                        AppState.luts.push(parsedLut);
+                        const parsed = parseCubeFile(ev.target.result, file.name);
+                        AppState.luts.push(parsed);
                         selectLut(AppState.luts.length - 1);
-                        showToast(`Đã nạp LUT "${parsedLut.name}" (${parsedLut.size}×) thành công!`, 'success');
+                        showToast(`Đã nạp LUT ${parsed.name}`, 'success');
                     } catch (err) {
                         showToast(err.message, 'error');
                     }
@@ -1882,218 +1958,169 @@
                 cubeInput.value = '';
             });
 
-            // 4. Import External Photo for Studio Editing
+            // Import photo
             const imgInput = document.getElementById('imageImportInput');
-            const openImgPicker = () => imgInput.click();
-            document.getElementById('btnImportPhotoTop').addEventListener('click', openImgPicker);
-            document.getElementById('btnQuickImportDock').addEventListener('click', openImgPicker);
-            document.getElementById('btnStudioChangePhoto').addEventListener('click', openImgPicker);
-            document.getElementById('btnFallbackImport').addEventListener('click', openImgPicker);
+            const pickPhoto = () => imgInput.click();
+            document.getElementById('btnQuickImport').addEventListener('click', pickPhoto);
+            document.getElementById('btnDrawerImportPhoto').addEventListener('click', pickPhoto);
+            document.getElementById('btnFallbackImport').addEventListener('click', pickPhoto);
             imgInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
-                    loadImageIntoStudio(e.target.files[0]);
-                }
+                if (e.target.files[0]) loadImageIntoStudio(e.target.files[0]);
                 imgInput.value = '';
             });
 
-            // 5. Source Mode Switcher (Live Cam vs Studio)
-            document.getElementById('btnSourceCamera').addEventListener('click', () => switchSourceMode('camera'));
-            document.getElementById('btnSourceStudio').addEventListener('click', () => switchSourceMode('studio'));
+            document.getElementById('btnExportStudioPhoto').addEventListener('click', exportStudioHighRes);
 
-            // 6. Tap-to-Focus on Viewport & Manual Focus Slider
+            // Tap-to-focus on viewport
             const viewport = document.getElementById('viewportContainer');
             const reticle = document.getElementById('focusReticle');
-
-            const handleTapFocus = (clientX, clientY) => {
-                const rect = glCanvas.getBoundingClientRect();
-                if (!rect.width || !rect.height) return;
-
-                // Tính tọa độ chuẩn hóa trên canvas (0.0 -> 1.0)
-                const normX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                const normY = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-                AppState.focusPoint = { x: normX, y: normY };
-
-                // Đặt vị trí vòng lấy nét theo tọa độ màn hình trong viewportContainer
-                const vpRect = viewport.getBoundingClientRect();
-                reticle.style.left = `${clientX - vpRect.left}px`;
-                reticle.style.top = `${clientY - vpRect.top}px`;
-                reticle.classList.remove('hidden', 'reticle-animate');
-                void reticle.offsetWidth;
-                reticle.classList.add('reticle-animate');
-
-                // Nếu chạm ở vùng rìa/gần hoặc đang ở AF, kích hoạt khóa nét tại điểm chạm
-                if (AppState.focusMode === 'AF') {
-                    applyFocusConstraints(AppState.focusDistance, 'AF');
-                }
-            };
-
             glCanvas.addEventListener('pointerdown', (e) => {
-                handleTapFocus(e.clientX, e.clientY);
+                const r = glCanvas.getBoundingClientRect();
+                if (!r.width || !r.height) return;
+                AppState.focusPoint = {
+                    x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)),
+                    y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height))
+                };
+                const vp = viewport.getBoundingClientRect();
+                reticle.style.left = `${e.clientX - vp.left}px`;
+                reticle.style.top = `${e.clientY - vp.top}px`;
+                reticle.classList.remove('hidden', 'reticle-pop');
+                void reticle.offsetWidth;
+                reticle.classList.add('reticle-pop');
+                if (AppState.focusMode === 'AF') applyFocusConstraints(AppState.focusDistance, 'AF');
             });
 
-            // Focus Slider (Gần 0.0 -> Xa 1.0)
+            // Focus controls
             const focusSlider = document.getElementById('slider-focus');
             focusSlider.addEventListener('input', () => {
-                const dist = parseFloat(focusSlider.value) / 100;
-                setFocusModeUI('MF');
-                applyFocusConstraints(dist, 'MF');
-            });
-
-            document.getElementById('btnModeAF').addEventListener('click', () => {
-                setFocusModeUI('AF');
-                applyFocusConstraints(0.5, 'AF');
-                showToast('Chế độ lấy nét tự động (AF)', 'cyan');
-            });
-
-            document.getElementById('btnModeMF').addEventListener('click', () => {
-                setFocusModeUI('MF');
+                setFocusModeButtons('MF');
                 applyFocusConstraints(parseFloat(focusSlider.value) / 100, 'MF');
-                showToast('Chế độ lấy nét thủ công (MF)', 'cyan');
             });
-
-            document.querySelectorAll('.focus-preset-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const preset = parseFloat(btn.getAttribute('data-focus-preset'));
-                    focusSlider.value = Math.round(preset * 100);
-                    setFocusModeUI('MF');
-                    applyFocusConstraints(preset, 'MF');
+            document.getElementById('btnModeAF').addEventListener('click', () => {
+                setFocusModeButtons('AF');
+                applyFocusConstraints(0.5, 'AF');
+            });
+            document.getElementById('btnModeMF').addEventListener('click', () => {
+                setFocusModeButtons('MF');
+                applyFocusConstraints(parseFloat(focusSlider.value) / 100, 'MF');
+            });
+            document.querySelectorAll('.focus-preset-btn').forEach(b => {
+                b.addEventListener('click', () => {
+                    const p = parseFloat(b.getAttribute('data-focus-preset'));
+                    focusSlider.value = Math.round(p * 100);
+                    setFocusModeButtons('MF');
+                    applyFocusConstraints(p, 'MF');
                 });
             });
-
             document.getElementById('toggleOpticalDof').addEventListener('change', (e) => {
                 AppState.opticalDofSim = e.target.checked;
             });
 
-            // 7. Camera Hardware Buttons (Flip & Torch)
+            // Camera flip & torch
             document.getElementById('btnFlipCamera').addEventListener('click', () => {
-                if (AppState.isRecording) {
-                    showToast('Vui lòng dừng quay trước khi đổi camera!', 'error');
-                    return;
-                }
+                if (AppState.isRecording) return showToast('Dừng quay trước khi đổi camera', 'error');
                 AppState.facingMode = AppState.facingMode === 'environment' ? 'user' : 'environment';
                 startCamera();
-                showToast(AppState.facingMode === 'user' ? 'Camera trước (Selfie)' : 'Camera sau (Chính)', 'info');
             });
 
             document.getElementById('btnToggleTorch').addEventListener('click', async () => {
                 if (!AppState.videoTrack) return;
                 try {
                     const caps = AppState.videoTrack.getCapabilities ? AppState.videoTrack.getCapabilities() : {};
-                    if (!caps.torch) {
-                        showToast('Camera hiện tại không hỗ trợ đèn Flash/Torch.', 'info');
-                        return;
-                    }
+                    if (!caps.torch) return showToast('Camera không hỗ trợ Flash', 'info');
                     AppState.torchOn = !AppState.torchOn;
-                    await AppState.videoTrack.applyConstraints({
-                        advanced: [{ torch: AppState.torchOn }]
-                    });
+                    await AppState.videoTrack.applyConstraints({ advanced: [{ torch: AppState.torchOn }] });
                     updateTorchUI();
-                } catch (e) {
-                    showToast('Không thể bật đèn Flash trên thiết bị này.', 'error');
+                } catch (_) {
+                    showToast('Không bật được Flash', 'error');
                 }
             });
 
             document.getElementById('btnRetryCamera').addEventListener('click', startCamera);
 
-            // 8. Composition Grid & Before/After Comparison
+            // Grid & Original compare
             document.getElementById('btnToggleGrid').addEventListener('click', () => {
-                const grid = document.getElementById('gridOverlay');
-                const btn = document.getElementById('btnToggleGrid');
-                const isHidden = grid.classList.toggle('hidden');
-                btn.classList.toggle('text-cine-amber', !isHidden);
-                btn.classList.toggle('border-cine-amber', !isHidden);
+                const hidden = document.getElementById('gridOverlay').classList.toggle('hidden');
+                document.getElementById('btnToggleGrid').classList.toggle('text-cine-amber', !hidden);
             });
 
-            const btnBA = document.getElementById('btnBeforeAfter');
-            const origTag = document.getElementById('originalPreviewTag');
-            btnBA.addEventListener('click', () => {
+            document.getElementById('btnBeforeAfter').addEventListener('click', () => {
                 AppState.showOriginal = !AppState.showOriginal;
-                btnBA.classList.toggle('bg-cine-amber', AppState.showOriginal);
-                btnBA.classList.toggle('text-black', AppState.showOriginal);
-                origTag.classList.toggle('hidden', !AppState.showOriginal);
+                document.getElementById('btnBeforeAfter').classList.toggle('text-cine-amber', AppState.showOriginal);
+                document.getElementById('originalPreviewTag').classList.toggle('hidden', !AppState.showOriginal);
             });
 
-            // 9. Photo / Video Capture Mode & Shutter Trigger
-            const btnPhotoMode = document.getElementById('btnSelectPhotoMode');
-            const btnVideoMode = document.getElementById('btnSelectVideoMode');
-            const shutterInner = document.getElementById('shutterInner');
+            // Photo / Video mode + Shutter
+            const btnPhoto = document.getElementById('btnSelectPhotoMode');
+            const btnVideo = document.getElementById('btnSelectVideoMode');
+            const inner = document.getElementById('shutterInner');
 
-            btnPhotoMode.addEventListener('click', () => {
+            btnPhoto.addEventListener('click', () => {
                 if (AppState.isRecording) return;
                 AppState.captureMode = 'photo';
-                btnPhotoMode.className = 'text-cine-amber transition';
-                btnVideoMode.className = 'text-cine-muted hover:text-white transition';
-                shutterInner.className = 'w-full h-full rounded-full bg-white transition-all duration-200';
+                btnPhoto.className = 'text-cine-amber transition';
+                btnVideo.className = 'text-cine-muted hover:text-white transition';
+                inner.className = 'w-full h-full rounded-full bg-white transition-all duration-150';
             });
 
-            btnVideoMode.addEventListener('click', () => {
+            btnVideo.addEventListener('click', () => {
                 if (AppState.isRecording) return;
                 AppState.captureMode = 'video';
-                btnVideoMode.className = 'text-cine-red transition';
-                btnPhotoMode.className = 'text-cine-muted hover:text-white transition';
-                shutterInner.className = 'w-full h-full rounded-full bg-cine-red transition-all duration-200';
+                btnVideo.className = 'text-cine-red transition';
+                btnPhoto.className = 'text-cine-muted hover:text-white transition';
+                inner.className = 'w-full h-full rounded-full bg-cine-red transition-all duration-150';
             });
 
             document.getElementById('btnShutter').addEventListener('click', () => {
-                if (AppState.captureMode === 'photo') {
-                    capturePhoto();
-                } else {
-                    toggleVideoRecording();
-                }
+                if (AppState.captureMode === 'photo') capturePhoto();
+                else toggleVideoRecording();
             });
-
             document.getElementById('btnPauseVideo').addEventListener('click', togglePauseRecording);
 
-            // 10. Studio Export & Gallery Modal
-            document.getElementById('btnExportStudioPhoto').addEventListener('click', exportStudioHighRes);
-
+            // Gallery & Download
             document.getElementById('btnOpenGallery').addEventListener('click', () => {
                 renderGalleryModal();
                 document.getElementById('galleryModal').classList.remove('hidden');
             });
-
             document.getElementById('btnCloseGallery').addEventListener('click', () => {
                 document.getElementById('galleryModal').classList.add('hidden');
             });
-
             document.getElementById('btnDownloadLast').addEventListener('click', () => {
-                if (AppState.sessionMedia.length > 0) {
-                    const latest = AppState.sessionMedia[0];
-                    triggerDownload(latest.url, latest.name);
-                    showToast(`Đang tải xuống ${latest.name}...`, 'success');
+                if (AppState.sessionMedia.length) {
+                    const last = AppState.sessionMedia[0];
+                    triggerDownload(last.url, last.name);
                 }
             });
         }
 
-        function setFocusModeUI(mode) {
+        function setFocusModeButtons(mode) {
             AppState.focusMode = mode;
-            const btnAF = document.getElementById('btnModeAF');
-            const btnMF = document.getElementById('btnModeMF');
-            if (mode === 'AF') {
-                btnAF.className = 'px-3 py-1 rounded-md text-xs font-mono font-bold bg-cine-cyan text-black transition';
-                btnMF.className = 'px-3 py-1 rounded-md text-xs font-mono font-bold text-cine-muted hover:text-white transition';
-            } else {
-                btnMF.className = 'px-3 py-1 rounded-md text-xs font-mono font-bold bg-cine-amber text-black transition';
-                btnAF.className = 'px-3 py-1 rounded-md text-xs font-mono font-bold text-cine-muted hover:text-white transition';
-            }
+            const af = document.getElementById('btnModeAF');
+            const mf = document.getElementById('btnModeMF');
+            af.className = mode === 'AF'
+                ? 'px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-cine-cyan text-black'
+                : 'px-2.5 py-0.5 rounded text-[11px] font-mono font-bold text-cine-muted';
+            mf.className = mode === 'MF'
+                ? 'px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-cine-amber text-black'
+                : 'px-2.5 py-0.5 rounded text-[11px] font-mono font-bold text-cine-muted';
         }
 
         function updateTorchUI() {
-            const btn = document.getElementById('btnToggleTorch');
-            if (AppState.torchOn) {
-                btn.classList.add('text-cine-amber', 'border-cine-amber');
-                btn.classList.remove('text-cine-muted');
-            } else {
-                btn.classList.remove('text-cine-amber', 'border-cine-amber');
-                btn.classList.add('text-cine-muted');
-            }
+            const b = document.getElementById('btnToggleTorch');
+            b.classList.toggle('text-cine-amber', AppState.torchOn);
+            b.classList.toggle('text-cine-muted', !AppState.torchOn);
         }
 
-        // ==================== MAIN RENDER LOOP ====================
+        // ==================== RENDER LOOP ====================
+        let lastStatsSyncTime = 0;
         function renderLoop(now) {
             if (engine) {
                 if (AppState.sourceMode === 'camera') {
                     if (videoEl.readyState >= videoEl.HAVE_CURRENT_DATA && videoEl.videoWidth > 0) {
+                        if (AppState.colorMatch.hasTarget && AppState.params.matchStrength > 0 && now - lastStatsSyncTime > 650) {
+                            lastStatsSyncTime = now;
+                            refreshSourceColorStats();
+                        }
                         engine.render(videoEl, videoEl.videoWidth, videoEl.videoHeight);
                         updateHistogram(now);
                     }
@@ -2109,11 +2136,12 @@
             requestAnimationFrame(renderLoop);
         }
 
-        // ==================== BOOTSTRAP APPLICATION ====================
         window.addEventListener('DOMContentLoaded', () => {
             engine = new WebGLColorEngine(glCanvas);
             initLuts();
-            bindUIEvents();
+            initColorMatchSamples();
+            bindEvents();
+            syncWbPadUI();
             startCamera();
             requestAnimationFrame(renderLoop);
         });
