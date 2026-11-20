@@ -1,0 +1,2927 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CineCam Pro Studio</title>
+    <style>
+        :root {
+            --bg: #0c0d10;
+            --panel: #16181e;
+            --surface: #222631;
+            --border: #2e3342;
+            --amber: #ff9500;
+            --cyan: #00d2ff;
+            --red: #ff3b30;
+            --green: #22c55e;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100dvh;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .app-shell {
+            position: relative;
+            width: 100%;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+
+        /* ==================== VIEWFINDER RỘNG TỐI ĐA ==================== */
+        .viewport {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050608;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #glCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .hud-pill {
+            background: rgba(20, 22, 28, 0.78);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            line-height: 1;
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hud-top-left {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+
+        .hud-top-right {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .icon-circle-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(22, 24, 30, 0.82);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .icon-circle-btn.active {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: rgba(255, 149, 0, 0.16);
+        }
+
+        #histCanvas {
+            width: 92px;
+            height: 32px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: block;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        .grid-overlay.show { display: grid; }
+        .grid-cell {
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        #focusReticle {
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            border: 1.5px solid var(--cyan);
+            border-radius: 8px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 14;
+            display: none;
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.35);
+        }
+
+        #focusReticle::after {
+            content: attr(data-label);
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 3px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--cyan);
+            font-size: 9px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .shutter-flash {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 25;
+            transition: opacity 0.18s ease-out;
+        }
+        .shutter-flash.active { opacity: 0.8; }
+
+        .rec-badge {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 16;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: rgba(20, 22, 28, 0.9);
+            border: 1px solid rgba(255, 59, 48, 0.6);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .rec-badge.show { display: inline-flex; }
+        .rec-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.2; } }
+
+        /* ==================== CỤM ĐIỀU KHIỂN DƯỚI GỌN GÀNG ==================== */
+        .bottom-dock {
+            position: relative;
+            z-index: 20;
+            background: rgba(18, 20, 26, 0.96);
+            border-top: 1px solid var(--border);
+            padding: 8px 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        @media (orientation: landscape) and (max-height: 520px) {
+            .app-shell {
+                flex-direction: row;
+            }
+            .bottom-dock {
+                width: 280px;
+                height: 100dvh;
+                border-top: none;
+                border-left: 1px solid var(--border);
+                justify-content: space-between;
+                padding: 8px 10px;
+                gap: 6px;
+            }
+            .popup-sheet {
+                left: auto;
+                right: calc(100% + 8px);
+                bottom: 8px;
+                width: 330px;
+                max-height: calc(100dvh - 16px);
+            }
+        }
+
+        .wb-quick-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wb-readout {
+            font-size: 10px;
+            color: var(--amber);
+            min-width: 66px;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .wb-pads {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .mini-slider-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2px 7px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mini-slider-box span {
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 22px;
+            background: transparent;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 4px;
+            border-radius: 2px;
+            background: #343a49;
+        }
+
+        input[type="range"].temp-track::-webkit-slider-runnable-track {
+            background: linear-gradient(90deg, #00b4ff, #3b404e 50%, #ff9500);
+        }
+
+        input[type="range"].tint-track::-webkit-slider-runnable-track {
+            background: linear-gradient(90deg, #10b981, #3b404e 50%, #ec4899);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid var(--amber);
+            margin-top: -6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.6);
+        }
+
+        .tool-pill-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .tool-pill-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 6px 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .tool-pill-btn.active {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: rgba(255, 149, 0, 0.12);
+        }
+
+        .shutter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 2px;
+        }
+
+        .thumb-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .thumb-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumb-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: var(--amber);
+            color: #000;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+
+        .shutter-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 14px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .mode-switch button {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 10px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .mode-switch button.active-photo { color: var(--amber); }
+        .mode-switch button.active-video { color: var(--red); }
+
+        .shutter-btn {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 2.5px solid #fff;
+            background: transparent;
+            padding: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shutter-core {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #fff;
+            transition: all 0.15s ease;
+        }
+
+        .shutter-core.video-mode { background: var(--red); }
+        .shutter-core.recording {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            background: var(--red);
+        }
+
+        .action-pill-btn {
+            height: 44px;
+            padding: 0 12px;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .action-pill-btn.primary {
+            background: var(--amber);
+            color: #000;
+            border-color: var(--amber);
+        }
+
+        /* ==================== POP-UP BẬT LÊN ==================== */
+        .popup-sheet {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: calc(100% + 8px);
+            z-index: 30;
+            background: rgba(22, 24, 30, 0.97);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            max-height: 62dvh;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+        }
+
+        .popup-sheet.open { display: block; }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .popup-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .close-popup-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .control-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+
+        .control-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .ratio-group, .res-group {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .res-group {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .ratio-btn, .res-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 7px;
+            padding: 6px 2px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .ratio-btn.active, .res-btn.active {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: rgba(255, 149, 0, 0.14);
+        }
+
+        .lut-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .lut-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 8px;
+            text-align: left;
+            color: var(--text);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .lut-chip.active {
+            border-color: var(--amber);
+            background: rgba(255, 149, 0, 0.14);
+        }
+
+        .lut-chip .top-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .lut-chip .name {
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lut-chip .sub {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .del-mini {
+            background: rgba(255, 59, 48, 0.18);
+            border: 1px solid rgba(255, 59, 48, 0.4);
+            color: #ff8a80;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .ref-strip {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .ref-item {
+            width: 64px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .ref-item.active {
+            border-color: var(--cyan);
+            background: rgba(0, 210, 255, 0.14);
+        }
+
+        .ref-item img {
+            width: 100%;
+            height: 42px;
+            object-fit: cover;
+            border-radius: 5px;
+            display: block;
+        }
+
+        .ref-item span {
+            display: block;
+            font-size: 9px;
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preset-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .preset-tag {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 5px 8px;
+            font-size: 10px;
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .btn-sm {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 7px;
+            padding: 6px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-sm.amber {
+            background: var(--amber);
+            color: #000;
+            border-color: var(--amber);
+        }
+
+        .btn-sm.cyan {
+            background: rgba(0, 210, 255, 0.16);
+            color: var(--cyan);
+            border-color: rgba(0, 210, 255, 0.45);
+        }
+
+        /* Modal Thư viện phiên & Trình xem/chỉnh sửa */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.92);
+            display: none;
+            flex-direction: column;
+        }
+        .modal-backdrop.open { display: flex; }
+
+        .modal-top {
+            padding: 10px 14px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .modal-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            align-content: start;
+        }
+
+        .media-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .media-card img, .media-card video {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            display: block;
+            background: #000;
+        }
+
+        .editor-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-preview-pane {
+            flex: 1;
+            min-height: 0;
+            background: #050608;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            overflow: hidden;
+        }
+
+        #editorCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            border-radius: 8px;
+        }
+
+        #editorVideoPlayer {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            background: #000;
+        }
+
+        .editor-controls-pane {
+            background: var(--panel);
+            border-top: 1px solid var(--border);
+            padding: 10px 12px;
+            max-height: 46dvh;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .toast-box {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 70;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .toast-msg {
+            background: rgba(22, 24, 30, 0.95);
+            border: 1px solid var(--amber);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Input ẩn -->
+        <input type="file" id="cubeFileInput" accept=".cube,.CUBE" class="hidden">
+        <input type="file" id="photoImportInput" accept="image/*" class="hidden">
+        <input type="file" id="refImportInput" accept="image/*" class="hidden">
+        <video id="cameraVideo" playsinline autoplay muted class="hidden"></video>
+
+        <!-- ==================== VIEWFINDER / CANVAS ==================== -->
+        <div class="viewport" id="viewport">
+            <canvas id="glCanvas"></canvas>
+            <div class="shutter-flash" id="shutterFlash"></div>
+
+            <div class="grid-overlay" id="gridOverlay">
+                <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            </div>
+
+            <div id="focusReticle" data-label="AF"></div>
+
+            <div class="rec-badge mono" id="recBadge">
+                <span class="rec-dot"></span>
+                <span id="recTimer">00:00:00</span>
+            </div>
+
+            <!-- HUD góc trên trái -->
+            <div class="hud-top-left">
+                <div class="hud-pill mono">
+                    <span id="modeBadge" style="color: var(--amber); font-weight: 700;">CAM</span>
+                    <span>|</span>
+                    <span id="ratioBadge" style="color: var(--cyan);">AUTO</span>
+                    <span>|</span>
+                    <span id="resBadge">MAX</span>
+                </div>
+                <div class="hud-pill mono" id="lutBadge">LUT: NONE</div>
+                <canvas id="histCanvas" width="92" height="32"></canvas>
+            </div>
+
+            <!-- HUD góc trên phải -->
+            <div class="hud-top-right">
+                <button class="icon-circle-btn" id="btnFlipCam" title="Đổi camera">↻</button>
+                <button class="icon-circle-btn" id="btnTorch" title="Đèn Flash">⚡</button>
+                <button class="icon-circle-btn" id="btnAutoRotateQuick" title="Tự động xoay ngang">⟳</button>
+                <button class="icon-circle-btn" id="btnGrid" title="Lưới bố cục">▦</button>
+                <button class="icon-circle-btn" id="btnToggleLutQuick" title="Bật/tắt LUT">LUT</button>
+                <button class="icon-circle-btn" id="btnCompare" title="So sánh ảnh gốc">◑</button>
+            </div>
+        </div>
+
+        <!-- ==================== CỤM ĐIỀU KHIỂN DƯỚI ==================== -->
+        <div class="bottom-dock">
+            <!-- POP-UP 1: CHỈNH ĐỘ SÁNG & TƯƠNG PHẢN -->
+            <div class="popup-sheet" id="popupTone">
+                <div class="popup-header">
+                    <span class="popup-title">☀ Chỉnh Độ Sáng & Tương Phản</span>
+                    <div style="display:flex; gap:6px;">
+                        <button class="close-popup-btn" id="btnResetTone">Reset</button>
+                        <button class="close-popup-btn" data-close-popup>Đóng</button>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Độ sáng (Exposure)</span>
+                        <span class="mono" id="valExposure" style="color:var(--amber)">0.00 EV</span>
+                    </div>
+                    <input type="range" id="sliderExposure" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Tương phản (Contrast)</span>
+                        <span class="mono" id="valContrast" style="color:var(--cyan)">0</span>
+                    </div>
+                    <input type="range" id="sliderContrast" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Vùng sáng (Highlights)</span>
+                        <span class="mono" id="valHighlights">0</span>
+                    </div>
+                    <input type="range" id="sliderHighlights" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Vùng tối (Shadows)</span>
+                        <span class="mono" id="valShadows">0</span>
+                    </div>
+                    <input type="range" id="sliderShadows" min="-100" max="100" value="0">
+                </div>
+            </div>
+
+            <!-- POP-UP 2: LUT (.CUBE & PRESETS) -->
+            <div class="popup-sheet" id="popupLut">
+                <div class="popup-header">
+                    <span class="popup-title">🎞 LUT (.cube & Bộ Màu)</span>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-sm amber" id="btnImportCube">＋ Thêm .cube</button>
+                        <button class="close-popup-btn" data-close-popup>Đóng</button>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Cường độ LUT</span>
+                        <span class="mono" id="valLutStrength" style="color:var(--amber)">100%</span>
+                    </div>
+                    <input type="range" id="sliderLutStrength" min="0" max="100" value="100">
+                </div>
+
+                <div class="lut-grid" id="lutGrid"></div>
+            </div>
+
+            <!-- POP-UP 3: COLOR MATCH & LƯU PRESET CHỤP ẢNH -->
+            <div class="popup-sheet" id="popupColorMatch">
+                <div class="popup-header">
+                    <span class="popup-title">🎨 Color Match & Lưu Màu Chụp Ảnh</span>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-sm cyan" id="btnImportRef">＋ Ảnh mẫu</button>
+                        <button class="close-popup-btn" data-close-popup>Đóng</button>
+                    </div>
+                </div>
+
+                <div style="font-size:11px; color:var(--muted); margin-bottom:6px;">
+                    Chọn ảnh tham chiếu có sẵn hoặc nhập ảnh từ máy để lấy tông màu:
+                </div>
+                <div class="ref-strip" id="refStrip"></div>
+
+                <div class="control-card" style="margin-top:8px;">
+                    <div class="control-row-top">
+                        <span>Mức độ khớp màu (Match Strength)</span>
+                        <span class="mono" id="valMatchStrength" style="color:var(--cyan)">0%</span>
+                    </div>
+                    <input type="range" id="sliderMatchStrength" min="0" max="100" value="0">
+                    <div style="display:flex; gap:6px; margin-top:6px;">
+                        <button class="btn-sm" id="btnClearMatch">Tắt</button>
+                        <input type="text" id="presetNameInput" placeholder="Tên preset màu..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:5px 8px; color:#fff; font-size:11px;">
+                        <button class="btn-sm amber" id="btnSavePreset">Lưu preset</button>
+                    </div>
+                </div>
+
+                <div style="font-size:11px; color:var(--muted); margin-top:6px;">
+                    Preset đã lưu (bấm áp dụng, ✕ để xóa):
+                </div>
+                <div class="preset-list" id="presetList"></div>
+            </div>
+
+            <!-- POP-UP 4: ĐỘ PHÂN GIẢI, TỈ LỆ, XOAY NGANG, LẤY NÉT & STUDIO -->
+            <div class="popup-sheet" id="popupMore">
+                <div class="popup-header">
+                    <span class="popup-title">📐 Độ Phân Giải, Tỉ Lệ & Xoay Ngang</span>
+                    <button class="close-popup-btn" data-close-popup>Đóng</button>
+                </div>
+
+                <!-- Độ phân giải ảnh & video -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Độ phân giải quay / chụp</span>
+                        <span class="mono" id="valResProfile" style="color:var(--amber)">MAX</span>
+                    </div>
+                    <div class="res-group" id="resGroup">
+                        <button class="res-btn active" data-res="max">MAX/GỐC</button>
+                        <button class="res-btn" data-res="4k">4K/2K</button>
+                        <button class="res-btn" data-res="1080p">1080P</button>
+                        <button class="res-btn" data-res="720p">720P</button>
+                    </div>
+                </div>
+
+                <!-- Tỉ lệ khung hình -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Tỉ lệ khung hình</span>
+                        <span class="mono" id="valRatioLabel" style="color:var(--cyan)">AUTO</span>
+                    </div>
+                    <div class="ratio-group" id="ratioGroup">
+                        <button class="ratio-btn active" data-ratio="auto">AUTO</button>
+                        <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                        <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                        <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                        <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                    </div>
+                </div>
+
+                <!-- Tự động xoay ngang màn hình -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Tự động xoay ngang màn hình</span>
+                        <span class="mono" id="rotateStatusText" style="color:var(--cyan)">TẮT</span>
+                    </div>
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                        <button class="btn-sm cyan" id="btnToggleAutoRotate" style="flex:1;">Tự động xoay</button>
+                        <button class="btn-sm" id="btnLockLandscape">Xoay ngang</button>
+                        <button class="btn-sm" id="btnLockPortrait">Dọc</button>
+                    </div>
+                </div>
+
+                <!-- Lấy nét -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Chế độ lấy nét</span>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-sm cyan" id="btnFocusAF">AF</button>
+                            <button class="btn-sm" id="btnFocusMF">MF</button>
+                        </div>
+                    </div>
+                    <div class="control-row-top" style="margin-top:6px;">
+                        <span>Khoảng cách (Gần ↔ Xa)</span>
+                        <span class="mono" id="valFocusDist" style="color:var(--cyan)">AUTO</span>
+                    </div>
+                    <input type="range" id="sliderFocus" min="0" max="100" value="50">
+                </div>
+
+                <!-- Nguồn hình ảnh / Studio -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Nguồn hình ảnh</span>
+                        <span class="mono" id="sourceStatusText" style="color:var(--amber)">LIVE CAM</span>
+                    </div>
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                        <button class="btn-sm" id="btnSwitchCam" style="flex:1;">Live Cam</button>
+                        <button class="btn-sm" id="btnSwitchStudio" style="flex:1;">Studio Ảnh</button>
+                        <button class="btn-sm cyan" id="btnImportStudioPhoto">Nhập ảnh</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thanh nhanh Nhiệt độ màu (Ấm/Lạnh) & Sắc thái (Tint) -->
+            <div class="wb-quick-bar">
+                <div class="wb-readout mono">
+                    <div id="wbKelvinText">5600K</div>
+                    <div id="wbTintText" style="color:var(--muted)">T:0</div>
+                </div>
+                <div class="wb-pads">
+                    <div class="mini-slider-box">
+                        <span>❄/☀</span>
+                        <input type="range" id="sliderTemp" class="temp-track" min="-100" max="100" value="0">
+                    </div>
+                    <div class="mini-slider-box">
+                        <span>G/M</span>
+                        <input type="range" id="sliderTint" class="tint-track" min="-100" max="100" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 nút mở pop-up công cụ -->
+            <div class="tool-pill-row">
+                <button class="tool-pill-btn" data-popup="popupTone">☀ Sáng tối</button>
+                <button class="tool-pill-btn" data-popup="popupLut">🎞 LUT</button>
+                <button class="tool-pill-btn" data-popup="popupColorMatch">🎨 Match</button>
+                <button class="tool-pill-btn" data-popup="popupMore">📐 Phân giải</button>
+            </div>
+
+            <!-- Hàng nút chụp / quay / lưu -->
+            <div class="shutter-row">
+                <button class="thumb-btn" id="btnOpenGallery" title="Thư viện ảnh & video">
+                    <img id="thumbImg" class="hidden" alt="">
+                    <span id="thumbIcon" class="mono" style="font-size:11px;">ALBUM</span>
+                    <span class="thumb-badge hidden" id="thumbCount">0</span>
+                </button>
+
+                <div class="shutter-center">
+                    <div class="mode-switch mono">
+                        <button id="btnModePhoto" class="active-photo">CHỤP ẢNH</button>
+                        <button id="btnModeVideo">QUAY PHIM</button>
+                    </div>
+                    <button class="shutter-btn" id="btnShutter" title="Chụp / Quay">
+                        <span class="shutter-core" id="shutterCore"></span>
+                    </button>
+                </div>
+
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button class="action-pill-btn hidden" id="btnPauseRec">❚❚</button>
+                    <button class="action-pill-btn primary" id="btnSaveExport">Lưu/Xuất</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal thư viện ảnh/video trong phiên -->
+    <div class="modal-backdrop" id="galleryModal">
+        <div class="modal-top">
+            <span>Thư viện ảnh & video (bấm vào để xem & chỉnh sửa)</span>
+            <button class="btn-sm" id="btnCloseGallery">Đóng</button>
+        </div>
+        <div class="modal-grid" id="galleryGrid"></div>
+    </div>
+
+    <!-- Modal Xem & Chỉnh sửa Ảnh / Video + Thêm/Xóa LUT & Preset -->
+    <div class="modal-backdrop" id="editorModal">
+        <div class="modal-top">
+            <span id="editorTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Chỉnh sửa</span>
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+                <button class="btn-sm amber" id="btnApplySaveEditor">Lưu & Tải về</button>
+                <button class="btn-sm" id="btnCloseEditor">Đóng</button>
+            </div>
+        </div>
+        <div class="editor-body">
+            <div class="editor-preview-pane">
+                <canvas id="editorCanvas"></canvas>
+                <video id="editorVideoPlayer" controls playsinline class="hidden"></video>
+            </div>
+            <div class="editor-controls-pane">
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Độ sáng (Exposure)</span>
+                        <span class="mono" id="edValExp">0.00 EV</span>
+                    </div>
+                    <input type="range" id="edSliderExp" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Tương phản (Contrast)</span>
+                        <span class="mono" id="edValCon">0</span>
+                    </div>
+                    <input type="range" id="edSliderCon" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Nhiệt độ màu (❄/☀)</span>
+                        <span class="mono" id="edValTemp">5600K</span>
+                    </div>
+                    <input type="range" id="edSliderTemp" class="temp-track" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>LUT cho mục này</span>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <span class="mono" id="edLutName" style="color:var(--amber)">NONE</span>
+                            <button class="btn-sm amber" id="edBtnAddCube">＋ Thêm .cube</button>
+                        </div>
+                    </div>
+                    <div class="lut-grid" id="edLutGrid"></div>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Preset màu (áp dụng / lưu / xóa)</span>
+                    </div>
+                    <div style="display:flex; gap:6px; margin-top:6px;">
+                        <input type="text" id="edPresetName" placeholder="Tên preset mới..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:5px 8px; color:#fff; font-size:11px;">
+                        <button class="btn-sm amber" id="edBtnSavePreset">Lưu preset</button>
+                    </div>
+                    <div class="preset-list" id="edPresetList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-box" id="toastBox"></div>
+
+    <script>
+        const PRESET_STORAGE_KEY = 'cinecam_saved_presets_v1';
+        const CUSTOM_LUT_STORAGE_KEY = 'cinecam_custom_luts_v1';
+
+        const RATIO_MAP = {
+            'auto': null,
+            '1:1': 1 / 1,
+            '4:3': 4 / 3,
+            '16:9': 16 / 9,
+            '9:16': 9 / 16
+        };
+
+        const RES_PROFILES = {
+            'max': { label: 'MAX', maxOutW: null, camW: 3840, camH: 2160 },
+            '4k': { label: '4K/2K', maxOutW: 2560, camW: 2560, camH: 1440 },
+            '1080p': { label: '1080P', maxOutW: 1920, camW: 1920, camH: 1080 },
+            '720p': { label: '720P', maxOutW: 1280, camW: 1280, camH: 720 }
+        };
+
+        const state = {
+            sourceMode: 'camera', // 'camera' | 'studio'
+            captureMode: 'photo', // 'photo' | 'video'
+            resProfile: 'max',    // 'max' | '4k' | '1080p' | '720p'
+            aspectRatio: 'auto',  // 'auto' | '1:1' | '4:3' | '16:9' | '9:16'
+            autoRotateLandscape: false,
+            facingMode: 'environment',
+            torchOn: false,
+            gridOn: false,
+            lutBypassed: false,
+            showOriginal: false,
+
+            params: {
+                exposure: 0,
+                contrast: 0,
+                highlights: 0,
+                shadows: 0,
+                temp: 0,
+                tint: 0,
+                lutStrength: 100,
+                matchStrength: 0
+            },
+
+            matchShift: [0, 0, 0],
+            activeRefId: null,
+            refItems: [],
+            savedPresets: [],
+
+            luts: [],
+            activeLutIndex: 0,
+
+            focusMode: 'AF',
+            focusDist: 0.5,
+            focusPoint: { x: 0.5, y: 0.5 },
+
+            stream: null,
+            videoTrack: null,
+            mediaRecorder: null,
+            recChunks: [],
+            isRecording: false,
+            isPaused: false,
+            recStart: 0,
+            recElapsed: 0,
+            recTimerId: null,
+
+            studioImg: null,
+            studioName: 'Studio_Photo.jpg',
+            sessionMedia: [],
+
+            editingMediaIdx: -1,
+            editorParams: { exposure: 0, contrast: 0, temp: 0, lutIndex: 0 },
+            editorSourceImg: null
+        };
+
+        const videoEl = document.getElementById('cameraVideo');
+        const glCanvas = document.getElementById('glCanvas');
+        const histCanvas = document.getElementById('histCanvas');
+        const histCtx = histCanvas.getContext('2d', { willReadFrequently: true });
+
+        function showToast(msg) {
+            const box = document.getElementById('toastBox');
+            const el = document.createElement('div');
+            el.className = 'toast-msg';
+            el.textContent = msg;
+            box.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 220);
+            }, 2200);
+        }
+
+        // ==================== LƯU VÀO GALLERY ANDROID (CAPACITOR) + TẢI VỀ MÁY ====================
+        async function saveToDeviceAndGallery(blob, filename, type = 'photo') {
+            const url = URL.createObjectURL(blob);
+            downloadUrl(url, filename);
+
+            const isVideo = type === 'video';
+            const cap = window.Capacitor;
+            const plugins = (cap && cap.Plugins) || {};
+            const fsPlugin = plugins.Filesystem;
+            const mediaPlugin = plugins.Media;
+
+            // Nếu không chạy trên native Capacitor thì dừng ở bước tải xuống trình duyệt
+            if (!cap || !cap.isNativePlatform || !cap.isNativePlatform()) {
+                showToast('Đã xuất file (trên trình duyệt/máy tính kiểm tra mục Tải xuống)');
+                return url;
+            }
+
+            if (!fsPlugin || !mediaPlugin) {
+                showToast('Thiếu plugin Filesystem/Media — hãy chạy npm install & npx cap sync android');
+                return url;
+            }
+
+            try {
+                // Tránh gửi blob quá lớn gây nặng bộ nhớ
+                if (blob.size > 12 * 1024 * 1024) {
+                    showToast('File dung lượng lớn (>12MB), đã xuất qua tải xuống');
+                    return url;
+                }
+
+                const base64Data = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const res = String(reader.result || '');
+                        resolve(res.includes(',') ? res.split(',')[1] : res);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+
+                // 1. Ghi file vào thư mục CACHE của ứng dụng (không cần quyền ghi bộ nhớ ngoài phức tạp)
+                const written = await fsPlugin.writeFile({
+                    path: filename,
+                    data: base64Data,
+                    directory: 'CACHE'
+                });
+
+                const fileUri = written && written.uri ? written.uri : '';
+                if (!fileUri) {
+                    showToast('Không lấy được đường dẫn file tạm');
+                    return url;
+                }
+
+                // 2. Lưu vào Thư viện máy qua @capacitor-community/media
+                if (!isVideo && typeof mediaPlugin.savePhoto === 'function') {
+                    await mediaPlugin.savePhoto({
+                        path: fileUri,
+                        album: 'CineCam Pro'
+                    });
+                    showToast('Đã lưu ảnh vào Thư viện máy!');
+                    return url;
+                }
+
+                if (isVideo && typeof mediaPlugin.saveVideo === 'function') {
+                    await mediaPlugin.saveVideo({
+                        path: fileUri,
+                        album: 'CineCam Pro'
+                    });
+                    showToast('Đã lưu video vào Thư viện máy!');
+                    return url;
+                }
+
+                showToast('Đã ghi file tạm nhưng chưa hỗ trợ lưu thư viện');
+            } catch (err) {
+                const msg = (err && (err.message || err.errorMessage)) || 'Lỗi không xác định';
+                showToast('Lỗi lưu thư viện: ' + msg);
+            }
+
+            return url;
+        }
+
+        // ==================== ĐỘ PHÂN GIẢI, TỈ LỆ KHUNG HÌNH & XOAY NGANG ====================
+        function getMaxOutputWidth() {
+            const prof = RES_PROFILES[state.resProfile] || RES_PROFILES.max;
+            return prof.maxOutW;
+        }
+
+        function getTargetDimensions(srcW, srcH, maxWidth = 2560) {
+            let w = srcW;
+            let h = srcH;
+            const ratioVal = RATIO_MAP[state.aspectRatio];
+
+            if (ratioVal) {
+                const curRatio = w / h;
+                if (curRatio > ratioVal) {
+                    w = Math.round(h * ratioVal);
+                } else {
+                    h = Math.round(w / ratioVal);
+                }
+            }
+
+            if (maxWidth && w > maxWidth) {
+                const scale = maxWidth / w;
+                w = maxWidth;
+                h = Math.round(h * scale);
+            }
+
+            return { width: Math.max(2, w), height: Math.max(2, h) };
+        }
+
+        function setResProfile(profileKey) {
+            state.resProfile = RES_PROFILES[profileKey] ? profileKey : 'max';
+            const prof = RES_PROFILES[state.resProfile];
+            document.querySelectorAll('.res-btn').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-res') === state.resProfile);
+            });
+            document.getElementById('valResProfile').textContent = prof.label;
+            document.getElementById('resBadge').textContent = prof.label;
+            if (state.sourceMode === 'camera') {
+                startCamera();
+            }
+            showToast(`Độ phân giải: ${prof.label}`);
+        }
+
+        function setAspectRatio(ratioKey) {
+            state.aspectRatio = RATIO_MAP.hasOwnProperty(ratioKey) ? ratioKey : 'auto';
+            document.querySelectorAll('.ratio-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-ratio') === state.aspectRatio);
+            });
+            document.getElementById('valRatioLabel').textContent = state.aspectRatio.toUpperCase();
+            document.getElementById('ratioBadge').textContent = state.aspectRatio.toUpperCase();
+
+            if (state.aspectRatio === 'auto') {
+                glCanvas.style.aspectRatio = '';
+            } else {
+                glCanvas.style.aspectRatio = state.aspectRatio.replace(':', ' / ');
+            }
+            showToast(`Tỉ lệ khung hình: ${state.aspectRatio.toUpperCase()}`);
+        }
+
+        async function lockOrientationMode(mode) {
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    if (mode === 'landscape') {
+                        await screen.orientation.lock('landscape');
+                        showToast('Đã xoay ngang màn hình');
+                    } else if (mode === 'portrait') {
+                        await screen.orientation.lock('portrait');
+                        showToast('Đã chuyển màn hình dọc');
+                    } else if (screen.orientation.unlock) {
+                        screen.orientation.unlock();
+                    }
+                }
+            } catch {}
+        }
+
+        let lastTiltTrigger = 0;
+        function handleTiltAutoRotate(event) {
+            if (!state.autoRotateLandscape) return;
+            const now = Date.now();
+            if (now - lastTiltTrigger < 1200) return;
+
+            const gamma = Math.abs(event.gamma || 0);
+            if (gamma > 52 && window.innerHeight > window.innerWidth) {
+                lastTiltTrigger = now;
+                lockOrientationMode('landscape');
+            } else if (gamma < 28 && window.innerWidth > window.innerHeight) {
+                lastTiltTrigger = now;
+                lockOrientationMode('portrait');
+            }
+        }
+
+        function toggleAutoRotateLandscape() {
+            state.autoRotateLandscape = !state.autoRotateLandscape;
+            const statusEl = document.getElementById('rotateStatusText');
+            const quickBtn = document.getElementById('btnAutoRotateQuick');
+            statusEl.textContent = state.autoRotateLandscape ? 'TỰ ĐỘNG' : 'TẮT';
+            quickBtn.classList.toggle('active', state.autoRotateLandscape);
+
+            if (state.autoRotateLandscape) {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission().catch(() => {});
+                }
+                window.addEventListener('deviceorientation', handleTiltAutoRotate);
+                if (window.innerWidth > window.innerHeight) {
+                    lockOrientationMode('landscape');
+                }
+                showToast('Đã bật tự động xoay ngang theo cảm biến');
+            } else {
+                window.removeEventListener('deviceorientation', handleTiltAutoRotate);
+                lockOrientationMode('unlock');
+                showToast('Đã tắt tự động xoay ngang');
+            }
+        }
+
+        // ==================== LUT ENGINE (.CUBE & PRESET + BẬT/TẮT NHANH) ====================
+        function syncLutQuickUi() {
+            const btn = document.getElementById('btnToggleLutQuick');
+            const badge = document.getElementById('lutBadge');
+            const lut = state.luts[state.activeLutIndex] || state.luts[0];
+
+            if (state.lutBypassed || state.activeLutIndex === 0) {
+                btn.classList.remove('active');
+                badge.textContent = state.activeLutIndex > 0 && state.lutBypassed
+                    ? `LUT: OFF (${lut.name})`
+                    : 'LUT: NONE';
+            } else {
+                btn.classList.add('active');
+                badge.textContent = `LUT: ${lut.name}`;
+            }
+        }
+
+        function toggleLutQuick() {
+            if (state.activeLutIndex === 0) {
+                const fallbackIdx = state.luts.length > 1 ? 1 : 0;
+                if (fallbackIdx === 0) {
+                    showToast('Chưa có LUT nào để bật');
+                    return;
+                }
+                state.activeLutIndex = fallbackIdx;
+                state.lutBypassed = false;
+                renderLutList();
+                syncLutQuickUi();
+                showToast(`Đã bật LUT "${state.luts[fallbackIdx].name}"`);
+                return;
+            }
+
+            state.lutBypassed = !state.lutBypassed;
+            syncLutQuickUi();
+            showToast(state.lutBypassed ? 'Đã tắt LUT' : `Đã bật LUT "${state.luts[state.activeLutIndex].name}"`);
+        }
+
+        function makeLutData(kind, size = 17) {
+            const data = new Uint8Array(size * size * size * 4);
+            for (let b = 0; b < size; b++) {
+                for (let g = 0; g < size; g++) {
+                    for (let r = 0; r < size; r++) {
+                        let rn = r / (size - 1);
+                        let gn = g / (size - 1);
+                        let bn = b / (size - 1);
+
+                        if (kind === 'teal-orange') {
+                            const luma = 0.299 * rn + 0.587 * gn + 0.114 * bn;
+                            const sh = Math.pow(1 - luma, 1.5);
+                            const hi = Math.pow(luma, 1.3);
+                            rn = rn + hi * 0.14 - sh * 0.08;
+                            gn = gn + sh * 0.05 + hi * 0.02;
+                            bn = bn + sh * 0.16 - hi * 0.12;
+                        } else if (kind === 'fuji') {
+                            rn = Math.pow(rn, 1.06) * 0.96 + 0.02;
+                            gn = Math.pow(gn, 1.02) * 0.98 + 0.01;
+                            bn = Math.pow(bn, 0.95) * 0.94 + 0.03;
+                        } else if (kind === 'gold') {
+                            rn = rn * 1.08 + 0.03;
+                            gn = gn * 1.02 + 0.015;
+                            bn = bn * 0.85 + 0.02;
+                        } else if (kind === 'mono') {
+                            const gray = 0.299 * rn + 0.587 * gn + 0.114 * bn;
+                            rn = gn = bn = gray * gray * (3 - 2 * gray);
+                        }
+
+                        const idx = ((b * size + g) * size + r) * 4;
+                        data[idx] = Math.max(0, Math.min(255, Math.round(rn * 255)));
+                        data[idx + 1] = Math.max(0, Math.min(255, Math.round(gn * 255)));
+                        data[idx + 2] = Math.max(0, Math.min(255, Math.round(bn * 255)));
+                        data[idx + 3] = 255;
+                    }
+                }
+            }
+            return { size, data };
+        }
+
+        function parseCube(text, filename) {
+            const lines = text.split(/\r?\n/);
+            let size = 0;
+            let is1D = false;
+            let title = filename.replace(/\.cube$/i, '');
+            const rows = [];
+
+            for (const raw of lines) {
+                const line = raw.trim();
+                if (!line || line.startsWith('#')) continue;
+                if (/^TITLE/i.test(line)) {
+                    const m = line.match(/TITLE\s+"?([^"]+)"?/i);
+                    if (m) title = m[1];
+                } else if (/^LUT_3D_SIZE/i.test(line)) {
+                    size = parseInt(line.split(/\s+/)[1], 10);
+                    is1D = false;
+                } else if (/^LUT_1D_SIZE/i.test(line)) {
+                    size = parseInt(line.split(/\s+/)[1], 10);
+                    is1D = true;
+                } else {
+                    const parts = line.split(/\s+/);
+                    if (parts.length >= 3 && !Number.isNaN(parseFloat(parts[0]))) {
+                        rows.push([parseFloat(parts[0]), parseFloat(parts[1]), parseFloat(parts[2])]);
+                    }
+                }
+            }
+
+            if (!size || !rows.length) {
+                throw new Error('File .cube không hợp lệ');
+            }
+
+            if (is1D) {
+                const target = 17;
+                const data = new Uint8Array(target * target * target * 4);
+                const sample = (v, ch) => {
+                    const pos = Math.max(0, Math.min(1, v)) * (rows.length - 1);
+                    const i0 = Math.floor(pos);
+                    const i1 = Math.min(rows.length - 1, i0 + 1);
+                    const t = pos - i0;
+                    return rows[i0][ch] * (1 - t) + rows[i1][ch] * t;
+                };
+                for (let b = 0; b < target; b++) {
+                    for (let g = 0; g < target; g++) {
+                        for (let r = 0; r < target; r++) {
+                            const idx = ((b * target + g) * target + r) * 4;
+                            data[idx] = Math.max(0, Math.min(255, Math.round(sample(r / (target - 1), 0) * 255)));
+                            data[idx + 1] = Math.max(0, Math.min(255, Math.round(sample(g / (target - 1), 1) * 255)));
+                            data[idx + 2] = Math.max(0, Math.min(255, Math.round(sample(b / (target - 1), 2) * 255)));
+                            data[idx + 3] = 255;
+                        }
+                    }
+                }
+                return { name: title, sub: '.CUBE 1D→3D', size: target, data, isCustom: true };
+            }
+
+            const total = size * size * size;
+            if (rows.length < total) throw new Error('Thiếu dữ liệu điểm màu trong .cube');
+            const data = new Uint8Array(total * 4);
+            for (let i = 0; i < total; i++) {
+                data[i * 4] = Math.max(0, Math.min(255, Math.round(rows[i][0] * 255)));
+                data[i * 4 + 1] = Math.max(0, Math.min(255, Math.round(rows[i][1] * 255)));
+                data[i * 4 + 2] = Math.max(0, Math.min(255, Math.round(rows[i][2] * 255)));
+                data[i * 4 + 3] = 255;
+            }
+            return { name: title, sub: `.CUBE ${size}×`, size, data, isCustom: true };
+        }
+
+        function persistCustomLuts() {
+            try {
+                const customOnly = state.luts.filter(l => l.isCustom).map(l => ({
+                    name: l.name,
+                    sub: l.sub,
+                    size: l.size,
+                    data: Array.from(l.data),
+                    isCustom: true
+                }));
+                localStorage.setItem(CUSTOM_LUT_STORAGE_KEY, JSON.stringify(customOnly));
+            } catch {}
+        }
+
+        function initLuts() {
+            const baseLuts = [
+                { name: 'Gốc (No LUT)', sub: 'Mặc định', size: 0, data: null },
+                { name: 'Teal & Orange', sub: 'Điện ảnh', ...makeLutData('teal-orange', 17) },
+                { name: 'Fuji Chrome', sub: 'Phim trầm', ...makeLutData('fuji', 17) },
+                { name: 'Kodak Gold', sub: 'Nắng ấm', ...makeLutData('gold', 17) },
+                { name: 'Leica Mono', sub: 'Đen trắng', ...makeLutData('mono', 17) }
+            ];
+            let savedCustom = [];
+            try {
+                const raw = JSON.parse(localStorage.getItem(CUSTOM_LUT_STORAGE_KEY) || '[]');
+                savedCustom = raw.map(item => ({
+                    ...item,
+                    data: new Uint8Array(item.data)
+                }));
+            } catch {}
+
+            state.luts = [...baseLuts, ...savedCustom];
+            renderLutList();
+            syncLutQuickUi();
+        }
+
+        function renderLutList() {
+            const grid = document.getElementById('lutGrid');
+            grid.innerHTML = state.luts.map((lut, idx) => `
+                <div class="lut-chip ${idx === state.activeLutIndex && !state.lutBypassed ? 'active' : ''}" onclick="applyLutByIndex(${idx})">
+                    <div class="top-line">
+                        <span class="name">${lut.name}</span>
+                        ${lut.isCustom ? `<span class="del-mini" onclick="deleteLutByIndex(event, ${idx})">Xóa</span>` : ''}
+                    </div>
+                    <div class="sub">${lut.sub}</div>
+                </div>
+            `).join('');
+            renderEditorLutList();
+        }
+
+        window.applyLutByIndex = (idx) => {
+            if (idx < 0 || idx >= state.luts.length) idx = 0;
+            state.activeLutIndex = idx;
+            state.lutBypassed = false;
+            const lut = state.luts[idx];
+            if (glEngine) glEngine.uploadLut(lut);
+            syncLutQuickUi();
+            renderLutList();
+        };
+
+        window.deleteLutByIndex = (e, idx) => {
+            e.stopPropagation();
+            const lut = state.luts[idx];
+            if (!lut || !lut.isCustom) return;
+            state.luts.splice(idx, 1);
+            if (state.activeLutIndex === idx) {
+                state.activeLutIndex = 0;
+                state.lutBypassed = false;
+                if (glEngine) glEngine.uploadLut(state.luts[0]);
+            } else if (state.activeLutIndex > idx) {
+                state.activeLutIndex--;
+            }
+            if (state.editorParams.lutIndex === idx) state.editorParams.lutIndex = 0;
+            else if (state.editorParams.lutIndex > idx) state.editorParams.lutIndex--;
+            persistCustomLuts();
+            renderLutList();
+            syncLutQuickUi();
+            renderEditorFrame();
+            showToast(`Đã xóa LUT "${lut.name}"`);
+        };
+
+        // ==================== WEBGL ENGINE (HỖ TRỢ ĐỘ PHÂN GIẢI CAO & CROP) ====================
+        class WebGLEngine {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.gl = canvas.getContext('webgl', {
+                    preserveDrawingBuffer: true,
+                    antialias: false
+                });
+                if (!this.gl) return;
+                this.setupProgram();
+                this.setupQuad();
+                this.setupTextures();
+            }
+
+            setupProgram() {
+                const gl = this.gl;
+                const vs = gl.createShader(gl.VERTEX_SHADER);
+                gl.shaderSource(vs, `
+                    attribute vec2 a_pos;
+                    attribute vec2 a_uv;
+                    varying vec2 v_uv;
+                    void main() {
+                        gl_Position = vec4(a_pos, 0.0, 1.0);
+                        v_uv = a_uv;
+                    }
+                `);
+                gl.compileShader(vs);
+
+                const fs = gl.createShader(gl.FRAGMENT_SHADER);
+                gl.shaderSource(fs, `
+                    precision mediump float;
+                    varying vec2 v_uv;
+
+                    uniform sampler2D u_img;
+                    uniform sampler2D u_lut;
+                    uniform float u_lutSize;
+                    uniform float u_lutStrength;
+                    uniform bool u_hasLut;
+                    uniform bool u_showOrig;
+                    uniform bool u_mirrorX;
+                    uniform vec2 u_cropScale;
+
+                    uniform float u_exposure;
+                    uniform float u_contrast;
+                    uniform float u_highlights;
+                    uniform float u_shadows;
+                    uniform float u_temp;
+                    uniform float u_tint;
+
+                    uniform vec3 u_matchShift;
+                    uniform float u_matchStrength;
+
+                    uniform vec2 u_focusPt;
+                    uniform float u_blur;
+                    uniform vec2 u_texel;
+
+                    vec3 sample3DLut(vec3 c) {
+                        float sz = u_lutSize;
+                        float sliceW = 1.0 / sz;
+                        float cellW = sliceW / sz;
+                        float inner = cellW * (sz - 1.0);
+                        float bScaled = c.b * (sz - 1.0);
+                        float z0 = min(floor(bScaled), sz - 1.0);
+                        float z1 = min(z0 + 1.0, sz - 1.0);
+                        float xOff = cellW * 0.5 + c.r * inner;
+                        float yOff = cellW * 0.5 + c.g * inner;
+                        vec3 s0 = texture2D(u_lut, vec2(z0 * sliceW + xOff, yOff * sz)).rgb;
+                        vec3 s1 = texture2D(u_lut, vec2(z1 * sliceW + xOff, yOff * sz)).rgb;
+                        return mix(s0, s1, fract(bScaled));
+                    }
+
+                    void main() {
+                        vec2 uv = (v_uv - 0.5) * u_cropScale + 0.5;
+                        if (u_mirrorX) uv.x = 1.0 - uv.x;
+                        vec3 col = texture2D(u_img, clamp(uv, 0.001, 0.999)).rgb;
+
+                        if (u_blur > 0.01 && !u_showOrig) {
+                            float d = distance(v_uv, u_focusPt);
+                            float bAmt = smoothstep(0.16, 0.65, d) * u_blur * 3.0;
+                            if (bAmt > 0.05) {
+                                col = (
+                                    col * 0.28 +
+                                    texture2D(u_img, clamp(uv + vec2(bAmt, 0.0) * u_texel, 0.002, 0.998)).rgb * 0.18 +
+                                    texture2D(u_img, clamp(uv - vec2(bAmt, 0.0) * u_texel, 0.002, 0.998)).rgb * 0.18 +
+                                    texture2D(u_img, clamp(uv + vec2(0.0, bAmt) * u_texel, 0.002, 0.998)).rgb * 0.18 +
+                                    texture2D(u_img, clamp(uv - vec2(0.0, bAmt) * u_texel, 0.002, 0.998)).rgb * 0.18
+                                );
+                            }
+                        }
+
+                        if (u_showOrig) {
+                            gl_FragColor = vec4(col, 1.0);
+                            return;
+                        }
+
+                        col *= pow(2.0, u_exposure * 1.6);
+                        col.r += u_temp * 0.14 - u_tint * 0.04;
+                        col.g += u_tint * 0.10;
+                        col.b -= u_temp * 0.14 + u_tint * 0.04;
+
+                        float luma = dot(col, vec3(0.299, 0.587, 0.114));
+                        float shMask = pow(clamp(1.0 - luma, 0.0, 1.0), 2.0);
+                        float hiMask = pow(clamp(luma, 0.0, 1.0), 2.0);
+                        col += col * u_shadows * shMask * 0.75;
+                        col += col * u_highlights * hiMask * 0.65;
+
+                        col = (col - 0.5) * (1.0 + u_contrast * 0.85) + 0.5;
+                        col = clamp(col, 0.0, 1.0);
+
+                        if (u_matchStrength > 0.001) {
+                            col = mix(col, clamp(col + u_matchShift, 0.0, 1.0), u_matchStrength);
+                        }
+
+                        if (u_hasLut && u_lutStrength > 0.001) {
+                            col = mix(col, sample3DLut(col), u_lutStrength);
+                        }
+
+                        gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+                    }
+                `);
+                gl.compileShader(fs);
+
+                this.prog = gl.createProgram();
+                gl.attachShader(this.prog, vs);
+                gl.attachShader(this.prog, fs);
+                gl.linkProgram(this.prog);
+                gl.useProgram(this.prog);
+
+                this.u = {
+                    img: gl.getUniformLocation(this.prog, 'u_img'),
+                    lut: gl.getUniformLocation(this.prog, 'u_lut'),
+                    lutSize: gl.getUniformLocation(this.prog, 'u_lutSize'),
+                    lutStrength: gl.getUniformLocation(this.prog, 'u_lutStrength'),
+                    hasLut: gl.getUniformLocation(this.prog, 'u_hasLut'),
+                    showOrig: gl.getUniformLocation(this.prog, 'u_showOrig'),
+                    mirrorX: gl.getUniformLocation(this.prog, 'u_mirrorX'),
+                    cropScale: gl.getUniformLocation(this.prog, 'u_cropScale'),
+                    exposure: gl.getUniformLocation(this.prog, 'u_exposure'),
+                    contrast: gl.getUniformLocation(this.prog, 'u_contrast'),
+                    highlights: gl.getUniformLocation(this.prog, 'u_highlights'),
+                    shadows: gl.getUniformLocation(this.prog, 'u_shadows'),
+                    temp: gl.getUniformLocation(this.prog, 'u_temp'),
+                    tint: gl.getUniformLocation(this.prog, 'u_tint'),
+                    matchShift: gl.getUniformLocation(this.prog, 'u_matchShift'),
+                    matchStrength: gl.getUniformLocation(this.prog, 'u_matchStrength'),
+                    focusPt: gl.getUniformLocation(this.prog, 'u_focusPt'),
+                    blur: gl.getUniformLocation(this.prog, 'u_blur'),
+                    texel: gl.getUniformLocation(this.prog, 'u_texel')
+                };
+            }
+
+            setupQuad() {
+                const gl = this.gl;
+                const posLoc = gl.getAttribLocation(this.prog, 'a_pos');
+                const uvLoc = gl.getAttribLocation(this.prog, 'a_uv');
+
+                const pBuf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, pBuf);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+                gl.enableVertexAttribArray(posLoc);
+                gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+                const uBuf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, uBuf);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0,1, 1,1, 0,0, 0,0, 1,1, 1,0]), gl.STATIC_DRAW);
+                gl.enableVertexAttribArray(uvLoc);
+                gl.vertexAttribPointer(uvLoc, 2, gl.FLOAT, false, 0, 0);
+            }
+
+            setupTextures() {
+                const gl = this.gl;
+                this.imgTex = gl.createTexture();
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, this.imgTex);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+                this.lutTex = gl.createTexture();
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, this.lutTex);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+                gl.uniform1i(this.u.img, 0);
+                gl.uniform1i(this.u.lut, 1);
+            }
+
+            uploadLut(lut) {
+                const gl = this.gl;
+                if (!gl) return;
+                if (!lut || !lut.data) {
+                    gl.uniform1i(this.u.hasLut, 0);
+                    return;
+                }
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, this.lutTex);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, lut.size * lut.size, lut.size, 0, gl.RGBA, gl.UNSIGNED_BYTE, lut.data);
+                gl.uniform1f(this.u.lutSize, lut.size);
+                gl.uniform1i(this.u.hasLut, 1);
+            }
+
+            renderWithParams(src, srcW, srcH, maxOutW, pObj, lutIdx, mirrorX = false, useCrop = true) {
+                const gl = this.gl;
+                if (!gl || !src || !srcW || !srcH) return;
+
+                const { width: outW, height: outH } = useCrop
+                    ? getTargetDimensions(srcW, srcH, maxOutW)
+                    : {
+                        width: maxOutW && srcW > maxOutW ? maxOutW : srcW,
+                        height: maxOutW && srcW > maxOutW ? Math.round(srcH * (maxOutW / srcW)) : srcH
+                    };
+
+                let cropX = 1.0;
+                let cropY = 1.0;
+                if (useCrop) {
+                    const srcRatio = srcW / srcH;
+                    const dstRatio = outW / outH;
+                    if (srcRatio > dstRatio) cropX = dstRatio / srcRatio;
+                    else if (dstRatio > srcRatio) cropY = srcRatio / dstRatio;
+                }
+
+                if (this.canvas.width !== outW || this.canvas.height !== outH) {
+                    this.canvas.width = outW;
+                    this.canvas.height = outH;
+                    gl.viewport(0, 0, outW, outH);
+                }
+
+                this.uploadLut(state.luts[lutIdx] || state.luts[0]);
+
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, this.imgTex);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+
+                gl.uniform2f(this.u.cropScale, cropX, cropY);
+                gl.uniform1f(this.u.exposure, (pObj.exposure || 0) / 100);
+                gl.uniform1f(this.u.contrast, (pObj.contrast || 0) / 100);
+                gl.uniform1f(this.u.highlights, (pObj.highlights || 0) / 100);
+                gl.uniform1f(this.u.shadows, (pObj.shadows || 0) / 100);
+                gl.uniform1f(this.u.temp, (pObj.temp || 0) / 100);
+                gl.uniform1f(this.u.tint, (pObj.tint || 0) / 100);
+                gl.uniform1f(this.u.lutStrength, (pObj.lutStrength ?? 100) / 100);
+                gl.uniform1f(this.u.matchStrength, (pObj.matchStrength || 0) / 100);
+                gl.uniform3f(this.u.matchShift, state.matchShift[0], state.matchShift[1], state.matchShift[2]);
+                gl.uniform1i(this.u.showOrig, state.showOriginal ? 1 : 0);
+                gl.uniform1i(this.u.mirrorX, mirrorX ? 1 : 0);
+
+                gl.uniform2f(this.u.focusPt, state.focusPoint.x, state.focusPoint.y);
+                const blurVal = state.focusMode === 'MF' ? Math.abs(state.focusDist - 0.5) * 1.4 : 0;
+                gl.uniform1f(this.u.blur, blurVal);
+                gl.uniform2f(this.u.texel, 1 / outW, 1 / outH);
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            }
+
+            render(src, srcW, srcH, maxOutW = 2560) {
+                const effectiveLutIdx = state.lutBypassed ? 0 : state.activeLutIndex;
+                this.renderWithParams(
+                    src,
+                    srcW,
+                    srcH,
+                    maxOutW,
+                    state.params,
+                    effectiveLutIdx,
+                    state.sourceMode === 'camera' && state.facingMode === 'user',
+                    true
+                );
+            }
+        }
+
+        const glEngine = new WebGLEngine(glCanvas);
+
+        // ==================== COLOR MATCH & LƯU/XÓA PRESET ====================
+        const sampleCanvas = document.createElement('canvas');
+        sampleCanvas.width = 48;
+        sampleCanvas.height = 48;
+        const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+
+        function computeAverageRgb(sourceEl) {
+            if (!sourceEl) return [0.5, 0.5, 0.5];
+            try {
+                sampleCtx.drawImage(sourceEl, 0, 0, 48, 48);
+                const data = sampleCtx.getImageData(0, 0, 48, 48).data;
+                let r = 0, g = 0, b = 0, count = 0;
+                for (let i = 0; i < data.length; i += 16) {
+                    r += data[i] / 255;
+                    g += data[i + 1] / 255;
+                    b += data[i + 2] / 255;
+                    count++;
+                }
+                return [r / count, g / count, b / count];
+            } catch {
+                return [0.5, 0.5, 0.5];
+            }
+        }
+
+        function createBuiltInRefDataUrl(palette) {
+            const c = document.createElement('canvas');
+            c.width = 96;
+            c.height = 64;
+            const ctx = c.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 96, 64);
+            grad.addColorStop(0, palette[0]);
+            grad.addColorStop(1, palette[1]);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 96, 64);
+            return c.toDataURL('image/jpeg', 0.85);
+        }
+
+        function initColorMatch() {
+            const builtIn = [
+                { id: 'ref-warm', name: 'Nắng ấm', colors: ['#ff9e2c', '#4a2c18'] },
+                { id: 'ref-teal', name: 'Biển xanh', colors: ['#00c6ff', '#0b2545'] },
+                { id: 'ref-rose', name: 'Hoàng hôn', colors: ['#f43f5e', '#31102f'] },
+                { id: 'ref-forest', name: 'Rừng sâu', colors: ['#34d399', '#0f291e'] }
+            ];
+
+            state.refItems = builtIn.map(b => {
+                const url = createBuiltInRefDataUrl(b.colors);
+                const img = new Image();
+                img.src = url;
+                return { id: b.id, name: b.name, url, img, avgRgb: null };
+            });
+
+            state.refItems[0].img.onload = () => {
+                state.refItems.forEach(item => {
+                    item.avgRgb = computeAverageRgb(item.img);
+                });
+            };
+
+            try {
+                state.savedPresets = JSON.parse(localStorage.getItem(PRESET_STORAGE_KEY) || '[]');
+            } catch {
+                state.savedPresets = [];
+            }
+
+            renderRefStrip();
+            renderPresetList();
+        }
+
+        function applyColorMatchFromRef(refItem) {
+            if (!refItem) return;
+            const refRgb = refItem.avgRgb || computeAverageRgb(refItem.img);
+            const currentSource = state.sourceMode === 'studio' && state.studioImg ? state.studioImg : videoEl;
+            const curRgb = computeAverageRgb(currentSource);
+
+            state.activeRefId = refItem.id;
+            state.matchShift = [
+                Math.max(-0.45, Math.min(0.45, (refRgb[0] - curRgb[0]) * 1.1)),
+                Math.max(-0.45, Math.min(0.45, (refRgb[1] - curRgb[1]) * 1.1)),
+                Math.max(-0.45, Math.min(0.45, (refRgb[2] - curRgb[2]) * 1.1))
+            ];
+
+            if (state.params.matchStrength < 40) {
+                state.params.matchStrength = 75;
+                document.getElementById('sliderMatchStrength').value = 75;
+                document.getElementById('valMatchStrength').textContent = '75%';
+            }
+
+            renderRefStrip();
+            showToast(`Đã khớp màu theo "${refItem.name}"`);
+        }
+
+        function addCustomRefImage(file) {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                const item = {
+                    id: 'custom-' + Date.now(),
+                    name: file.name.replace(/\.[^/.]+$/, ''),
+                    url,
+                    img,
+                    avgRgb: null
+                };
+                item.avgRgb = computeAverageRgb(img);
+                state.refItems.unshift(item);
+                renderRefStrip();
+                applyColorMatchFromRef(item);
+            };
+            img.src = url;
+        }
+
+        function renderRefStrip() {
+            const strip = document.getElementById('refStrip');
+            strip.innerHTML = state.refItems.map(item => `
+                <div class="ref-item ${item.id === state.activeRefId ? 'active' : ''}" onclick="selectRefById('${item.id}')">
+                    <img src="${item.url}" alt="">
+                    <span>${item.name}</span>
+                </div>
+            `).join('');
+        }
+
+        window.selectRefById = (id) => {
+            const found = state.refItems.find(r => r.id === id);
+            if (found) applyColorMatchFromRef(found);
+        };
+
+        function persistPresets() {
+            try {
+                localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(state.savedPresets));
+            } catch {}
+        }
+
+        function saveCurrentPreset(customName = '') {
+            const nameInput = document.getElementById('presetNameInput');
+            const name = (customName || nameInput.value).trim() || `Màu #${state.savedPresets.length + 1}`;
+            const preset = {
+                id: 'p-' + Date.now(),
+                name,
+                params: { ...state.params },
+                matchShift: [...state.matchShift],
+                activeLutIndex: state.activeLutIndex,
+                aspectRatio: state.aspectRatio
+            };
+            state.savedPresets.unshift(preset);
+            if (state.savedPresets.length > 30) state.savedPresets.length = 30;
+            persistPresets();
+            if (!customName) nameInput.value = '';
+            renderPresetList();
+            showToast(`Đã lưu preset "${name}"`);
+        }
+
+        function applySavedPreset(id) {
+            const p = state.savedPresets.find(x => x.id === id);
+            if (!p) return;
+            state.params = { ...p.params };
+            state.matchShift = [...(p.matchShift || [0, 0, 0])];
+            applyLutByIndex(p.activeLutIndex || 0);
+            if (p.aspectRatio) setAspectRatio(p.aspectRatio);
+            syncSlidersFromState();
+            showToast(`Đang dùng preset "${p.name}"`);
+        }
+
+        window.deleteSavedPreset = (e, id) => {
+            e.stopPropagation();
+            state.savedPresets = state.savedPresets.filter(x => x.id !== id);
+            persistPresets();
+            renderPresetList();
+            showToast('Đã xóa preset');
+        };
+
+        function renderPresetList() {
+            const html = !state.savedPresets.length
+                ? `<span style="font-size:10px; color:var(--muted);">Chưa có preset nào được lưu.</span>`
+                : state.savedPresets.map(p => `
+                    <div class="preset-tag" onclick="applySavedPreset('${p.id}')">
+                        <span>${p.name}</span>
+                        <span onclick="deleteSavedPreset(event, '${p.id}')" style="color:var(--muted); font-weight:700;">✕</span>
+                    </div>
+                `).join('');
+            document.getElementById('presetList').innerHTML = html;
+
+            const edHtml = !state.savedPresets.length
+                ? `<span style="font-size:10px; color:var(--muted);">Chưa có preset nào.</span>`
+                : state.savedPresets.map(p => `
+                    <div class="preset-tag" onclick="applyPresetToEditor('${p.id}')">
+                        <span>${p.name}</span>
+                        <span onclick="deleteSavedPreset(event, '${p.id}')" style="color:var(--muted); font-weight:700;">✕</span>
+                    </div>
+                `).join('');
+            document.getElementById('edPresetList').innerHTML = edHtml;
+        }
+
+        // ==================== CAMERA & STUDIO (ĐỘ PHÂN GIẢI CAO) ====================
+        async function startCamera() {
+            if (state.stream) {
+                state.stream.getTracks().forEach(t => t.stop());
+                state.stream = null;
+            }
+            const prof = RES_PROFILES[state.resProfile] || RES_PROFILES.max;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: {
+                        facingMode: { ideal: state.facingMode },
+                        width: { ideal: prof.camW },
+                        height: { ideal: prof.camH },
+                        frameRate: { ideal: 30 }
+                    }
+                });
+                state.stream = stream;
+                videoEl.srcObject = stream;
+                await videoEl.play();
+                state.videoTrack = stream.getVideoTracks()[0] || null;
+
+                const s = state.videoTrack ? state.videoTrack.getSettings() : {};
+                const w = s.width || videoEl.videoWidth || prof.camW;
+                const h = s.height || videoEl.videoHeight || prof.camH;
+                document.getElementById('resBadge').textContent = `${w}×${h}`;
+            } catch {
+                if (!state.studioImg) {
+                    makeDemoImage();
+                    switchSource('studio');
+                    showToast('Chuyển sang Studio Ảnh (hãy nhập ảnh để chỉnh)');
+                }
+            }
+        }
+
+        function makeDemoImage() {
+            const c = document.createElement('canvas');
+            c.width = 1920;
+            c.height = 1080;
+            const ctx = c.getContext('2d');
+            const g = ctx.createLinearGradient(0, 0, 1920, 1080);
+            g.addColorStop(0, '#1d3557');
+            g.addColorStop(0.55, '#e07a5f');
+            g.addColorStop(1, '#14171f');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, 1920, 1080);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 42px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Bấm "Nhập ảnh" để chọn ảnh độ phân giải cao', 960, 540);
+            const img = new Image();
+            img.onload = () => { state.studioImg = img; };
+            img.src = c.toDataURL('image/jpeg', 0.95);
+        }
+
+        function switchSource(mode) {
+            if (state.isRecording) stopRecording();
+            state.sourceMode = mode;
+            const badge = document.getElementById('modeBadge');
+            const txt = document.getElementById('sourceStatusText');
+            if (mode === 'camera') {
+                badge.textContent = 'CAM';
+                badge.style.color = 'var(--amber)';
+                txt.textContent = 'LIVE CAM';
+                if (!state.stream) startCamera();
+            } else {
+                badge.textContent = 'STUDIO';
+                badge.style.color = 'var(--cyan)';
+                txt.textContent = 'STUDIO ẢNH';
+                if (!state.studioImg) makeDemoImage();
+                if (state.studioImg) {
+                    document.getElementById('resBadge').textContent = `${state.studioImg.naturalWidth}×${state.studioImg.naturalHeight}`;
+                }
+            }
+        }
+
+        function loadStudioPhoto(file) {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                state.studioImg = img;
+                state.studioName = file.name;
+                switchSource('studio');
+                document.getElementById('resBadge').textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+                showToast(`Đã nạp "${file.name}" (${img.naturalWidth}×${img.naturalHeight})`);
+            };
+            img.src = url;
+        }
+
+        // ==================== CHỤP ẢNH, QUAY PHIM & TỰ TẢI VỀ + LƯU GALLERY ====================
+        function capturePhoto() {
+            if (!glCanvas.width || !glCanvas.height) return;
+            const flash = document.getElementById('shutterFlash');
+            flash.classList.add('active');
+            setTimeout(() => flash.classList.remove('active'), 180);
+
+            glCanvas.toBlob(async blob => {
+                if (!blob) return;
+                const filename = `CINECAM_${state.aspectRatio.replace(':','x')}_${Date.now()}.jpg`;
+                const url = await saveToDeviceAndGallery(blob, filename, 'photo');
+                addSessionItem({
+                    type: 'photo',
+                    url,
+                    blob,
+                    name: filename,
+                    w: glCanvas.width,
+                    h: glCanvas.height
+                });
+            }, 'image/jpeg', 0.96);
+        }
+
+        function toggleRecording() {
+            if (!state.isRecording) startRecording();
+            else stopRecording();
+        }
+
+        function startRecording() {
+            if (!glCanvas.captureStream) return;
+            const stream = glCanvas.captureStream(30);
+            if (state.stream) {
+                state.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+            }
+            const mime = ['video/webm;codecs=vp9,opus', 'video/webm', 'video/mp4'].find(m => MediaRecorder.isTypeSupported(m)) || '';
+            state.recChunks = [];
+            state.mediaRecorder = mime
+                ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 12000000 })
+                : new MediaRecorder(stream);
+            state.mediaRecorder.ondataavailable = e => {
+                if (e.data && e.data.size > 0) state.recChunks.push(e.data);
+            };
+            state.mediaRecorder.onstop = async () => {
+                const type = state.mediaRecorder.mimeType || 'video/webm';
+                const ext = type.includes('mp4') ? 'mp4' : 'webm';
+                const blob = new Blob(state.recChunks, { type });
+                const filename = `CINEVID_${state.aspectRatio.replace(':','x')}_${Date.now()}.${ext}`;
+                const url = await saveToDeviceAndGallery(blob, filename, 'video');
+                addSessionItem({
+                    type: 'video',
+                    url,
+                    blob,
+                    name: filename,
+                    w: glCanvas.width,
+                    h: glCanvas.height
+                });
+            };
+            state.mediaRecorder.start(250);
+            state.isRecording = true;
+            state.isPaused = false;
+            state.recStart = Date.now();
+            state.recElapsed = 0;
+
+            document.getElementById('recBadge').classList.add('show');
+            document.getElementById('btnPauseRec').classList.remove('hidden');
+            document.getElementById('shutterCore').classList.add('recording');
+
+            state.recTimerId = setInterval(() => {
+                const ms = state.recElapsed + (Date.now() - state.recStart);
+                const sec = Math.floor(ms / 1000);
+                const hh = String(Math.floor(sec / 3600)).padStart(2, '0');
+                const mm = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+                const ss = String(sec % 60).padStart(2, '0');
+                document.getElementById('recTimer').textContent = `${hh}:${mm}:${ss}`;
+            }, 250);
+        }
+
+        function stopRecording() {
+            if (state.mediaRecorder && state.isRecording) state.mediaRecorder.stop();
+            state.isRecording = false;
+            state.isPaused = false;
+            clearInterval(state.recTimerId);
+            document.getElementById('recBadge').classList.remove('show');
+            document.getElementById('btnPauseRec').classList.add('hidden');
+            document.getElementById('recTimer').textContent = '00:00:00';
+            const core = document.getElementById('shutterCore');
+            core.classList.remove('recording');
+            core.classList.toggle('video-mode', state.captureMode === 'video');
+        }
+
+        function exportFullResStudio() {
+            if (!state.studioImg || !glEngine) return;
+            const maxOut = getMaxOutputWidth();
+            glEngine.render(state.studioImg, state.studioImg.naturalWidth, state.studioImg.naturalHeight, maxOut);
+            glCanvas.toBlob(async blob => {
+                if (!blob) return;
+                const outName = state.studioName.replace(/\.[^/.]+$/, '') + `_${state.aspectRatio.replace(':','x')}.jpg`;
+                const url = await saveToDeviceAndGallery(blob, outName, 'photo');
+                addSessionItem({
+                    type: 'photo',
+                    url,
+                    blob,
+                    name: outName,
+                    w: glCanvas.width,
+                    h: glCanvas.height
+                });
+            }, 'image/jpeg', 0.96);
+        }
+
+        function addSessionItem(item) {
+            state.sessionMedia.unshift(item);
+            const badge = document.getElementById('thumbCount');
+            badge.textContent = state.sessionMedia.length;
+            badge.classList.remove('hidden');
+
+            const img = document.getElementById('thumbImg');
+            const icon = document.getElementById('thumbIcon');
+            if (item.type === 'photo') {
+                img.src = item.url;
+                img.classList.remove('hidden');
+                icon.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                icon.textContent = 'VID';
+                icon.classList.remove('hidden');
+            }
+        }
+
+        function downloadUrl(url, filename) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+        // ==================== THƯ VIỆN & TRÌNH XEM + CHỈNH SỬA ẢNH/VIDEO ====================
+        function openGallery() {
+            const grid = document.getElementById('galleryGrid');
+            if (!state.sessionMedia.length) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--muted); padding:30px; font-size:12px;">Chưa có ảnh/video nào trong phiên.</div>`;
+            } else {
+                grid.innerHTML = state.sessionMedia.map((it, idx) => `
+                    <div class="media-card" onclick="openMediaEditor(${idx})">
+                        ${it.type === 'photo'
+                            ? `<img src="${it.url}" alt="">`
+                            : `<video src="${it.url}" muted playsinline></video>`}
+                        <div style="padding:7px; display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                            <span class="mono" style="font-size:10px; color:var(--muted);">${it.type === 'video' ? '▶ VID' : '✎ ẢNH'} • ${it.w}×${it.h}</span>
+                            <button class="btn-sm amber" onclick="event.stopPropagation(); downloadSessionIdx(${idx})">Tải</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('galleryModal').classList.add('open');
+        }
+
+        window.downloadSessionIdx = async (idx) => {
+            const it = state.sessionMedia[idx];
+            if (!it) return;
+            if (it.blob) await saveToDeviceAndGallery(it.blob, it.name, it.type);
+            else downloadUrl(it.url, it.name);
+        };
+
+        const editorCanvas = document.getElementById('editorCanvas');
+        const editorVideo = document.getElementById('editorVideoPlayer');
+        const editorGl = new WebGLEngine(editorCanvas);
+
+        function renderEditorFrame() {
+            const item = state.sessionMedia[state.editingMediaIdx];
+            if (!item || !editorGl) return;
+            const ep = state.editorParams;
+            document.getElementById('edValExp').textContent = `${(ep.exposure / 50).toFixed(2)} EV`;
+            document.getElementById('edValCon').textContent = ep.contrast;
+            document.getElementById('edValTemp').textContent = `${Math.round(5600 + ep.temp * 32)}K`;
+            const lutObj = state.luts[ep.lutIndex] || state.luts[0];
+            document.getElementById('edLutName').textContent = ep.lutIndex === 0 ? 'NONE' : lutObj.name;
+
+            if (item.type === 'photo' && state.editorSourceImg) {
+                editorGl.renderWithParams(
+                    state.editorSourceImg,
+                    state.editorSourceImg.naturalWidth,
+                    state.editorSourceImg.naturalHeight,
+                    getMaxOutputWidth(),
+                    { ...state.params, exposure: ep.exposure, contrast: ep.contrast, temp: ep.temp },
+                    ep.lutIndex,
+                    false,
+                    false
+                );
+            } else if (item.type === 'video') {
+                const bVal = (ep.exposure / 100) * 0.6 + 1;
+                const cVal = (ep.contrast / 100) * 0.6 + 1;
+                editorVideo.style.filter = `brightness(${bVal.toFixed(2)}) contrast(${cVal.toFixed(2)}) hue-rotate(${(ep.temp * 0.25).toFixed(1)}deg)`;
+            }
+        }
+
+        function renderEditorLutList() {
+            const grid = document.getElementById('edLutGrid');
+            if (!grid) return;
+            grid.innerHTML = state.luts.map((lut, idx) => `
+                <div class="lut-chip ${idx === state.editorParams.lutIndex ? 'active' : ''}" onclick="selectEditorLut(${idx})">
+                    <div class="top-line">
+                        <span class="name">${lut.name}</span>
+                        ${lut.isCustom ? `<span class="del-mini" onclick="deleteLutByIndex(event, ${idx})">Xóa</span>` : ''}
+                    </div>
+                    <div class="sub">${lut.sub}</div>
+                </div>
+            `).join('');
+        }
+
+        window.selectEditorLut = (idx) => {
+            state.editorParams.lutIndex = idx;
+            renderEditorLutList();
+            renderEditorFrame();
+        };
+
+        window.applyPresetToEditor = (id) => {
+            const p = state.savedPresets.find(x => x.id === id);
+            if (!p) return;
+            state.editorParams.exposure = p.params.exposure || 0;
+            state.editorParams.contrast = p.params.contrast || 0;
+            state.editorParams.temp = p.params.temp || 0;
+            state.editorParams.lutIndex = p.activeLutIndex || 0;
+            document.getElementById('edSliderExp').value = state.editorParams.exposure;
+            document.getElementById('edSliderCon').value = state.editorParams.contrast;
+            document.getElementById('edSliderTemp').value = state.editorParams.temp;
+            renderEditorLutList();
+            renderEditorFrame();
+            showToast(`Đã áp dụng preset "${p.name}"`);
+        };
+
+        window.openMediaEditor = (idx) => {
+            const item = state.sessionMedia[idx];
+            if (!item) return;
+            state.editingMediaIdx = idx;
+            state.editorParams = {
+                exposure: state.params.exposure,
+                contrast: state.params.contrast,
+                temp: state.params.temp,
+                lutIndex: state.lutBypassed ? 0 : state.activeLutIndex
+            };
+
+            document.getElementById('editorTitle').textContent = `${item.type === 'video' ? 'Xem & Sửa Video' : 'Xem & Sửa Ảnh'} • ${item.name}`;
+            document.getElementById('edSliderExp').value = state.editorParams.exposure;
+            document.getElementById('edSliderCon').value = state.editorParams.contrast;
+            document.getElementById('edSliderTemp').value = state.editorParams.temp;
+            renderEditorLutList();
+            renderPresetList();
+
+            if (item.type === 'photo') {
+                editorCanvas.classList.remove('hidden');
+                editorVideo.classList.add('hidden');
+                editorVideo.pause();
+                const img = new Image();
+                img.onload = () => {
+                    state.editorSourceImg = img;
+                    renderEditorFrame();
+                };
+                img.src = item.url;
+            } else {
+                editorCanvas.classList.add('hidden');
+                editorVideo.classList.remove('hidden');
+                editorVideo.src = item.url;
+                renderEditorFrame();
+            }
+
+            document.getElementById('editorModal').classList.add('open');
+        };
+
+        async function saveAndExportEditedMedia() {
+            const item = state.sessionMedia[state.editingMediaIdx];
+            if (!item) return;
+
+            if (item.type === 'photo' && state.editorSourceImg) {
+                renderEditorFrame();
+                editorCanvas.toBlob(async blob => {
+                    if (!blob) return;
+                    const outName = item.name.replace(/\.[^/.]+$/, '') + '_Edited.jpg';
+                    const url = await saveToDeviceAndGallery(blob, outName, 'photo');
+                    addSessionItem({
+                        type: 'photo',
+                        url,
+                        blob,
+                        name: outName,
+                        w: editorCanvas.width,
+                        h: editorCanvas.height
+                    });
+                    openGallery();
+                }, 'image/jpeg', 0.96);
+            } else {
+                if (item.blob) await saveToDeviceAndGallery(item.blob, item.name, 'video');
+                else downloadUrl(item.url, item.name);
+                showToast('Đã tải video về máy');
+            }
+        }
+
+        // ==================== UI BINDINGS & LOOP ====================
+        function syncSlidersFromState() {
+            const p = state.params;
+            document.getElementById('sliderExposure').value = p.exposure;
+            document.getElementById('sliderContrast').value = p.contrast;
+            document.getElementById('sliderHighlights').value = p.highlights;
+            document.getElementById('sliderShadows').value = p.shadows;
+            document.getElementById('sliderTemp').value = p.temp;
+            document.getElementById('sliderTint').value = p.tint;
+            document.getElementById('sliderLutStrength').value = p.lutStrength;
+            document.getElementById('sliderMatchStrength').value = p.matchStrength;
+
+            const evVal = (p.exposure / 50).toFixed(2);
+            document.getElementById('valExposure').textContent = `${evVal} EV`;
+            document.getElementById('valContrast').textContent = p.contrast;
+            document.getElementById('valHighlights').textContent = p.highlights;
+            document.getElementById('valShadows').textContent = p.shadows;
+            document.getElementById('wbKelvinText').textContent = `${Math.round(5600 + p.temp * 32)}K`;
+            document.getElementById('wbTintText').textContent = `T:${p.tint}`;
+            document.getElementById('valLutStrength').textContent = `${p.lutStrength}%`;
+            document.getElementById('valMatchStrength').textContent = `${p.matchStrength}%`;
+        }
+
+        function closeAllPopups() {
+            document.querySelectorAll('.popup-sheet').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.tool-pill-btn').forEach(b => b.classList.remove('active'));
+        }
+
+        function bindEvents() {
+            document.querySelectorAll('.tool-pill-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-popup');
+                    const sheet = document.getElementById(id);
+                    const willOpen = !sheet.classList.contains('open');
+                    closeAllPopups();
+                    if (willOpen) {
+                        sheet.classList.add('open');
+                        btn.classList.add('active');
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-close-popup]').forEach(btn => {
+                btn.addEventListener('click', closeAllPopups);
+            });
+
+            document.querySelectorAll('.res-btn').forEach(btn => {
+                btn.addEventListener('click', () => setResProfile(btn.getAttribute('data-res')));
+            });
+
+            document.querySelectorAll('.ratio-btn').forEach(btn => {
+                btn.addEventListener('click', () => setAspectRatio(btn.getAttribute('data-ratio')));
+            });
+
+            document.getElementById('btnToggleAutoRotate').addEventListener('click', toggleAutoRotateLandscape);
+            document.getElementById('btnAutoRotateQuick').addEventListener('click', toggleAutoRotateLandscape);
+            document.getElementById('btnLockLandscape').addEventListener('click', () => lockOrientationMode('landscape'));
+            document.getElementById('btnLockPortrait').addEventListener('click', () => lockOrientationMode('portrait'));
+
+            const bindSlider = (id, key, onChange) => {
+                document.getElementById(id).addEventListener('input', e => {
+                    state.params[key] = parseFloat(e.target.value);
+                    onChange(state.params[key]);
+                });
+            };
+
+            bindSlider('sliderExposure', 'exposure', v => {
+                document.getElementById('valExposure').textContent = `${(v / 50).toFixed(2)} EV`;
+            });
+            bindSlider('sliderContrast', 'contrast', v => {
+                document.getElementById('valContrast').textContent = v;
+            });
+            bindSlider('sliderHighlights', 'highlights', v => {
+                document.getElementById('valHighlights').textContent = v;
+            });
+            bindSlider('sliderShadows', 'shadows', v => {
+                document.getElementById('valShadows').textContent = v;
+            });
+            bindSlider('sliderTemp', 'temp', v => {
+                document.getElementById('wbKelvinText').textContent = `${Math.round(5600 + v * 32)}K`;
+            });
+            bindSlider('sliderTint', 'tint', v => {
+                document.getElementById('wbTintText').textContent = `T:${v}`;
+            });
+            bindSlider('sliderLutStrength', 'lutStrength', v => {
+                document.getElementById('valLutStrength').textContent = `${v}%`;
+            });
+            bindSlider('sliderMatchStrength', 'matchStrength', v => {
+                document.getElementById('valMatchStrength').textContent = `${v}%`;
+            });
+
+            document.getElementById('btnResetTone').addEventListener('click', () => {
+                state.params.exposure = 0;
+                state.params.contrast = 0;
+                state.params.highlights = 0;
+                state.params.shadows = 0;
+                syncSlidersFromState();
+            });
+
+            const cubeInput = document.getElementById('cubeFileInput');
+            const openCubePicker = () => cubeInput.click();
+            document.getElementById('btnImportCube').addEventListener('click', openCubePicker);
+            document.getElementById('edBtnAddCube').addEventListener('click', openCubePicker);
+            cubeInput.addEventListener('change', e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    try {
+                        const parsed = parseCube(ev.target.result, file.name);
+                        state.luts.push(parsed);
+                        persistCustomLuts();
+                        applyLutByIndex(state.luts.length - 1);
+                        if (document.getElementById('editorModal').classList.contains('open')) {
+                            state.editorParams.lutIndex = state.luts.length - 1;
+                            renderEditorLutList();
+                            renderEditorFrame();
+                        }
+                        showToast(`Đã thêm LUT "${parsed.name}"`);
+                    } catch (err) {
+                        showToast(err.message);
+                    }
+                };
+                reader.readAsText(file);
+                cubeInput.value = '';
+            });
+
+            const refInput = document.getElementById('refImportInput');
+            document.getElementById('btnImportRef').addEventListener('click', () => refInput.click());
+            refInput.addEventListener('change', e => {
+                if (e.target.files[0]) addCustomRefImage(e.target.files[0]);
+                refInput.value = '';
+            });
+
+            document.getElementById('btnClearMatch').addEventListener('click', () => {
+                state.activeRefId = null;
+                state.params.matchStrength = 0;
+                document.getElementById('sliderMatchStrength').value = 0;
+                document.getElementById('valMatchStrength').textContent = '0%';
+                renderRefStrip();
+            });
+
+            document.getElementById('btnSavePreset').addEventListener('click', () => saveCurrentPreset());
+
+            document.getElementById('edSliderExp').addEventListener('input', e => {
+                state.editorParams.exposure = parseFloat(e.target.value);
+                renderEditorFrame();
+            });
+            document.getElementById('edSliderCon').addEventListener('input', e => {
+                state.editorParams.contrast = parseFloat(e.target.value);
+                renderEditorFrame();
+            });
+            document.getElementById('edSliderTemp').addEventListener('input', e => {
+                state.editorParams.temp = parseFloat(e.target.value);
+                renderEditorFrame();
+            });
+            document.getElementById('edBtnSavePreset').addEventListener('click', () => {
+                const input = document.getElementById('edPresetName');
+                const name = input.value.trim() || `Preset #${state.savedPresets.length + 1}`;
+                const preset = {
+                    id: 'p-' + Date.now(),
+                    name,
+                    params: {
+                        ...state.params,
+                        exposure: state.editorParams.exposure,
+                        contrast: state.editorParams.contrast,
+                        temp: state.editorParams.temp
+                    },
+                    matchShift: [...state.matchShift],
+                    activeLutIndex: state.editorParams.lutIndex,
+                    aspectRatio: state.aspectRatio
+                };
+                state.savedPresets.unshift(preset);
+                persistPresets();
+                input.value = '';
+                renderPresetList();
+                showToast(`Đã lưu preset "${name}"`);
+            });
+            document.getElementById('btnApplySaveEditor').addEventListener('click', saveAndExportEditedMedia);
+            document.getElementById('btnCloseEditor').addEventListener('click', () => {
+                editorVideo.pause();
+                document.getElementById('editorModal').classList.remove('open');
+            });
+
+            const viewport = document.getElementById('viewport');
+            const reticle = document.getElementById('focusReticle');
+            glCanvas.addEventListener('pointerdown', e => {
+                const vpRect = viewport.getBoundingClientRect();
+                const cRect = glCanvas.getBoundingClientRect();
+                if (!cRect.width || !cRect.height) return;
+                state.focusPoint = {
+                    x: Math.max(0, Math.min(1, (e.clientX - cRect.left) / cRect.width)),
+                    y: Math.max(0, Math.min(1, (e.clientY - cRect.top) / cRect.height))
+                };
+                reticle.style.left = `${e.clientX - vpRect.left}px`;
+                reticle.style.top = `${e.clientY - vpRect.top}px`;
+                reticle.style.display = 'block';
+            });
+
+            document.getElementById('btnFocusAF').addEventListener('click', () => {
+                state.focusMode = 'AF';
+                reticle.setAttribute('data-label', 'AF');
+                document.getElementById('valFocusDist').textContent = 'AUTO';
+                document.getElementById('btnFocusAF').className = 'btn-sm cyan';
+                document.getElementById('btnFocusMF').className = 'btn-sm';
+            });
+
+            document.getElementById('btnFocusMF').addEventListener('click', () => {
+                state.focusMode = 'MF';
+                document.getElementById('btnFocusMF').className = 'btn-sm amber';
+                document.getElementById('btnFocusAF').className = 'btn-sm';
+            });
+
+            document.getElementById('sliderFocus').addEventListener('input', e => {
+                state.focusMode = 'MF';
+                state.focusDist = parseFloat(e.target.value) / 100;
+                document.getElementById('btnFocusMF').className = 'btn-sm amber';
+                document.getElementById('btnFocusAF').className = 'btn-sm';
+                const label = state.focusDist < 0.2 ? 'MACRO' : state.focusDist > 0.85 ? '∞' : `${(0.1 + state.focusDist * 4.9).toFixed(1)}m`;
+                document.getElementById('valFocusDist').textContent = label;
+                reticle.style.display = 'block';
+                reticle.setAttribute('data-label', `MF ${label}`);
+            });
+
+            const photoImport = document.getElementById('photoImportInput');
+            document.getElementById('btnSwitchCam').addEventListener('click', () => switchSource('camera'));
+            document.getElementById('btnSwitchStudio').addEventListener('click', () => switchSource('studio'));
+            document.getElementById('btnImportStudioPhoto').addEventListener('click', () => photoImport.click());
+            photoImport.addEventListener('change', e => {
+                if (e.target.files[0]) loadStudioPhoto(e.target.files[0]);
+                photoImport.value = '';
+            });
+
+            document.getElementById('btnFlipCam').addEventListener('click', () => {
+                if (state.isRecording) return;
+                state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
+                switchSource('camera');
+                startCamera();
+            });
+
+            document.getElementById('btnTorch').addEventListener('click', async () => {
+                if (!state.videoTrack || !state.videoTrack.getCapabilities) return;
+                const caps = state.videoTrack.getCapabilities();
+                if (!caps.torch) {
+                    showToast('Thiết bị không hỗ trợ Torch');
+                    return;
+                }
+                state.torchOn = !state.torchOn;
+                try {
+                    await state.videoTrack.applyConstraints({ advanced: [{ torch: state.torchOn }] });
+                    document.getElementById('btnTorch').classList.toggle('active', state.torchOn);
+                } catch {}
+            });
+
+            document.getElementById('btnGrid').addEventListener('click', () => {
+                state.gridOn = !state.gridOn;
+                document.getElementById('gridOverlay').classList.toggle('show', state.gridOn);
+                document.getElementById('btnGrid').classList.toggle('active', state.gridOn);
+            });
+
+            document.getElementById('btnToggleLutQuick').addEventListener('click', toggleLutQuick);
+
+            document.getElementById('btnCompare').addEventListener('click', () => {
+                state.showOriginal = !state.showOriginal;
+                document.getElementById('btnCompare').classList.toggle('active', state.showOriginal);
+            });
+
+            const btnPhoto = document.getElementById('btnModePhoto');
+            const btnVideo = document.getElementById('btnModeVideo');
+            const core = document.getElementById('shutterCore');
+
+            btnPhoto.addEventListener('click', () => {
+                if (state.isRecording) return;
+                state.captureMode = 'photo';
+                btnPhoto.className = 'active-photo';
+                btnVideo.className = '';
+                core.classList.remove('video-mode');
+            });
+
+            btnVideo.addEventListener('click', () => {
+                if (state.isRecording) return;
+                state.captureMode = 'video';
+                btnVideo.className = 'active-video';
+                btnPhoto.className = '';
+                core.classList.add('video-mode');
+            });
+
+            document.getElementById('btnShutter').addEventListener('click', () => {
+                if (state.sourceMode === 'studio') {
+                    exportFullResStudio();
+                    return;
+                }
+                if (state.captureMode === 'photo') capturePhoto();
+                else toggleRecording();
+            });
+
+            document.getElementById('btnPauseRec').addEventListener('click', () => {
+                if (!state.mediaRecorder || !state.isRecording) return;
+                if (!state.isPaused) {
+                    state.mediaRecorder.pause();
+                    state.isPaused = true;
+                    state.recElapsed += Date.now() - state.recStart;
+                    document.getElementById('btnPauseRec').textContent = '▶';
+                } else {
+                    state.mediaRecorder.resume();
+                    state.isPaused = false;
+                    state.recStart = Date.now();
+                    document.getElementById('btnPauseRec').textContent = '❚❚';
+                }
+            });
+
+            document.getElementById('btnSaveExport').addEventListener('click', async () => {
+                if (state.sourceMode === 'studio') {
+                    exportFullResStudio();
+                } else if (state.sessionMedia.length) {
+                    const latest = state.sessionMedia[0];
+                    if (latest.blob) await saveToDeviceAndGallery(latest.blob, latest.name, latest.type);
+                    else downloadUrl(latest.url, latest.name);
+                } else {
+                    capturePhoto();
+                }
+            });
+
+            document.getElementById('btnOpenGallery').addEventListener('click', openGallery);
+            document.getElementById('btnCloseGallery').addEventListener('click', () => {
+                document.getElementById('galleryModal').classList.remove('open');
+            });
+        }
+
+        let lastHist = 0;
+        function drawMiniHist(now) {
+            if (now - lastHist < 180 || !glCanvas.width) return;
+            lastHist = now;
+            const w = histCanvas.width;
+            const h = histCanvas.height;
+            histCtx.drawImage(glCanvas, 0, 0, w, h);
+            const px = histCtx.getImageData(0, 0, w, h).data;
+            const bins = 24;
+            const rB = new Uint16Array(bins);
+            const gB = new Uint16Array(bins);
+            const bB = new Uint16Array(bins);
+            let maxV = 1;
+            for (let i = 0; i < px.length; i += 16) {
+                const ri = Math.min(bins - 1, Math.floor((px[i] / 256) * bins));
+                const gi = Math.min(bins - 1, Math.floor((px[i + 1] / 256) * bins));
+                const bi = Math.min(bins - 1, Math.floor((px[i + 2] / 256) * bins));
+                if (++rB[ri] > maxV) maxV = rB[ri];
+                if (++gB[gi] > maxV) maxV = gB[gi];
+                if (++bB[bi] > maxV) maxV = bB[bi];
+            }
+            histCtx.clearRect(0, 0, w, h);
+            const drawBar = (arr, color) => {
+                histCtx.fillStyle = color;
+                for (let i = 0; i < bins; i++) {
+                    const bh = Math.max(1, (arr[i] / maxV) * (h - 2));
+                    histCtx.fillRect((i / bins) * w, h - bh, w / bins, bh);
+                }
+            };
+            drawBar(rB, 'rgba(255,80,80,0.65)');
+            drawBar(gB, 'rgba(60,220,130,0.65)');
+            drawBar(bB, 'rgba(0,210,255,0.70)');
+        }
+
+        function loop(now) {
+            if (glEngine) {
+                const maxOut = getMaxOutputWidth();
+                if (state.sourceMode === 'camera') {
+                    if (videoEl.readyState >= videoEl.HAVE_CURRENT_DATA && videoEl.videoWidth > 0) {
+                        glEngine.render(videoEl, videoEl.videoWidth, videoEl.videoHeight, maxOut);
+                        drawMiniHist(now);
+                    }
+                } else if (state.studioImg) {
+                    glEngine.render(state.studioImg, state.studioImg.naturalWidth, state.studioImg.naturalHeight, maxOut);
+                    drawMiniHist(now);
+                }
+            }
+            requestAnimationFrame(loop);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initLuts();
+            initColorMatch();
+            bindEvents();
+            startCamera();
+            requestAnimationFrame(loop);
+        });
+    </script>
+</body>
+</html>
