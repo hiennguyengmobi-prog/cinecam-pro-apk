@@ -1268,31 +1268,83 @@
         }
 
         // ==================== LƯU VÀO GALLERY ANDROID (CAPACITOR) + TẢI VỀ MÁY ====================
+        // ==================== LƯU VÀO GALLERY ANDROID + TẢI VỀ MÁY ====================
         async function saveToDeviceAndGallery(blob, filename, type = 'photo') {
             const url = URL.createObjectURL(blob);
             downloadUrl(url, filename);
 
-            try {
-                const capMedia = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Media;
-                if (capMedia) {
-                    const base64Data = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(blob);
+            const cap = window.Capacitor;
+            const plugins = (cap && cap.Plugins) || {};
+            const fsPlugin = plugins.Filesystem;
+            const mediaPlugin = plugins.Media;
+
+            const base64Data = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const res = String(reader.result || '');
+                    resolve(res.includes(',') ? res.split(',')[1] : res);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+
+            // 1. Ghi file ra bộ nhớ thiết bị qua Capacitor Filesystem & lưu vào Media/Gallery
+            if (fsPlugin && typeof fsPlugin.writeFile === 'function') {
+                const subDir = type === 'video' ? 'Movies/CineCam Pro' : 'Pictures/CineCam Pro';
+                const filePath = `${subDir}/${filename}`;
+                let savedUri = '';
+
+                try {
+                    const written = await fsPlugin.writeFile({
+                        path: filePath,
+                        data: base64Data,
+                        directory: 'EXTERNAL_STORAGE',
+                        recursive: true
                     });
-                    if (type === 'photo' && typeof capMedia.savePhoto === 'function') {
-                        await capMedia.savePhoto({ path: base64Data, album: 'CineCam Pro' });
-                        showToast('Đã tải về & lưu vào Thư viện ảnh!');
-                        return url;
+                    savedUri = written && written.uri ? written.uri : '';
+                } catch {
+                    try {
+                        const writtenCache = await fsPlugin.writeFile({
+                            path: filename,
+                            data: base64Data,
+                            directory: 'CACHE',
+                            recursive: true
+                        });
+                        savedUri = writtenCache && writtenCache.uri ? writtenCache.uri : '';
+                    } catch {}
+                }
+
+                if (mediaPlugin && savedUri) {
+                    try {
+                        if (type === 'photo' && typeof mediaPlugin.savePhoto === 'function') {
+                            await mediaPlugin.savePhoto({ path: savedUri, album: 'CineCam Pro' });
+                            showToast('Đã lưu ảnh vào Thư viện máy!');
+                            return url;
+                        }
+                        if (type === 'video' && typeof mediaPlugin.saveVideo === 'function') {
+                            await mediaPlugin.saveVideo({ path: savedUri, album: 'CineCam Pro' });
+                            showToast('Đã lưu video vào Thư viện máy!');
+                            return url;
+                        }
+                    } catch (err) {
+                        showToast('Đã ghi file, thử bấm Tải hoặc Chia sẻ để lưu vào Thư viện');
                     }
-                    if (type === 'video' && typeof capMedia.saveVideo === 'function') {
-                        await capMedia.saveVideo({ path: base64Data, album: 'CineCam Pro' });
-                        showToast('Đã tải về & lưu video vào Thư viện!');
-                        return url;
-                    }
+                } else if (savedUri) {
+                    showToast(`Đã lưu vào bộ nhớ: ${filePath}`);
+                    return url;
+                }
+            }
+
+            // 2. Fallback Web Share File cho Android WebView nếu có
+            try {
+                const fileObj = new File([blob], filename, { type: blob.type || (type === 'video' ? 'video/webm' : 'image/jpeg') });
+                if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+                    // Không tự bật share làm phiền khi chụp liên tục, chỉ dùng khi bấm Lưu/Xuất nếu cần
+                    state.lastShareFile = fileObj;
                 }
             } catch {}
+
+            showToast('Đã xuất file (kiểm tra mục Tải xuống / Thư viện)');
             return url;
         }
 
