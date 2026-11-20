@@ -115,13 +115,15 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: 700;
             cursor: pointer;
         }
 
         .icon-circle-btn.active {
             border-color: var(--amber);
             color: var(--amber);
+            background: rgba(255, 149, 0, 0.16);
         }
 
         #histCanvas {
@@ -226,7 +228,6 @@
             flex-shrink: 0;
         }
 
-        /* Bố cục ngang (Landscape) gọn chiều cao để khung hình vẫn thoáng */
         @media (orientation: landscape) and (max-height: 520px) {
             .app-shell {
                 flex-direction: row;
@@ -244,7 +245,7 @@
                 left: auto;
                 right: calc(100% + 8px);
                 bottom: 8px;
-                width: 320px;
+                width: 330px;
                 max-height: calc(100dvh - 16px);
             }
         }
@@ -532,26 +533,30 @@
             margin-bottom: 2px;
         }
 
-        .ratio-group {
+        .ratio-group, .res-group {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 5px;
             margin-top: 8px;
         }
 
-        .ratio-btn {
+        .res-group {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .ratio-btn, .res-btn {
             background: var(--bg);
             border: 1px solid var(--border);
             color: var(--text);
             border-radius: 7px;
             padding: 6px 2px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             cursor: pointer;
             text-align: center;
         }
 
-        .ratio-btn.active {
+        .ratio-btn.active, .res-btn.active {
             border-color: var(--amber);
             color: var(--amber);
             background: rgba(255, 149, 0, 0.14);
@@ -572,11 +577,19 @@
             text-align: left;
             color: var(--text);
             cursor: pointer;
+            position: relative;
         }
 
         .lut-chip.active {
             border-color: var(--amber);
             background: rgba(255, 149, 0, 0.14);
+        }
+
+        .lut-chip .top-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 4px;
         }
 
         .lut-chip .name {
@@ -591,6 +604,18 @@
             font-size: 10px;
             color: var(--muted);
             margin-top: 2px;
+        }
+
+        .del-mini {
+            background: rgba(255, 59, 48, 0.18);
+            border: 1px solid rgba(255, 59, 48, 0.4);
+            color: #ff8a80;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .ref-strip {
@@ -676,26 +701,28 @@
             border-color: rgba(0, 210, 255, 0.45);
         }
 
-        /* Modal Thư viện phiên */
+        /* Modal Thư viện phiên & Trình xem/chỉnh sửa */
         .modal-backdrop {
             position: fixed;
             inset: 0;
             z-index: 50;
-            background: rgba(0, 0, 0, 0.88);
+            background: rgba(0, 0, 0, 0.92);
             display: none;
             flex-direction: column;
         }
         .modal-backdrop.open { display: flex; }
 
         .modal-top {
-            padding: 12px 14px;
+            padding: 10px 14px;
             background: var(--panel);
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
             font-size: 13px;
             font-weight: 700;
+            flex-shrink: 0;
         }
 
         .modal-grid {
@@ -713,6 +740,7 @@
             border: 1px solid var(--border);
             border-radius: 10px;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .media-card img, .media-card video {
@@ -723,12 +751,55 @@
             background: #000;
         }
 
+        .editor-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-preview-pane {
+            flex: 1;
+            min-height: 0;
+            background: #050608;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            overflow: hidden;
+        }
+
+        #editorCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            border-radius: 8px;
+        }
+
+        #editorVideoPlayer {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            background: #000;
+        }
+
+        .editor-controls-pane {
+            background: var(--panel);
+            border-top: 1px solid var(--border);
+            padding: 10px 12px;
+            max-height: 46dvh;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
         .toast-box {
             position: fixed;
             bottom: 150px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 60;
+            z-index: 70;
             pointer-events: none;
             display: flex;
             flex-direction: column;
@@ -783,7 +854,7 @@
                     <span>|</span>
                     <span id="ratioBadge" style="color: var(--cyan);">AUTO</span>
                     <span>|</span>
-                    <span id="resBadge">1280×720</span>
+                    <span id="resBadge">MAX</span>
                 </div>
                 <div class="hud-pill mono" id="lutBadge">LUT: NONE</div>
                 <canvas id="histCanvas" width="92" height="32"></canvas>
@@ -795,6 +866,7 @@
                 <button class="icon-circle-btn" id="btnTorch" title="Đèn Flash">⚡</button>
                 <button class="icon-circle-btn" id="btnAutoRotateQuick" title="Tự động xoay ngang">⟳</button>
                 <button class="icon-circle-btn" id="btnGrid" title="Lưới bố cục">▦</button>
+                <button class="icon-circle-btn" id="btnToggleLutQuick" title="Bật/tắt LUT">LUT</button>
                 <button class="icon-circle-btn" id="btnCompare" title="So sánh ảnh gốc">◑</button>
             </div>
         </div>
@@ -849,7 +921,7 @@
                 <div class="popup-header">
                     <span class="popup-title">🎞 LUT (.cube & Bộ Màu)</span>
                     <div style="display:flex; gap:6px;">
-                        <button class="btn-sm amber" id="btnImportCube">＋ Nạp .cube</button>
+                        <button class="btn-sm amber" id="btnImportCube">＋ Thêm .cube</button>
                         <button class="close-popup-btn" data-close-popup>Đóng</button>
                     </div>
                 </div>
@@ -876,7 +948,7 @@
                 </div>
 
                 <div style="font-size:11px; color:var(--muted); margin-bottom:6px;">
-                    Chọn ảnh tham chiếu có sẵn hoặc nhập ảnh từ máy để lấy tông màu áp dụng lên khung hình:
+                    Chọn ảnh tham chiếu có sẵn hoặc nhập ảnh từ máy để lấy tông màu:
                 </div>
                 <div class="ref-strip" id="refStrip"></div>
 
@@ -887,30 +959,44 @@
                     </div>
                     <input type="range" id="sliderMatchStrength" min="0" max="100" value="0">
                     <div style="display:flex; gap:6px; margin-top:6px;">
-                        <button class="btn-sm" id="btnClearMatch">Tắt khớp màu</button>
-                        <input type="text" id="presetNameInput" placeholder="Tên màu lưu..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:5px 8px; color:#fff; font-size:11px;">
-                        <button class="btn-sm amber" id="btnSavePreset">Lưu màu</button>
+                        <button class="btn-sm" id="btnClearMatch">Tắt</button>
+                        <input type="text" id="presetNameInput" placeholder="Tên preset màu..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:5px 8px; color:#fff; font-size:11px;">
+                        <button class="btn-sm amber" id="btnSavePreset">Lưu preset</button>
                     </div>
                 </div>
 
                 <div style="font-size:11px; color:var(--muted); margin-top:6px;">
-                    Preset đã lưu (bấm để áp dụng ngay khi chụp ảnh / quay phim / chỉnh ảnh):
+                    Preset đã lưu (bấm áp dụng, ✕ để xóa):
                 </div>
                 <div class="preset-list" id="presetList"></div>
             </div>
 
-            <!-- POP-UP 4: TỈ LỆ KHUNG HÌNH, XOAY NGANG, LẤY NÉT & STUDIO -->
+            <!-- POP-UP 4: ĐỘ PHÂN GIẢI, TỈ LỆ, XOAY NGANG, LẤY NÉT & STUDIO -->
             <div class="popup-sheet" id="popupMore">
                 <div class="popup-header">
-                    <span class="popup-title">📐 Tỉ Lệ, Xoay Ngang, Nét & Studio</span>
+                    <span class="popup-title">📐 Độ Phân Giải, Tỉ Lệ & Xoay Ngang</span>
                     <button class="close-popup-btn" data-close-popup>Đóng</button>
+                </div>
+
+                <!-- Độ phân giải ảnh & video -->
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Độ phân giải quay / chụp</span>
+                        <span class="mono" id="valResProfile" style="color:var(--amber)">MAX</span>
+                    </div>
+                    <div class="res-group" id="resGroup">
+                        <button class="res-btn active" data-res="max">MAX/GỐC</button>
+                        <button class="res-btn" data-res="4k">4K/2K</button>
+                        <button class="res-btn" data-res="1080p">1080P</button>
+                        <button class="res-btn" data-res="720p">720P</button>
+                    </div>
                 </div>
 
                 <!-- Tỉ lệ khung hình -->
                 <div class="control-card">
                     <div class="control-row-top">
-                        <span>Tỉ lệ khung hình (Aspect Ratio)</span>
-                        <span class="mono" id="valRatioLabel" style="color:var(--amber)">AUTO</span>
+                        <span>Tỉ lệ khung hình</span>
+                        <span class="mono" id="valRatioLabel" style="color:var(--cyan)">AUTO</span>
                     </div>
                     <div class="ratio-group" id="ratioGroup">
                         <button class="ratio-btn active" data-ratio="auto">AUTO</button>
@@ -928,8 +1014,8 @@
                         <span class="mono" id="rotateStatusText" style="color:var(--cyan)">TẮT</span>
                     </div>
                     <div style="display:flex; gap:6px; margin-top:8px;">
-                        <button class="btn-sm cyan" id="btnToggleAutoRotate" style="flex:1;">Bật/Tắt Tự Động Xoay</button>
-                        <button class="btn-sm" id="btnLockLandscape">Khoá Ngang</button>
+                        <button class="btn-sm cyan" id="btnToggleAutoRotate" style="flex:1;">Tự động xoay</button>
+                        <button class="btn-sm" id="btnLockLandscape">Xoay ngang</button>
                         <button class="btn-sm" id="btnLockPortrait">Dọc</button>
                     </div>
                 </div>
@@ -987,12 +1073,12 @@
                 <button class="tool-pill-btn" data-popup="popupTone">☀ Sáng tối</button>
                 <button class="tool-pill-btn" data-popup="popupLut">🎞 LUT</button>
                 <button class="tool-pill-btn" data-popup="popupColorMatch">🎨 Match</button>
-                <button class="tool-pill-btn" data-popup="popupMore">📐 Tỉ lệ/Xoay</button>
+                <button class="tool-pill-btn" data-popup="popupMore">📐 Phân giải</button>
             </div>
 
             <!-- Hàng nút chụp / quay / lưu -->
             <div class="shutter-row">
-                <button class="thumb-btn" id="btnOpenGallery" title="Thư viện phiên">
+                <button class="thumb-btn" id="btnOpenGallery" title="Thư viện ảnh & video">
                     <img id="thumbImg" class="hidden" alt="">
                     <span id="thumbIcon" class="mono" style="font-size:11px;">ALBUM</span>
                     <span class="thumb-badge hidden" id="thumbCount">0</span>
@@ -1019,16 +1105,81 @@
     <!-- Modal thư viện ảnh/video trong phiên -->
     <div class="modal-backdrop" id="galleryModal">
         <div class="modal-top">
-            <span>Ảnh & Video đã tạo trong phiên</span>
+            <span>Thư viện ảnh & video (bấm vào để xem & chỉnh sửa)</span>
             <button class="btn-sm" id="btnCloseGallery">Đóng</button>
         </div>
         <div class="modal-grid" id="galleryGrid"></div>
+    </div>
+
+    <!-- Modal Xem & Chỉnh sửa Ảnh / Video + Thêm/Xóa LUT & Preset -->
+    <div class="modal-backdrop" id="editorModal">
+        <div class="modal-top">
+            <span id="editorTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Chỉnh sửa</span>
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+                <button class="btn-sm amber" id="btnApplySaveEditor">Lưu & Tải về</button>
+                <button class="btn-sm" id="btnCloseEditor">Đóng</button>
+            </div>
+        </div>
+        <div class="editor-body">
+            <div class="editor-preview-pane">
+                <canvas id="editorCanvas"></canvas>
+                <video id="editorVideoPlayer" controls playsinline class="hidden"></video>
+            </div>
+            <div class="editor-controls-pane">
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Độ sáng (Exposure)</span>
+                        <span class="mono" id="edValExp">0.00 EV</span>
+                    </div>
+                    <input type="range" id="edSliderExp" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Tương phản (Contrast)</span>
+                        <span class="mono" id="edValCon">0</span>
+                    </div>
+                    <input type="range" id="edSliderCon" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Nhiệt độ màu (❄/☀)</span>
+                        <span class="mono" id="edValTemp">5600K</span>
+                    </div>
+                    <input type="range" id="edSliderTemp" class="temp-track" min="-100" max="100" value="0">
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>LUT cho mục này</span>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <span class="mono" id="edLutName" style="color:var(--amber)">NONE</span>
+                            <button class="btn-sm amber" id="edBtnAddCube">＋ Thêm .cube</button>
+                        </div>
+                    </div>
+                    <div class="lut-grid" id="edLutGrid"></div>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-row-top">
+                        <span>Preset màu (áp dụng / lưu / xóa)</span>
+                    </div>
+                    <div style="display:flex; gap:6px; margin-top:6px;">
+                        <input type="text" id="edPresetName" placeholder="Tên preset mới..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:5px 8px; color:#fff; font-size:11px;">
+                        <button class="btn-sm amber" id="edBtnSavePreset">Lưu preset</button>
+                    </div>
+                    <div class="preset-list" id="edPresetList"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="toast-box" id="toastBox"></div>
 
     <script>
         const PRESET_STORAGE_KEY = 'cinecam_saved_presets_v1';
+        const CUSTOM_LUT_STORAGE_KEY = 'cinecam_custom_luts_v1';
 
         const RATIO_MAP = {
             'auto': null,
@@ -1038,14 +1189,23 @@
             '9:16': 9 / 16
         };
 
+        const RES_PROFILES = {
+            'max': { label: 'MAX', maxOutW: null, camW: 3840, camH: 2160 },
+            '4k': { label: '4K/2K', maxOutW: 2560, camW: 2560, camH: 1440 },
+            '1080p': { label: '1080P', maxOutW: 1920, camW: 1920, camH: 1080 },
+            '720p': { label: '720P', maxOutW: 1280, camW: 1280, camH: 720 }
+        };
+
         const state = {
             sourceMode: 'camera', // 'camera' | 'studio'
             captureMode: 'photo', // 'photo' | 'video'
+            resProfile: 'max',    // 'max' | '4k' | '1080p' | '720p'
             aspectRatio: 'auto',  // 'auto' | '1:1' | '4:3' | '16:9' | '9:16'
             autoRotateLandscape: false,
             facingMode: 'environment',
             torchOn: false,
             gridOn: false,
+            lutBypassed: false,
             showOriginal: false,
 
             params: {
@@ -1083,7 +1243,11 @@
 
             studioImg: null,
             studioName: 'Studio_Photo.jpg',
-            sessionMedia: []
+            sessionMedia: [],
+
+            editingMediaIdx: -1,
+            editorParams: { exposure: 0, contrast: 0, temp: 0, lutIndex: 0 },
+            editorSourceImg: null
         };
 
         const videoEl = document.getElementById('cameraVideo');
@@ -1100,11 +1264,45 @@
             setTimeout(() => {
                 el.style.opacity = '0';
                 setTimeout(() => el.remove(), 220);
-            }, 2000);
+            }, 2200);
         }
 
-        // ==================== TỈ LỆ KHUNG HÌNH & TỰ ĐỘNG XOAY NGANG ====================
-        function getTargetDimensions(srcW, srcH, maxWidth = 1280) {
+        // ==================== LƯU VÀO GALLERY ANDROID (CAPACITOR) + TẢI VỀ MÁY ====================
+        async function saveToDeviceAndGallery(blob, filename, type = 'photo') {
+            const url = URL.createObjectURL(blob);
+            downloadUrl(url, filename);
+
+            try {
+                const capMedia = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Media;
+                if (capMedia) {
+                    const base64Data = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                    if (type === 'photo' && typeof capMedia.savePhoto === 'function') {
+                        await capMedia.savePhoto({ path: base64Data, album: 'CineCam Pro' });
+                        showToast('Đã tải về & lưu vào Thư viện ảnh!');
+                        return url;
+                    }
+                    if (type === 'video' && typeof capMedia.saveVideo === 'function') {
+                        await capMedia.saveVideo({ path: base64Data, album: 'CineCam Pro' });
+                        showToast('Đã tải về & lưu video vào Thư viện!');
+                        return url;
+                    }
+                }
+            } catch {}
+            return url;
+        }
+
+        // ==================== ĐỘ PHÂN GIẢI, TỈ LỆ KHUNG HÌNH & XOAY NGANG ====================
+        function getMaxOutputWidth() {
+            const prof = RES_PROFILES[state.resProfile] || RES_PROFILES.max;
+            return prof.maxOutW;
+        }
+
+        function getTargetDimensions(srcW, srcH, maxWidth = 2560) {
             let w = srcW;
             let h = srcH;
             const ratioVal = RATIO_MAP[state.aspectRatio];
@@ -1127,6 +1325,20 @@
             return { width: Math.max(2, w), height: Math.max(2, h) };
         }
 
+        function setResProfile(profileKey) {
+            state.resProfile = RES_PROFILES[profileKey] ? profileKey : 'max';
+            const prof = RES_PROFILES[state.resProfile];
+            document.querySelectorAll('.res-btn').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-res') === state.resProfile);
+            });
+            document.getElementById('valResProfile').textContent = prof.label;
+            document.getElementById('resBadge').textContent = prof.label;
+            if (state.sourceMode === 'camera') {
+                startCamera();
+            }
+            showToast(`Độ phân giải: ${prof.label}`);
+        }
+
         function setAspectRatio(ratioKey) {
             state.aspectRatio = RATIO_MAP.hasOwnProperty(ratioKey) ? ratioKey : 'auto';
             document.querySelectorAll('.ratio-btn').forEach(btn => {
@@ -1135,7 +1347,6 @@
             document.getElementById('valRatioLabel').textContent = state.aspectRatio.toUpperCase();
             document.getElementById('ratioBadge').textContent = state.aspectRatio.toUpperCase();
 
-            // Cập nhật hiển thị tỉ lệ trên canvas
             if (state.aspectRatio === 'auto') {
                 glCanvas.style.aspectRatio = '';
             } else {
@@ -1157,9 +1368,7 @@
                         screen.orientation.unlock();
                     }
                 }
-            } catch {
-                // Một số trình duyệt yêu cầu toàn màn hình hoặc không hỗ trợ khóa xoay
-            }
+            } catch {}
         }
 
         let lastTiltTrigger = 0;
@@ -1168,7 +1377,6 @@
             const now = Date.now();
             if (now - lastTiltTrigger < 1200) return;
 
-            // Khi nghiêng thiết bị ngang: |gamma| lớn (~60-90 độ) hoặc |beta| nhỏ
             const gamma = Math.abs(event.gamma || 0);
             if (gamma > 52 && window.innerHeight > window.innerWidth) {
                 lastTiltTrigger = now;
@@ -1202,7 +1410,43 @@
             }
         }
 
-        // ==================== LUT ENGINE (.CUBE & PRESET) ====================
+        // ==================== LUT ENGINE (.CUBE & PRESET + BẬT/TẮT NHANH) ====================
+        function syncLutQuickUi() {
+            const btn = document.getElementById('btnToggleLutQuick');
+            const badge = document.getElementById('lutBadge');
+            const lut = state.luts[state.activeLutIndex] || state.luts[0];
+
+            if (state.lutBypassed || state.activeLutIndex === 0) {
+                btn.classList.remove('active');
+                badge.textContent = state.activeLutIndex > 0 && state.lutBypassed
+                    ? `LUT: OFF (${lut.name})`
+                    : 'LUT: NONE';
+            } else {
+                btn.classList.add('active');
+                badge.textContent = `LUT: ${lut.name}`;
+            }
+        }
+
+        function toggleLutQuick() {
+            if (state.activeLutIndex === 0) {
+                const fallbackIdx = state.luts.length > 1 ? 1 : 0;
+                if (fallbackIdx === 0) {
+                    showToast('Chưa có LUT nào để bật');
+                    return;
+                }
+                state.activeLutIndex = fallbackIdx;
+                state.lutBypassed = false;
+                renderLutList();
+                syncLutQuickUi();
+                showToast(`Đã bật LUT "${state.luts[fallbackIdx].name}"`);
+                return;
+            }
+
+            state.lutBypassed = !state.lutBypassed;
+            syncLutQuickUi();
+            showToast(state.lutBypassed ? 'Đã tắt LUT' : `Đã bật LUT "${state.luts[state.activeLutIndex].name}"`);
+        }
+
         function makeLutData(kind, size = 17) {
             const data = new Uint8Array(size * size * size * 4);
             for (let b = 0; b < size; b++) {
@@ -1310,36 +1554,87 @@
             return { name: title, sub: `.CUBE ${size}×`, size, data, isCustom: true };
         }
 
+        function persistCustomLuts() {
+            try {
+                const customOnly = state.luts.filter(l => l.isCustom).map(l => ({
+                    name: l.name,
+                    sub: l.sub,
+                    size: l.size,
+                    data: Array.from(l.data),
+                    isCustom: true
+                }));
+                localStorage.setItem(CUSTOM_LUT_STORAGE_KEY, JSON.stringify(customOnly));
+            } catch {}
+        }
+
         function initLuts() {
-            state.luts = [
+            const baseLuts = [
                 { name: 'Gốc (No LUT)', sub: 'Mặc định', size: 0, data: null },
                 { name: 'Teal & Orange', sub: 'Điện ảnh', ...makeLutData('teal-orange', 17) },
                 { name: 'Fuji Chrome', sub: 'Phim trầm', ...makeLutData('fuji', 17) },
                 { name: 'Kodak Gold', sub: 'Nắng ấm', ...makeLutData('gold', 17) },
                 { name: 'Leica Mono', sub: 'Đen trắng', ...makeLutData('mono', 17) }
             ];
+            let savedCustom = [];
+            try {
+                const raw = JSON.parse(localStorage.getItem(CUSTOM_LUT_STORAGE_KEY) || '[]');
+                savedCustom = raw.map(item => ({
+                    ...item,
+                    data: new Uint8Array(item.data)
+                }));
+            } catch {}
+
+            state.luts = [...baseLuts, ...savedCustom];
             renderLutList();
+            syncLutQuickUi();
         }
 
         function renderLutList() {
             const grid = document.getElementById('lutGrid');
             grid.innerHTML = state.luts.map((lut, idx) => `
-                <button class="lut-chip ${idx === state.activeLutIndex ? 'active' : ''}" onclick="applyLutByIndex(${idx})">
-                    <div class="name">${lut.name}</div>
+                <div class="lut-chip ${idx === state.activeLutIndex && !state.lutBypassed ? 'active' : ''}" onclick="applyLutByIndex(${idx})">
+                    <div class="top-line">
+                        <span class="name">${lut.name}</span>
+                        ${lut.isCustom ? `<span class="del-mini" onclick="deleteLutByIndex(event, ${idx})">Xóa</span>` : ''}
+                    </div>
                     <div class="sub">${lut.sub}</div>
-                </button>
+                </div>
             `).join('');
+            renderEditorLutList();
         }
 
         window.applyLutByIndex = (idx) => {
+            if (idx < 0 || idx >= state.luts.length) idx = 0;
             state.activeLutIndex = idx;
+            state.lutBypassed = false;
             const lut = state.luts[idx];
             if (glEngine) glEngine.uploadLut(lut);
-            document.getElementById('lutBadge').textContent = idx === 0 ? 'LUT: NONE' : `LUT: ${lut.name}`;
+            syncLutQuickUi();
             renderLutList();
         };
 
-        // ==================== WEBGL ENGINE (HỖ TRỢ CROP TỈ LỆ KHUNG HÌNH) ====================
+        window.deleteLutByIndex = (e, idx) => {
+            e.stopPropagation();
+            const lut = state.luts[idx];
+            if (!lut || !lut.isCustom) return;
+            state.luts.splice(idx, 1);
+            if (state.activeLutIndex === idx) {
+                state.activeLutIndex = 0;
+                state.lutBypassed = false;
+                if (glEngine) glEngine.uploadLut(state.luts[0]);
+            } else if (state.activeLutIndex > idx) {
+                state.activeLutIndex--;
+            }
+            if (state.editorParams.lutIndex === idx) state.editorParams.lutIndex = 0;
+            else if (state.editorParams.lutIndex > idx) state.editorParams.lutIndex--;
+            persistCustomLuts();
+            renderLutList();
+            syncLutQuickUi();
+            renderEditorFrame();
+            showToast(`Đã xóa LUT "${lut.name}"`);
+        };
+
+        // ==================== WEBGL ENGINE (HỖ TRỢ ĐỘ PHÂN GIẢI CAO & CROP) ====================
         class WebGLEngine {
             constructor(canvas) {
                 this.canvas = canvas;
@@ -1544,20 +1839,24 @@
                 gl.uniform1i(this.u.hasLut, 1);
             }
 
-            render(src, srcW, srcH, maxPreviewWidth = 1280) {
+            renderWithParams(src, srcW, srcH, maxOutW, pObj, lutIdx, mirrorX = false, useCrop = true) {
                 const gl = this.gl;
                 if (!gl || !src || !srcW || !srcH) return;
 
-                const { width: outW, height: outH } = getTargetDimensions(srcW, srcH, maxPreviewWidth);
+                const { width: outW, height: outH } = useCrop
+                    ? getTargetDimensions(srcW, srcH, maxOutW)
+                    : {
+                        width: maxOutW && srcW > maxOutW ? maxOutW : srcW,
+                        height: maxOutW && srcW > maxOutW ? Math.round(srcH * (maxOutW / srcW)) : srcH
+                    };
 
                 let cropX = 1.0;
                 let cropY = 1.0;
-                const srcRatio = srcW / srcH;
-                const dstRatio = outW / outH;
-                if (srcRatio > dstRatio) {
-                    cropX = dstRatio / srcRatio;
-                } else if (dstRatio > srcRatio) {
-                    cropY = srcRatio / dstRatio;
+                if (useCrop) {
+                    const srcRatio = srcW / srcH;
+                    const dstRatio = outW / outH;
+                    if (srcRatio > dstRatio) cropX = dstRatio / srcRatio;
+                    else if (dstRatio > srcRatio) cropY = srcRatio / dstRatio;
                 }
 
                 if (this.canvas.width !== outW || this.canvas.height !== outH) {
@@ -1566,23 +1865,24 @@
                     gl.viewport(0, 0, outW, outH);
                 }
 
+                this.uploadLut(state.luts[lutIdx] || state.luts[0]);
+
                 gl.activeTexture(gl.TEXTURE0);
                 gl.bindTexture(gl.TEXTURE_2D, this.imgTex);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
 
-                const p = state.params;
                 gl.uniform2f(this.u.cropScale, cropX, cropY);
-                gl.uniform1f(this.u.exposure, p.exposure / 100);
-                gl.uniform1f(this.u.contrast, p.contrast / 100);
-                gl.uniform1f(this.u.highlights, p.highlights / 100);
-                gl.uniform1f(this.u.shadows, p.shadows / 100);
-                gl.uniform1f(this.u.temp, p.temp / 100);
-                gl.uniform1f(this.u.tint, p.tint / 100);
-                gl.uniform1f(this.u.lutStrength, p.lutStrength / 100);
-                gl.uniform1f(this.u.matchStrength, p.matchStrength / 100);
+                gl.uniform1f(this.u.exposure, (pObj.exposure || 0) / 100);
+                gl.uniform1f(this.u.contrast, (pObj.contrast || 0) / 100);
+                gl.uniform1f(this.u.highlights, (pObj.highlights || 0) / 100);
+                gl.uniform1f(this.u.shadows, (pObj.shadows || 0) / 100);
+                gl.uniform1f(this.u.temp, (pObj.temp || 0) / 100);
+                gl.uniform1f(this.u.tint, (pObj.tint || 0) / 100);
+                gl.uniform1f(this.u.lutStrength, (pObj.lutStrength ?? 100) / 100);
+                gl.uniform1f(this.u.matchStrength, (pObj.matchStrength || 0) / 100);
                 gl.uniform3f(this.u.matchShift, state.matchShift[0], state.matchShift[1], state.matchShift[2]);
                 gl.uniform1i(this.u.showOrig, state.showOriginal ? 1 : 0);
-                gl.uniform1i(this.u.mirrorX, (state.sourceMode === 'camera' && state.facingMode === 'user') ? 1 : 0);
+                gl.uniform1i(this.u.mirrorX, mirrorX ? 1 : 0);
 
                 gl.uniform2f(this.u.focusPt, state.focusPoint.x, state.focusPoint.y);
                 const blurVal = state.focusMode === 'MF' ? Math.abs(state.focusDist - 0.5) * 1.4 : 0;
@@ -1591,11 +1891,25 @@
 
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
+
+            render(src, srcW, srcH, maxOutW = 2560) {
+                const effectiveLutIdx = state.lutBypassed ? 0 : state.activeLutIndex;
+                this.renderWithParams(
+                    src,
+                    srcW,
+                    srcH,
+                    maxOutW,
+                    state.params,
+                    effectiveLutIdx,
+                    state.sourceMode === 'camera' && state.facingMode === 'user',
+                    true
+                );
+            }
         }
 
         const glEngine = new WebGLEngine(glCanvas);
 
-        // ==================== COLOR MATCH & LƯU PRESET ====================
+        // ==================== COLOR MATCH & LƯU/XÓA PRESET ====================
         const sampleCanvas = document.createElement('canvas');
         sampleCanvas.width = 48;
         sampleCanvas.height = 48;
@@ -1720,9 +2034,15 @@
             if (found) applyColorMatchFromRef(found);
         };
 
-        function saveCurrentPreset() {
+        function persistPresets() {
+            try {
+                localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(state.savedPresets));
+            } catch {}
+        }
+
+        function saveCurrentPreset(customName = '') {
             const nameInput = document.getElementById('presetNameInput');
-            const name = nameInput.value.trim() || `Màu #${state.savedPresets.length + 1}`;
+            const name = (customName || nameInput.value).trim() || `Màu #${state.savedPresets.length + 1}`;
             const preset = {
                 id: 'p-' + Date.now(),
                 name,
@@ -1732,13 +2052,11 @@
                 aspectRatio: state.aspectRatio
             };
             state.savedPresets.unshift(preset);
-            if (state.savedPresets.length > 20) state.savedPresets.length = 20;
-            try {
-                localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(state.savedPresets));
-            } catch {}
-            nameInput.value = '';
+            if (state.savedPresets.length > 30) state.savedPresets.length = 30;
+            persistPresets();
+            if (!customName) nameInput.value = '';
             renderPresetList();
-            showToast(`Đã lưu màu "${name}" để chụp ảnh`);
+            showToast(`Đã lưu preset "${name}"`);
         }
 
         function applySavedPreset(id) {
@@ -1749,45 +2067,53 @@
             applyLutByIndex(p.activeLutIndex || 0);
             if (p.aspectRatio) setAspectRatio(p.aspectRatio);
             syncSlidersFromState();
-            showToast(`Đang dùng màu "${p.name}"`);
+            showToast(`Đang dùng preset "${p.name}"`);
         }
 
-        function deleteSavedPreset(e, id) {
+        window.deleteSavedPreset = (e, id) => {
             e.stopPropagation();
             state.savedPresets = state.savedPresets.filter(x => x.id !== id);
-            try {
-                localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(state.savedPresets));
-            } catch {}
+            persistPresets();
             renderPresetList();
-        }
+            showToast('Đã xóa preset');
+        };
 
         function renderPresetList() {
-            const box = document.getElementById('presetList');
-            if (!state.savedPresets.length) {
-                box.innerHTML = `<span style="font-size:10px; color:var(--muted);">Chưa có màu nào được lưu.</span>`;
-                return;
-            }
-            box.innerHTML = state.savedPresets.map(p => `
-                <div class="preset-tag" onclick="applySavedPreset('${p.id}')">
-                    <span>${p.name}</span>
-                    <span onclick="deleteSavedPreset(event, '${p.id}')" style="color:var(--muted); font-weight:700;">✕</span>
-                </div>
-            `).join('');
+            const html = !state.savedPresets.length
+                ? `<span style="font-size:10px; color:var(--muted);">Chưa có preset nào được lưu.</span>`
+                : state.savedPresets.map(p => `
+                    <div class="preset-tag" onclick="applySavedPreset('${p.id}')">
+                        <span>${p.name}</span>
+                        <span onclick="deleteSavedPreset(event, '${p.id}')" style="color:var(--muted); font-weight:700;">✕</span>
+                    </div>
+                `).join('');
+            document.getElementById('presetList').innerHTML = html;
+
+            const edHtml = !state.savedPresets.length
+                ? `<span style="font-size:10px; color:var(--muted);">Chưa có preset nào.</span>`
+                : state.savedPresets.map(p => `
+                    <div class="preset-tag" onclick="applyPresetToEditor('${p.id}')">
+                        <span>${p.name}</span>
+                        <span onclick="deleteSavedPreset(event, '${p.id}')" style="color:var(--muted); font-weight:700;">✕</span>
+                    </div>
+                `).join('');
+            document.getElementById('edPresetList').innerHTML = edHtml;
         }
 
-        // ==================== CAMERA & STUDIO ====================
+        // ==================== CAMERA & STUDIO (ĐỘ PHÂN GIẢI CAO) ====================
         async function startCamera() {
             if (state.stream) {
                 state.stream.getTracks().forEach(t => t.stop());
                 state.stream = null;
             }
+            const prof = RES_PROFILES[state.resProfile] || RES_PROFILES.max;
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: {
                         facingMode: { ideal: state.facingMode },
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
+                        width: { ideal: prof.camW },
+                        height: { ideal: prof.camH },
                         frameRate: { ideal: 30 }
                     }
                 });
@@ -1797,8 +2123,8 @@
                 state.videoTrack = stream.getVideoTracks()[0] || null;
 
                 const s = state.videoTrack ? state.videoTrack.getSettings() : {};
-                const w = s.width || videoEl.videoWidth || 1280;
-                const h = s.height || videoEl.videoHeight || 720;
+                const w = s.width || videoEl.videoWidth || prof.camW;
+                const h = s.height || videoEl.videoHeight || prof.camH;
                 document.getElementById('resBadge').textContent = `${w}×${h}`;
             } catch {
                 if (!state.studioImg) {
@@ -1811,22 +2137,22 @@
 
         function makeDemoImage() {
             const c = document.createElement('canvas');
-            c.width = 1280;
-            c.height = 720;
+            c.width = 1920;
+            c.height = 1080;
             const ctx = c.getContext('2d');
-            const g = ctx.createLinearGradient(0, 0, 1280, 720);
+            const g = ctx.createLinearGradient(0, 0, 1920, 1080);
             g.addColorStop(0, '#1d3557');
             g.addColorStop(0.55, '#e07a5f');
             g.addColorStop(1, '#14171f');
             ctx.fillStyle = g;
-            ctx.fillRect(0, 0, 1280, 720);
+            ctx.fillRect(0, 0, 1920, 1080);
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 28px sans-serif';
+            ctx.font = 'bold 42px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Bấm "Nhập ảnh" để chọn ảnh của bạn', 640, 360);
+            ctx.fillText('Bấm "Nhập ảnh" để chọn ảnh độ phân giải cao', 960, 540);
             const img = new Image();
             img.onload = () => { state.studioImg = img; };
-            img.src = c.toDataURL('image/jpeg', 0.9);
+            img.src = c.toDataURL('image/jpeg', 0.95);
         }
 
         function switchSource(mode) {
@@ -1858,31 +2184,31 @@
                 state.studioName = file.name;
                 switchSource('studio');
                 document.getElementById('resBadge').textContent = `${img.naturalWidth}×${img.naturalHeight}`;
-                showToast(`Đã nạp "${file.name}"`);
+                showToast(`Đã nạp "${file.name}" (${img.naturalWidth}×${img.naturalHeight})`);
             };
             img.src = url;
         }
 
-        // ==================== CHỤP ẢNH, QUAY PHIM & XUẤT FILE ====================
+        // ==================== CHỤP ẢNH, QUAY PHIM & TỰ TẢI VỀ + LƯU GALLERY ====================
         function capturePhoto() {
             if (!glCanvas.width || !glCanvas.height) return;
             const flash = document.getElementById('shutterFlash');
             flash.classList.add('active');
             setTimeout(() => flash.classList.remove('active'), 180);
 
-            glCanvas.toBlob(blob => {
+            glCanvas.toBlob(async blob => {
                 if (!blob) return;
-                const url = URL.createObjectURL(blob);
+                const filename = `CINECAM_${state.aspectRatio.replace(':','x')}_${Date.now()}.jpg`;
+                const url = await saveToDeviceAndGallery(blob, filename, 'photo');
                 addSessionItem({
                     type: 'photo',
                     url,
                     blob,
-                    name: `CINECAM_${state.aspectRatio.replace(':','x')}_${Date.now()}.jpg`,
+                    name: filename,
                     w: glCanvas.width,
                     h: glCanvas.height
                 });
-                showToast(`Đã chụp ảnh (${glCanvas.width}×${glCanvas.height})`);
-            }, 'image/jpeg', 0.95);
+            }, 'image/jpeg', 0.96);
         }
 
         function toggleRecording() {
@@ -1898,24 +2224,26 @@
             }
             const mime = ['video/webm;codecs=vp9,opus', 'video/webm', 'video/mp4'].find(m => MediaRecorder.isTypeSupported(m)) || '';
             state.recChunks = [];
-            state.mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+            state.mediaRecorder = mime
+                ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 12000000 })
+                : new MediaRecorder(stream);
             state.mediaRecorder.ondataavailable = e => {
                 if (e.data && e.data.size > 0) state.recChunks.push(e.data);
             };
-            state.mediaRecorder.onstop = () => {
+            state.mediaRecorder.onstop = async () => {
                 const type = state.mediaRecorder.mimeType || 'video/webm';
                 const ext = type.includes('mp4') ? 'mp4' : 'webm';
                 const blob = new Blob(state.recChunks, { type });
-                const url = URL.createObjectURL(blob);
+                const filename = `CINEVID_${state.aspectRatio.replace(':','x')}_${Date.now()}.${ext}`;
+                const url = await saveToDeviceAndGallery(blob, filename, 'video');
                 addSessionItem({
                     type: 'video',
                     url,
                     blob,
-                    name: `CINEVID_${state.aspectRatio.replace(':','x')}_${Date.now()}.${ext}`,
+                    name: filename,
                     w: glCanvas.width,
                     h: glCanvas.height
                 });
-                showToast('Đã lưu video vào phiên');
             };
             state.mediaRecorder.start(250);
             state.isRecording = true;
@@ -1952,11 +2280,12 @@
 
         function exportFullResStudio() {
             if (!state.studioImg || !glEngine) return;
-            glEngine.render(state.studioImg, state.studioImg.naturalWidth, state.studioImg.naturalHeight, null);
-            glCanvas.toBlob(blob => {
+            const maxOut = getMaxOutputWidth();
+            glEngine.render(state.studioImg, state.studioImg.naturalWidth, state.studioImg.naturalHeight, maxOut);
+            glCanvas.toBlob(async blob => {
                 if (!blob) return;
-                const url = URL.createObjectURL(blob);
                 const outName = state.studioName.replace(/\.[^/.]+$/, '') + `_${state.aspectRatio.replace(':','x')}.jpg`;
+                const url = await saveToDeviceAndGallery(blob, outName, 'photo');
                 addSessionItem({
                     type: 'photo',
                     url,
@@ -1965,8 +2294,6 @@
                     w: glCanvas.width,
                     h: glCanvas.height
                 });
-                downloadUrl(url, outName);
-                showToast(`Đã xuất ảnh (${glCanvas.width}×${glCanvas.height})`);
             }, 'image/jpeg', 0.96);
         }
 
@@ -1998,19 +2325,20 @@
             a.remove();
         }
 
+        // ==================== THƯ VIỆN & TRÌNH XEM + CHỈNH SỬA ẢNH/VIDEO ====================
         function openGallery() {
             const grid = document.getElementById('galleryGrid');
             if (!state.sessionMedia.length) {
                 grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--muted); padding:30px; font-size:12px;">Chưa có ảnh/video nào trong phiên.</div>`;
             } else {
                 grid.innerHTML = state.sessionMedia.map((it, idx) => `
-                    <div class="media-card">
+                    <div class="media-card" onclick="openMediaEditor(${idx})">
                         ${it.type === 'photo'
                             ? `<img src="${it.url}" alt="">`
-                            : `<video src="${it.url}" controls></video>`}
+                            : `<video src="${it.url}" muted playsinline></video>`}
                         <div style="padding:7px; display:flex; justify-content:space-between; align-items:center; gap:4px;">
-                            <span class="mono" style="font-size:10px; color:var(--muted);">${it.w}×${it.h}</span>
-                            <button class="btn-sm amber" onclick="downloadSessionIdx(${idx})">Tải về</button>
+                            <span class="mono" style="font-size:10px; color:var(--muted);">${it.type === 'video' ? '▶ VID' : '✎ ẢNH'} • ${it.w}×${it.h}</span>
+                            <button class="btn-sm amber" onclick="event.stopPropagation(); downloadSessionIdx(${idx})">Tải</button>
                         </div>
                     </div>
                 `).join('');
@@ -2018,10 +2346,144 @@
             document.getElementById('galleryModal').classList.add('open');
         }
 
-        window.downloadSessionIdx = (idx) => {
+        window.downloadSessionIdx = async (idx) => {
             const it = state.sessionMedia[idx];
-            if (it) downloadUrl(it.url, it.name);
+            if (!it) return;
+            if (it.blob) await saveToDeviceAndGallery(it.blob, it.name, it.type);
+            else downloadUrl(it.url, it.name);
         };
+
+        const editorCanvas = document.getElementById('editorCanvas');
+        const editorVideo = document.getElementById('editorVideoPlayer');
+        const editorGl = new WebGLEngine(editorCanvas);
+
+        function renderEditorFrame() {
+            const item = state.sessionMedia[state.editingMediaIdx];
+            if (!item || !editorGl) return;
+            const ep = state.editorParams;
+            document.getElementById('edValExp').textContent = `${(ep.exposure / 50).toFixed(2)} EV`;
+            document.getElementById('edValCon').textContent = ep.contrast;
+            document.getElementById('edValTemp').textContent = `${Math.round(5600 + ep.temp * 32)}K`;
+            const lutObj = state.luts[ep.lutIndex] || state.luts[0];
+            document.getElementById('edLutName').textContent = ep.lutIndex === 0 ? 'NONE' : lutObj.name;
+
+            if (item.type === 'photo' && state.editorSourceImg) {
+                editorGl.renderWithParams(
+                    state.editorSourceImg,
+                    state.editorSourceImg.naturalWidth,
+                    state.editorSourceImg.naturalHeight,
+                    getMaxOutputWidth(),
+                    { ...state.params, exposure: ep.exposure, contrast: ep.contrast, temp: ep.temp },
+                    ep.lutIndex,
+                    false,
+                    false
+                );
+            } else if (item.type === 'video') {
+                const bVal = (ep.exposure / 100) * 0.6 + 1;
+                const cVal = (ep.contrast / 100) * 0.6 + 1;
+                editorVideo.style.filter = `brightness(${bVal.toFixed(2)}) contrast(${cVal.toFixed(2)}) hue-rotate(${(ep.temp * 0.25).toFixed(1)}deg)`;
+            }
+        }
+
+        function renderEditorLutList() {
+            const grid = document.getElementById('edLutGrid');
+            if (!grid) return;
+            grid.innerHTML = state.luts.map((lut, idx) => `
+                <div class="lut-chip ${idx === state.editorParams.lutIndex ? 'active' : ''}" onclick="selectEditorLut(${idx})">
+                    <div class="top-line">
+                        <span class="name">${lut.name}</span>
+                        ${lut.isCustom ? `<span class="del-mini" onclick="deleteLutByIndex(event, ${idx})">Xóa</span>` : ''}
+                    </div>
+                    <div class="sub">${lut.sub}</div>
+                </div>
+            `).join('');
+        }
+
+        window.selectEditorLut = (idx) => {
+            state.editorParams.lutIndex = idx;
+            renderEditorLutList();
+            renderEditorFrame();
+        };
+
+        window.applyPresetToEditor = (id) => {
+            const p = state.savedPresets.find(x => x.id === id);
+            if (!p) return;
+            state.editorParams.exposure = p.params.exposure || 0;
+            state.editorParams.contrast = p.params.contrast || 0;
+            state.editorParams.temp = p.params.temp || 0;
+            state.editorParams.lutIndex = p.activeLutIndex || 0;
+            document.getElementById('edSliderExp').value = state.editorParams.exposure;
+            document.getElementById('edSliderCon').value = state.editorParams.contrast;
+            document.getElementById('edSliderTemp').value = state.editorParams.temp;
+            renderEditorLutList();
+            renderEditorFrame();
+            showToast(`Đã áp dụng preset "${p.name}"`);
+        };
+
+        window.openMediaEditor = (idx) => {
+            const item = state.sessionMedia[idx];
+            if (!item) return;
+            state.editingMediaIdx = idx;
+            state.editorParams = {
+                exposure: state.params.exposure,
+                contrast: state.params.contrast,
+                temp: state.params.temp,
+                lutIndex: state.lutBypassed ? 0 : state.activeLutIndex
+            };
+
+            document.getElementById('editorTitle').textContent = `${item.type === 'video' ? 'Xem & Sửa Video' : 'Xem & Sửa Ảnh'} • ${item.name}`;
+            document.getElementById('edSliderExp').value = state.editorParams.exposure;
+            document.getElementById('edSliderCon').value = state.editorParams.contrast;
+            document.getElementById('edSliderTemp').value = state.editorParams.temp;
+            renderEditorLutList();
+            renderPresetList();
+
+            if (item.type === 'photo') {
+                editorCanvas.classList.remove('hidden');
+                editorVideo.classList.add('hidden');
+                editorVideo.pause();
+                const img = new Image();
+                img.onload = () => {
+                    state.editorSourceImg = img;
+                    renderEditorFrame();
+                };
+                img.src = item.url;
+            } else {
+                editorCanvas.classList.add('hidden');
+                editorVideo.classList.remove('hidden');
+                editorVideo.src = item.url;
+                renderEditorFrame();
+            }
+
+            document.getElementById('editorModal').classList.add('open');
+        };
+
+        async function saveAndExportEditedMedia() {
+            const item = state.sessionMedia[state.editingMediaIdx];
+            if (!item) return;
+
+            if (item.type === 'photo' && state.editorSourceImg) {
+                renderEditorFrame();
+                editorCanvas.toBlob(async blob => {
+                    if (!blob) return;
+                    const outName = item.name.replace(/\.[^/.]+$/, '') + '_Edited.jpg';
+                    const url = await saveToDeviceAndGallery(blob, outName, 'photo');
+                    addSessionItem({
+                        type: 'photo',
+                        url,
+                        blob,
+                        name: outName,
+                        w: editorCanvas.width,
+                        h: editorCanvas.height
+                    });
+                    openGallery();
+                }, 'image/jpeg', 0.96);
+            } else {
+                if (item.blob) await saveToDeviceAndGallery(item.blob, item.name, 'video');
+                else downloadUrl(item.url, item.name);
+                showToast('Đã tải video về máy');
+            }
+        }
 
         // ==================== UI BINDINGS & LOOP ====================
         function syncSlidersFromState() {
@@ -2069,20 +2531,19 @@
                 btn.addEventListener('click', closeAllPopups);
             });
 
-            // Tỉ lệ khung hình
-            document.querySelectorAll('.ratio-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    setAspectRatio(btn.getAttribute('data-ratio'));
-                });
+            document.querySelectorAll('.res-btn').forEach(btn => {
+                btn.addEventListener('click', () => setResProfile(btn.getAttribute('data-res')));
             });
 
-            // Tự động xoay ngang & khóa chiều màn hình
+            document.querySelectorAll('.ratio-btn').forEach(btn => {
+                btn.addEventListener('click', () => setAspectRatio(btn.getAttribute('data-ratio')));
+            });
+
             document.getElementById('btnToggleAutoRotate').addEventListener('click', toggleAutoRotateLandscape);
             document.getElementById('btnAutoRotateQuick').addEventListener('click', toggleAutoRotateLandscape);
             document.getElementById('btnLockLandscape').addEventListener('click', () => lockOrientationMode('landscape'));
             document.getElementById('btnLockPortrait').addEventListener('click', () => lockOrientationMode('portrait'));
 
-            // Sliders độ sáng & màu
             const bindSlider = (id, key, onChange) => {
                 document.getElementById(id).addEventListener('input', e => {
                     state.params[key] = parseFloat(e.target.value);
@@ -2123,9 +2584,10 @@
                 syncSlidersFromState();
             });
 
-            // Import .cube
             const cubeInput = document.getElementById('cubeFileInput');
-            document.getElementById('btnImportCube').addEventListener('click', () => cubeInput.click());
+            const openCubePicker = () => cubeInput.click();
+            document.getElementById('btnImportCube').addEventListener('click', openCubePicker);
+            document.getElementById('edBtnAddCube').addEventListener('click', openCubePicker);
             cubeInput.addEventListener('change', e => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -2134,8 +2596,14 @@
                     try {
                         const parsed = parseCube(ev.target.result, file.name);
                         state.luts.push(parsed);
+                        persistCustomLuts();
                         applyLutByIndex(state.luts.length - 1);
-                        showToast(`Đã nạp LUT "${parsed.name}"`);
+                        if (document.getElementById('editorModal').classList.contains('open')) {
+                            state.editorParams.lutIndex = state.luts.length - 1;
+                            renderEditorLutList();
+                            renderEditorFrame();
+                        }
+                        showToast(`Đã thêm LUT "${parsed.name}"`);
                     } catch (err) {
                         showToast(err.message);
                     }
@@ -2144,7 +2612,6 @@
                 cubeInput.value = '';
             });
 
-            // Color Match import & preset
             const refInput = document.getElementById('refImportInput');
             document.getElementById('btnImportRef').addEventListener('click', () => refInput.click());
             refInput.addEventListener('change', e => {
@@ -2160,9 +2627,48 @@
                 renderRefStrip();
             });
 
-            document.getElementById('btnSavePreset').addEventListener('click', saveCurrentPreset);
+            document.getElementById('btnSavePreset').addEventListener('click', () => saveCurrentPreset());
 
-            // Lấy nét chạm & thanh trượt
+            document.getElementById('edSliderExp').addEventListener('input', e => {
+                state.editorParams.exposure = parseFloat(e.target.value);
+                renderEditorFrame();
+            });
+            document.getElementById('edSliderCon').addEventListener('input', e => {
+                state.editorParams.contrast = parseFloat(e.target.value);
+                renderEditorFrame();
+            });
+            document.getElementById('edSliderTemp').addEventListener('input', e => {
+                state.editorParams.temp = parseFloat(e.target.value);
+                renderEditorFrame();
+            });
+            document.getElementById('edBtnSavePreset').addEventListener('click', () => {
+                const input = document.getElementById('edPresetName');
+                const name = input.value.trim() || `Preset #${state.savedPresets.length + 1}`;
+                const preset = {
+                    id: 'p-' + Date.now(),
+                    name,
+                    params: {
+                        ...state.params,
+                        exposure: state.editorParams.exposure,
+                        contrast: state.editorParams.contrast,
+                        temp: state.editorParams.temp
+                    },
+                    matchShift: [...state.matchShift],
+                    activeLutIndex: state.editorParams.lutIndex,
+                    aspectRatio: state.aspectRatio
+                };
+                state.savedPresets.unshift(preset);
+                persistPresets();
+                input.value = '';
+                renderPresetList();
+                showToast(`Đã lưu preset "${name}"`);
+            });
+            document.getElementById('btnApplySaveEditor').addEventListener('click', saveAndExportEditedMedia);
+            document.getElementById('btnCloseEditor').addEventListener('click', () => {
+                editorVideo.pause();
+                document.getElementById('editorModal').classList.remove('open');
+            });
+
             const viewport = document.getElementById('viewport');
             const reticle = document.getElementById('focusReticle');
             glCanvas.addEventListener('pointerdown', e => {
@@ -2203,7 +2709,6 @@
                 reticle.setAttribute('data-label', `MF ${label}`);
             });
 
-            // Chuyển nguồn Camera / Studio
             const photoImport = document.getElementById('photoImportInput');
             document.getElementById('btnSwitchCam').addEventListener('click', () => switchSource('camera'));
             document.getElementById('btnSwitchStudio').addEventListener('click', () => switchSource('studio'));
@@ -2213,7 +2718,6 @@
                 photoImport.value = '';
             });
 
-            // Nút cứng HUD
             document.getElementById('btnFlipCam').addEventListener('click', () => {
                 if (state.isRecording) return;
                 state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
@@ -2241,12 +2745,13 @@
                 document.getElementById('btnGrid').classList.toggle('active', state.gridOn);
             });
 
+            document.getElementById('btnToggleLutQuick').addEventListener('click', toggleLutQuick);
+
             document.getElementById('btnCompare').addEventListener('click', () => {
                 state.showOriginal = !state.showOriginal;
                 document.getElementById('btnCompare').classList.toggle('active', state.showOriginal);
             });
 
-            // Chế độ chụp / quay
             const btnPhoto = document.getElementById('btnModePhoto');
             const btnVideo = document.getElementById('btnModeVideo');
             const core = document.getElementById('shutterCore');
@@ -2291,12 +2796,13 @@
                 }
             });
 
-            document.getElementById('btnSaveExport').addEventListener('click', () => {
+            document.getElementById('btnSaveExport').addEventListener('click', async () => {
                 if (state.sourceMode === 'studio') {
                     exportFullResStudio();
                 } else if (state.sessionMedia.length) {
-                    downloadUrl(state.sessionMedia[0].url, state.sessionMedia[0].name);
-                    showToast('Đang tải file mới nhất');
+                    const latest = state.sessionMedia[0];
+                    if (latest.blob) await saveToDeviceAndGallery(latest.blob, latest.name, latest.type);
+                    else downloadUrl(latest.url, latest.name);
                 } else {
                     capturePhoto();
                 }
@@ -2344,13 +2850,14 @@
 
         function loop(now) {
             if (glEngine) {
+                const maxOut = getMaxOutputWidth();
                 if (state.sourceMode === 'camera') {
                     if (videoEl.readyState >= videoEl.HAVE_CURRENT_DATA && videoEl.videoWidth > 0) {
-                        glEngine.render(videoEl, videoEl.videoWidth, videoEl.videoHeight, 1280);
+                        glEngine.render(videoEl, videoEl.videoWidth, videoEl.videoHeight, maxOut);
                         drawMiniHist(now);
                     }
                 } else if (state.studioImg) {
-                    glEngine.render(state.studioImg, state.studioImg.naturalWidth, state.studioImg.naturalHeight, 1280);
+                    glEngine.render(state.studioImg, state.studioImg.naturalWidth, state.studioImg.naturalHeight, maxOut);
                     drawMiniHist(now);
                 }
             }
